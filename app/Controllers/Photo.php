@@ -5,9 +5,7 @@ namespace App\Controllers;
 use App\Models\PhotoContentModel;
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-
+use Config\Services;
 class Photo extends ResourceController
 {
 	/**
@@ -18,28 +16,21 @@ class Photo extends ResourceController
 	use ResponseTrait;
 	public function index()
 	{
-        $host_id = 1;
         $photos = new PhotoContentModel();
+
+        /* Getting header_id from JWT token */
+        $config = config('Config\App');
+        $response = $config->JWTresponse;
+		$host_id = $response['host_id'];
+
+        /* Getting photo for level1, level2 from PhotoContentModel */
         $L1_type_photos = $photos->get_level1_photo($host_id);
         $L2_type_photos = $photos->get_level2_photo($host_id);
+
         return $this->respond([
             'L1_type_photos' => $L1_type_photos == null ? [] : $L1_type_photos,
             'L2_type_photos' => $L2_type_photos == null ? [] : $L2_type_photos,
         ], 200);
-		// $key = getenv('TOKEN_SECRET');
-		// $header = $this->request->getServer('HTTP_AUTHORIZATION');
-		// if(!$header) return $this->failUnauthorized('Token Required');
-		// $token = explode(' ', $header)[1];
-		// try {
-		// 	$decoded = JWT::decode($token, new Key($key, 'HS256'));
-		// 	$response = [
-		// 		'id' => $decoded->uid,
-		// 		'username' => $decoded->username,
-        //         			];
-		// 	return $this->respond($response);
-		// } catch (\Throwable $th) {
-		// 	return $this->fail('Invalid Token');
-		// }
 	}
 
     /**
