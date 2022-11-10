@@ -36,9 +36,12 @@ class Login extends ResourceController
         $payload = array(
             "iat"   => 1356999524,
             "nbf"   => 1357000000,
-            "uid"   => $user['id'],
-            "email" => $user['email'],
-            "exp"   => time() + (30), //Expire the JWT after 30 secs from now
+            //"uid"   => $user['id'],
+            //"email" => $user['email'],
+            "username" => 'dancerking',
+            "password" => '123456',
+            "host_id"  => '1',
+            //"exp"   => time() + (30000), //Expire the JWT after 30 secs from now
         );
 
         $token = JWT::encode($payload, $key, 'HS256');
