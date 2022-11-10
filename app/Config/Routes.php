@@ -39,7 +39,8 @@ $routes->get('/', 'Home::index', ['filter' => 'auth']);
 $routes->post('register', 'Register::index');
 $routes->post('login', 'Login::index');
 $routes->get('codes', 'Code::index', ['filter' => 'auth']);
-$routes->get('photos', 'Photo::index');
+$routes->get('photos', 'Photo::index', ['filter' => 'auth']);
+$routes->get('videos', 'Video::index', ['filter' => 'auth']);
 
 /*
  * --------------------------------------------------------------------

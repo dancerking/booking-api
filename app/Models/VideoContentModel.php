@@ -50,4 +50,34 @@ class VideoContentModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_level1_video($host_id) {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT video_contents.video_content_id, video_contents.video_content_channel, video_contents.video_content_code, video_contents.video_content_status, IF' . '(ISNULL(content_captions.content_caption)=1, ' . '""' . ', content_captions.content_caption) AS content_caption, IF' . '(ISNULL(content_captions.content_caption_lang)=1, ' . '""' . ', content_captions.content_caption_lang) AS content_caption_lang
+        FROM video_contents LEFT JOIN content_captions ON video_contents.video_content_id = content_captions.content_caption_connection_id AND content_captions.content_caption_type="2" AND content_captions.content_caption_host_id = ' . $host_id . '
+        WHERE video_contents.video_content_level = "1" AND  video_contents.video_content_host_id = ' . $host_id);
+        $results = $query->getResult();
+        return $results;
+    }
+
+    public function get_level2_video($host_id) {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT video_contents.video_content_id, video_contents.video_content_connection, video_contents.video_content_channel, video_contents.video_content_code, video_contents.video_content_status, IF' . '(ISNULL(content_captions.content_caption)=1, ' . '""' . ', content_captions.content_caption) AS content_caption, IF' . '(ISNULL(content_captions.content_caption_lang)=1, ' . '""' . ', content_captions.content_caption_lang) AS content_caption_lang
+        FROM video_contents
+        LEFT JOIN content_captions ON video_contents.video_content_id = content_captions.content_caption_connection_id AND content_captions.content_caption_type = "1" AND content_captions.content_caption_host_id = ' . $host_id . '
+        WHERE video_contents.video_content_level = "2" AND video_contents.video_content_host_id = ' . $host_id);
+        $results = $query->getResult();
+        foreach($results as &$level2_videos) {
+            $query = $db->query('SELECT types_mapping.type_mapping_name
+            FROM types_mapping
+            WHERE types_mapping.type_mapping_code = ' . '"' . $level2_videos->video_content_connection . '"' . ' AND types_mapping.type_mapping_lang="it" AND types_mapping.type_mapping_host_id = ' . $host_id);
+            $mapping_names = $query->getResult();
+            $type_mapping_names = [];
+            foreach($mapping_names as $mapping_name) {
+                array_push($type_mapping_names, $mapping_name->type_mapping_name);
+            }
+            $level2_videos->type_mapping_name = $type_mapping_names == null ? [] : $type_mapping_names;
+        }
+        return $results;
+    }
 }
