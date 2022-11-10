@@ -18,10 +18,13 @@ class Photo extends ResourceController
 	use ResponseTrait;
 	public function index()
 	{
+        $host_id = 1;
         $photos = new PhotoContentModel();
+        $L1_type_photos = $photos->get_level1_photo($host_id);
+        $L2_type_photos = $photos->get_level2_photo($host_id);
         return $this->respond([
-            'L1_type_photos' => $photos->get_level1_photo(),
-            'L2_type_photos' => $photos->get_level2_photo(),
+            'L1_type_photos' => $L1_type_photos == null ? [] : $L1_type_photos,
+            'L2_type_photos' => $L2_type_photos == null ? [] : $L2_type_photos,
         ], 200);
 		// $key = getenv('TOKEN_SECRET');
 		// $header = $this->request->getServer('HTTP_AUTHORIZATION');
