@@ -39,8 +39,8 @@ class Auth implements FilterInterface
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
             $response = [
 				'id' => $decoded->uid,
-				'email' => $decoded->email,
-                'expired time' => $decoded->exp,
+				'username' => $decoded->username,
+                'password' => $decoded->password,
 			];
 			return Services::response()
                             ->setJSON($response)
