@@ -56,6 +56,13 @@ class PhotoContentModel extends Model
         FROM photo_contents LEFT JOIN content_captions ON photo_contents.photo_content_id = content_captions.content_caption_connection_id AND content_captions.content_caption_type="1" AND content_captions.content_caption_host_id = ' . $host_id . '
         WHERE photo_contents.photo_content_level = "1" AND  photo_contents.photo_content_host_id = ' . $host_id);
         $results = $query->getResult();
+        foreach($results as &$result) {
+            $content_caption = [
+                'content_caption' => $result->content_caption,
+                'content_caption_lang' => $result->content_caption_lang,
+            ];
+            $result->content_caption = $content_caption;
+        }
         return $results;
     }
 
@@ -66,16 +73,21 @@ class PhotoContentModel extends Model
         LEFT JOIN content_captions ON photo_contents.photo_content_id = content_captions.content_caption_connection_id AND content_captions.content_caption_type = "1" AND content_captions.content_caption_host_id = ' . $host_id . '
         WHERE photo_contents.photo_content_level = "2" AND photo_contents.photo_content_host_id = ' . $host_id);
         $results = $query->getResult();
-        foreach($results as &$level2_photos) {
+        foreach($results as &$result) {
             $query = $db->query('SELECT types_mapping.type_mapping_name
             FROM types_mapping
-            WHERE types_mapping.type_mapping_code = ' . '"' . $level2_photos->photo_content_connection . '"' . ' AND types_mapping.type_mapping_lang="it" AND types_mapping.type_mapping_host_id = ' . $host_id);
+            WHERE types_mapping.type_mapping_code = ' . '"' . $result->photo_content_connection . '"' . ' AND types_mapping.type_mapping_lang="it" AND types_mapping.type_mapping_host_id = ' . $host_id);
             $mapping_names = $query->getResult();
             $type_mapping_names = [];
             foreach($mapping_names as $mapping_name) {
                 array_push($type_mapping_names, $mapping_name->type_mapping_name);
             }
-            $level2_photos->type_mapping_name = $type_mapping_names == null ? [] : $type_mapping_names;
+            $result->type_mapping_name = $type_mapping_names == null ? [] : $type_mapping_names;
+            $content_caption = [
+                'content_caption' => $result->content_caption,
+                'content_caption_lang' => $result->content_caption_lang,
+            ];
+            $result->content_caption = $content_caption;
         }
         return $results;
     }
