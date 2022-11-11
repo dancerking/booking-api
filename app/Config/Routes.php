@@ -38,10 +38,16 @@ $routes->set404Override();
 $routes->get('/', 'Home::index', ['filter' => 'auth']);
 $routes->post('register', 'Register::index');
 $routes->post('login', 'Login::index');
+// Code Listing
 $routes->get('codes', 'Code::index', ['filter' => 'auth']);
-$routes->get('photos', 'Photo::index', ['filter' => 'auth']);
-$routes->get('videos', 'Video::index', ['filter' => 'auth']);
 
+// Photo Content Routes
+$routes->get('photos', 'Photo::index', ['filter' => 'auth']);
+$routes->post('photos/add', 'Photo::create', ['filter' => 'auth']);
+
+// Video Content Route
+$routes->get('videos', 'Video::index', ['filter' => 'auth']);
+$routes->post('videos/add', 'Video::create', ['filter' => 'auth']);
 /*
  * --------------------------------------------------------------------
  * Additional Routing
