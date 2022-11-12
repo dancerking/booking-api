@@ -163,13 +163,35 @@ class Photo extends ResourceController
     }
 
     /**
-     * Delete the designated resource object from the model
-     *
+     * Delete photo content
+     * DELETE: /photos/delete
      * @return mixed
      */
-    public function delete($id = null)
+    public function delete($photo_content_id = null)
     {
-        //
+        $host_id = $this->get_host_id();
+        if($photo_content_id == null) {
+            return $this->respond([
+                'message' => [
+                    'error' => 'Failed Delete'
+                ]
+                ]);
+        }
+        $photo_content_model = new PhotoContentModel();
+        if ($photo_content_model->delete($photo_content_id)) {
+            $content_caption_model = new ContentCaptionModel();
+            $content_caption_model->delete_by($host_id, 1, $photo_content_id);
+            return $this->respond([
+                'message' => [
+                    'success' => 'Successfully Deleted'
+                ]
+            ]);
+        }
+        return $this->respond([
+            'message' => [
+                'error' => 'Failed Deleted'
+            ]
+        ]);
     }
 
     public function uploadImage($image_url, $photo_content_id, $host_id)

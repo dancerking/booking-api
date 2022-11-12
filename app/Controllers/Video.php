@@ -130,7 +130,7 @@ class Video extends ResourceController
                 'message' => [
                     'error' => 'Failed Create'
                 ]
-                ];
+            ];
         }
         return $this->respondCreated($response);
     }
@@ -156,12 +156,35 @@ class Video extends ResourceController
     }
 
     /**
-     * Delete the designated resource object from the model
-     *
+     * Delete video content
+     * DELETE /videos/delete
      * @return mixed
      */
-    public function delete($id = null)
+    public function delete($video_content_id = null)
     {
-        //
+        $host_id = $this->get_host_id();
+        if($video_content_id == null) {
+            return $this->respond([
+                'message' => [
+                    'error' => 'Failed Delete'
+                ]
+                ]);
+        }
+        $video_content_model = new VideoContentModel();
+        if ($video_content_model->delete($video_content_id)) {
+            $content_caption_model = new ContentCaptionModel();
+            $content_caption_model->delete_by($host_id, 2, $video_content_id);
+            return $this->respond([
+                'message' => [
+                    'success' => 'Successfully Deleted'
+                ]
+            ]);
+        }
+
+        return $this->respond([
+            'message' => [
+                'error' => 'Failed Deleted'
+            ]
+        ]);
     }
 }

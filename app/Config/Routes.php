@@ -44,10 +44,12 @@ $routes->get('codes', 'Code::index', ['filter' => 'auth']);
 // Photo Content Routes
 $routes->get('photos', 'Photo::index', ['filter' => 'auth']);
 $routes->post('photos/add', 'Photo::create', ['filter' => 'auth']);
+$routes->delete('photos/delete/(:num)', 'Photo::delete/$1', ['filter' => 'auth']);
 
 // Video Content Route
 $routes->get('videos', 'Video::index', ['filter' => 'auth']);
 $routes->post('videos/add', 'Video::create', ['filter' => 'auth']);
+$routes->delete('videos/delete/(:num)', 'Video::delete/$1', ['filter' => 'auth']);
 /*
  * --------------------------------------------------------------------
  * Additional Routing
