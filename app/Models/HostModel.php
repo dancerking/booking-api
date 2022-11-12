@@ -77,4 +77,14 @@ class HostModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_host_data($host_id) {
+        $db = \Config\Database::connect();
+        // $query   = $db->query('SELECT `hosts`.host_id, `hosts`.host_company_name, `hosts`.host_referral_phone, `hosts`.host_referral_email, `hosts`.host_status
+        // FROM `hosts` WHERE `hosts`.host_status = "1"');
+        $query   = $db->query('SELECT `hosts`.host_id, `hosts`.host_company_name, `hosts`.host_referral_phone, `hosts`.host_referral_email, `hosts`.host_status
+        FROM `hosts` WHERE `hosts`.host_id = ' . $host_id);
+        $results = $query->getResult();
+        return $results;
+    }
 }

@@ -24,8 +24,8 @@ class Photo extends ResourceController
         $L2_type_photos = $photos->get_level2_photo($host_id);
 
         return $this->respond([
-            'L1_type_photos' => $L1_type_photos == null ? [] : $L1_type_photos,
-            'L2_type_photos' => $L2_type_photos == null ? [] : $L2_type_photos,
+            'l1_type_photos' => $L1_type_photos == null ? [] : $L1_type_photos,
+            'l2_type_photos' => $L2_type_photos == null ? [] : $L2_type_photos,
         ], 200);
 	}
 

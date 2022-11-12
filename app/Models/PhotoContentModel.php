@@ -91,4 +91,20 @@ class PhotoContentModel extends Model
         }
         return $results;
     }
+
+    public function get_photo_contents($host_id) {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT photo_contents.photo_content_id, photo_contents.photo_content_url, photo_contents.photo_content_status, IF' . '(ISNULL(content_captions.content_caption)=1, ' . '""' . ', content_captions.content_caption) AS content_caption, IF' . '(ISNULL(content_captions.content_caption_lang)=1, ' . '""' . ', content_captions.content_caption_lang) AS content_caption_lang
+        FROM photo_contents LEFT JOIN content_captions ON photo_contents.photo_content_id = content_captions.content_caption_connection_id AND content_captions.content_caption_type="1" AND content_captions.content_caption_host_id = ' . $host_id . '
+        WHERE photo_contents.photo_content_status = 1 AND photo_contents.photo_content_host_id = ' . $host_id);
+        $results = $query->getResult();
+        foreach($results as &$result) {
+            $content_caption = [
+                'content_caption' => $result->content_caption,
+                'content_caption_lang' => $result->content_caption_lang,
+            ];
+            $result->content_caption = $content_caption;
+        }
+        return $results;
+    }
 }

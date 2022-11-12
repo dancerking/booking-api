@@ -47,4 +47,11 @@ class TypeMainModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_type_main() {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT main_type_code, main_type_name, main_type_lang FROM types_main WHERE main_type_status = 1');
+        $results = $query->getResult();
+        return $results;
+    }
 }

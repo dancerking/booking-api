@@ -48,4 +48,13 @@ class FilterModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_filters() {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT filter_code, filter_level, filter_name, filter_lang
+        FROM filters
+        WHERE filter_status=1');
+        $results = $query->getResult();
+        return $results;
+    }
 }

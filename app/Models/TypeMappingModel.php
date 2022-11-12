@@ -48,4 +48,13 @@ class TypeMappingModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_mapping_types($host_id) {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT type_mapping_main_code, type_mapping_code, type_mapping_name, type_mapping_lang, type_mapping_main_status
+        FROM types_mapping
+        WHERE type_mapping_host_id = ' . $host_id . ' AND type_mapping_main_status=1');
+        $results = $query->getResult();
+        return $results;
+    }
 }

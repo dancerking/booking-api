@@ -27,8 +27,8 @@ class Video extends ResourceController
         $L2_type_videos = $videos->get_level2_video($host_id);
 
         return $this->respond([
-            'L1_type_videos' => $L1_type_videos == null ? [] : $L1_type_videos,
-            'L2_type_videos' => $L2_type_videos == null ? [] : $L2_type_videos,
+            'l1_type_videos' => $L1_type_videos == null ? [] : $L1_type_videos,
+            'l2_type_videos' => $L2_type_videos == null ? [] : $L2_type_videos,
         ], 200);
 	}
 

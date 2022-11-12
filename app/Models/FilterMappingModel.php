@@ -48,4 +48,13 @@ class FilterMappingModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_mapped_filters($host_id) {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT filter_mapping_code, filter_mapping_level, filter_mapping_type
+        FROM filters_mapping
+        WHERE filter_mapping_status=1 AND filter_mapping_host_id=' . $host_id);
+        $results = $query->getResult();
+        return $results;
+    }
 }
