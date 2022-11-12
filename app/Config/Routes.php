@@ -38,18 +38,23 @@ $routes->set404Override();
 $routes->get('/', 'Home::index', ['filter' => 'auth']);
 $routes->post('register', 'Register::index');
 $routes->post('login', 'Login::index');
-// Code Listing
+/* Code Listing */
 $routes->get('codes', 'Code::index', ['filter' => 'auth']);
 
-// Photo Content Routes
+/* Photo Content Routes*/
 $routes->get('photos', 'Photo::index', ['filter' => 'auth']);
 $routes->post('photos/add', 'Photo::create', ['filter' => 'auth']);
 $routes->delete('photos/delete/(:num)', 'Photo::delete/$1', ['filter' => 'auth']);
 
-// Video Content Route
+/* Video Content Route */
 $routes->get('videos', 'Video::index', ['filter' => 'auth']);
 $routes->post('videos/add', 'Video::create', ['filter' => 'auth']);
 $routes->delete('videos/delete/(:num)', 'Video::delete/$1', ['filter' => 'auth']);
+
+/* Availability Route */
+$routes->get('availability', 'Availability::index', ['filter' => 'auth']);
+$routes->put('availability/update', 'Availability::update', ['filter' => 'auth']);
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
