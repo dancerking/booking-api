@@ -48,4 +48,12 @@ class ContentCaptionModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function delete_by($host_id, $content_caption_type, $content_caption_connection_id) {
+        $builder = $this->builder();
+        $builder->where('content_caption_host_id', $host_id)
+                ->where('content_caption_type', $content_caption_type)
+                ->where('content_caption_connection_id', $content_caption_connection_id);
+        $builder->delete();
+    }
 }

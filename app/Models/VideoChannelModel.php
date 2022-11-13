@@ -44,4 +44,13 @@ class VideoChannelModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_video_channel($record_status) {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT video_channel_id, video_channel_name
+        FROM video_channels
+        WHERE video_channel_status = ' . $record_status);
+        $results = $query->getResult();
+        return $results;
+    }
 }

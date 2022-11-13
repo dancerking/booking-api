@@ -48,4 +48,13 @@ class TypeAvailabilityModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function get_availability_types($host_id, $type_availability_code, $from, $to) {
+        $db = \Config\Database::connect();
+        $query   = $db->query('SELECT type_availability_code, type_availability_day, type_availability_qty, type_availability_msa, type_availability_coa, type_availability_cod
+        FROM type_availability
+        WHERE type_availability_code = ' . $type_availability_code . ' AND type_availability_day >= "' . $from . '" AND type_availability_day <= "' . $to . '" AND type_availability_host_id = ' . $host_id);
+        $results = $query->getResult();
+        return $results;
+    }
 }

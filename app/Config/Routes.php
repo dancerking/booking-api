@@ -35,11 +35,31 @@ $routes->set404Override();
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Home::index', ['filter' => 'auth']);
+$routes->get('/', 'Home::index');
 $routes->post('register', 'Register::index');
 $routes->post('login', 'Login::index');
+/* Code Listing */
 $routes->get('codes', 'Code::index', ['filter' => 'auth']);
-$routes->get('photos', 'Photo::index');
+
+/* Photo Content Routes*/
+$routes->get('photos', 'Photo::index', ['filter' => 'auth']);
+$routes->post('photos/add', 'Photo::create', ['filter' => 'auth']);
+$routes->delete('photos/delete/(:num)', 'Photo::delete/$1', ['filter' => 'auth']);
+
+/* Video Content Route */
+$routes->get('videos', 'Video::index', ['filter' => 'auth']);
+$routes->post('videos/add', 'Video::create', ['filter' => 'auth']);
+$routes->delete('videos/delete/(:num)', 'Video::delete/$1', ['filter' => 'auth']);
+
+/* Availability Route */
+$routes->get('availability', 'Availability::index', ['filter' => 'auth']);
+$routes->put('availability/update', 'Availability::update', ['filter' => 'auth']);
+
+/* Rate Settings Route */
+$routes->get('baseratesettings', 'Rate::index', ['filter' => 'auth']);
+$routes->put('baseratesettings/update', 'Rate::update', ['filter' => 'auth']);
+$routes->post('baseratesettings/add', 'Rate::create', ['filter' => 'auth']);
+$routes->delete('baseratesettings/delete/(:num)', 'Rate::delete/$1', ['filter' => 'auth']);
 
 /*
  * --------------------------------------------------------------------

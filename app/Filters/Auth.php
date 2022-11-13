@@ -38,13 +38,12 @@ class Auth implements FilterInterface
         try {
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
             $response = [
-				'id' => $decoded->uid,
+				'host_id' => $decoded->host_id,
 				'username' => $decoded->username,
                 'password' => $decoded->password,
 			];
-			return Services::response()
-                            ->setJSON($response)
-                            ->setStatusCode(ResponseInterface::HTTP_ACCEPTED);
+			$config = config('Config\App');
+            $config->JWTresponse = $response;
         } catch (\Throwable $th) {
             return Services::response()
                             ->setJSON(['msg' => 'Invalid Token'])

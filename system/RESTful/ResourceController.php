@@ -110,4 +110,13 @@ class ResourceController extends BaseResource
             $this->format = $format;
         }
     }
+
+    public function get_host_id()
+    {
+        /* Getting header_id from JWT token */
+        $config = config('Config\App');
+        $response = $config->JWTresponse;
+		$host_id = $response['host_id'];
+        return $host_id;
+    }
 }
