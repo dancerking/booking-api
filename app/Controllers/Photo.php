@@ -151,7 +151,7 @@ class Photo extends ResourceController
             $content_caption_model->delete_by($host_id, 1, $photo_content_id);
             return $this->respond([
                 'message' => [
-                    'success' => 'Successfully Deleted'
+                    'success' => 'id:' . $photo_content_id . ' Successfully Deleted'
                 ]
             ]);
         }

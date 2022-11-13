@@ -171,12 +171,20 @@ class Video extends ResourceController
                 ]);
         }
         $video_content_model = new VideoContentModel();
+        $check_id_exist = $video_content_model->is_existed_id($video_content_id);
+        if($check_id_exist == null) {
+            return $this->respond([
+                'message' => [
+                    'error' => 'No Such Data'
+                ]
+            ]);
+        }
         if ($video_content_model->delete($video_content_id)) {
             $content_caption_model = new ContentCaptionModel();
             $content_caption_model->delete_by($host_id, 2, $video_content_id);
             return $this->respond([
                 'message' => [
-                    'success' => 'Successfully Deleted'
+                    'success' =>  'id:' . $video_content_id . ' Successfully Deleted'
                 ]
             ]);
         }

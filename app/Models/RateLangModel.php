@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class RateLangModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'rate_lang';
+    protected $table            = 'rates_lang';
     protected $primaryKey       = 'rate_lang_id';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
@@ -47,4 +47,18 @@ class RateLangModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function delete_by($rate_id, $host_id) {
+        $builder = $this->builder();
+        $builder->where('rate_lang_host_id', $host_id)
+                ->where('rate_lang_code', $rate_id);
+        return $builder->delete();
+    }
+
+    public function is_existed_data($host_id, $rate_id) {
+        $db = \Config\Database::connect();
+        $query = $db->query('SELECT rate_lang_id FROM rates_lang WHERE rate_lang_host_id = ' . $host_id . ' AND rate_lang_code = ' . $rate_id);
+        $results = $query->getResult();
+        return $results;
+    }
 }

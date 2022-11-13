@@ -59,7 +59,7 @@ $routes->put('availability/update', 'Availability::update', ['filter' => 'auth']
 $routes->get('baseratesettings', 'Rate::index', ['filter' => 'auth']);
 $routes->put('baseratesettings/update', 'Rate::update', ['filter' => 'auth']);
 $routes->post('baseratesettings/add', 'Rate::create', ['filter' => 'auth']);
-$routes->delete('baseratesettings/delete', 'Rate::delete', ['filter' => 'auth']);
+$routes->delete('baseratesettings/delete/(:num)', 'Rate::delete/$1', ['filter' => 'auth']);
 
 /*
  * --------------------------------------------------------------------
