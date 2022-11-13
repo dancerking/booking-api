@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Database\Migrations\TypeMain;
 use App\Models\FilterMappingModel;
 use App\Models\FilterModel;
 use App\Models\GuestTypeModel;
@@ -14,9 +13,6 @@ use App\Models\TypeMappingModel;
 use App\Models\VideoChannelModel;
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-
 class Code extends ResourceController
 {
 	/**
@@ -44,13 +40,9 @@ class Code extends ResourceController
         /* Validate */
         if (! $this->validate([
             'record_status' => 'required',
+            'host_status'   => 'required',
         ])) {
-            $response = [
-                'messages' => [
-                    'error' => 'Data is incorrect'
-                ]
-            ];
-            return $this->respond($response);
+            return $this->fail('Input Data format is incorrect.');
         }
 
         // Get data
