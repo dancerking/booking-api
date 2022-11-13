@@ -40,7 +40,6 @@ class Code extends ResourceController
         /* Validate */
         if (! $this->validate([
             'record_status' => 'required',
-            'host_status'   => 'required',
         ])) {
             return $this->fail('Input Data format is incorrect.');
         }
