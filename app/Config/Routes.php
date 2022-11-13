@@ -35,7 +35,7 @@ $routes->set404Override();
 
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
-$routes->get('/', 'Home::index', ['filter' => 'auth']);
+$routes->get('/', 'Home::index');
 $routes->post('register', 'Register::index');
 $routes->post('login', 'Login::index');
 /* Code Listing */
@@ -54,6 +54,12 @@ $routes->delete('videos/delete/(:num)', 'Video::delete/$1', ['filter' => 'auth']
 /* Availability Route */
 $routes->get('availability', 'Availability::index', ['filter' => 'auth']);
 $routes->put('availability/update', 'Availability::update', ['filter' => 'auth']);
+
+/* Rate Settings Route */
+$routes->get('baseratesettings', 'Rate::index', ['filter' => 'auth']);
+$routes->put('baseratesettings/update', 'Rate::update', ['filter' => 'auth']);
+$routes->post('baseratesettings/add', 'Rate::create', ['filter' => 'auth']);
+$routes->delete('baseratesettings/delete', 'Rate::delete', ['filter' => 'auth']);
 
 /*
  * --------------------------------------------------------------------

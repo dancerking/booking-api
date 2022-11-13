@@ -92,4 +92,11 @@ class VideoContentModel extends Model
         }
         return $results;
     }
+
+    public function is_existed_id($id) {
+        $db = \Config\Database::connect();
+        $query = $db->query('SELECT video_content_id FROM video_contents WHERE video_content_id = ' . $id);
+        $results = $query->getResult();
+        return $results;
+    }
 }

@@ -60,8 +60,8 @@ class Availability extends ResourceController
 	}
 
     /**
-     * Add or update a model resource, from "posted" properties
-     *
+     * Update model
+     * PUT/availability/update
      * @return mixed
      */
     public function update($id = null)

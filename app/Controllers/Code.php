@@ -41,16 +41,29 @@ class Code extends ResourceController
         $photo_content_model = new PhotoContentModel();
         $video_channel_model = new VideoChannelModel();
 
+        /* Validate */
+        if (! $this->validate([
+            'record_status' => 'required',
+        ])) {
+            $response = [
+                'messages' => [
+                    'error' => 'Data is incorrect'
+                ]
+            ];
+            return $this->respond($response);
+        }
+
         // Get data
+        $record_status = $this->request->getVar('record_status');
         $main_host_data = $host_model->get_host_data($host_id);
-        $available_languages = $language_model->get_available_languages();
-        $available_main_types = $types_main_model->get_type_main();
-        $mapped_host_types = $types_mapping_model->get_mapping_types($host_id);
-        $available_guest_types = $guest_type_model->get_guest_types();
-        $filters = $filter_model->get_filters();
-        $mapped_filters = $filter_mapping_model->get_mapped_filters($host_id);
-        $photo_contents = $photo_content_model->get_photo_contents($host_id);
-        $channel_video_codes = $video_channel_model->get_video_channel();
+        $available_languages = $language_model->get_available_languages($record_status);
+        $available_main_types = $types_main_model->get_type_main($record_status);
+        $mapped_host_types = $types_mapping_model->get_mapping_types($host_id, $record_status);
+        $available_guest_types = $guest_type_model->get_guest_types($record_status);
+        $filters = $filter_model->get_filters($record_status);
+        $mapped_filters = $filter_mapping_model->get_mapped_filters($host_id, $record_status);
+        $photo_contents = $photo_content_model->get_photo_contents($host_id, $record_status);
+        $channel_video_codes = $video_channel_model->get_video_channel($record_status);
 
         return $this->respond([
             'main_host_data' => $main_host_data == null ? [] : $main_host_data,

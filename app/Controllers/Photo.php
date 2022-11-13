@@ -30,26 +30,6 @@ class Photo extends ResourceController
 	}
 
     /**
-     * Return the properties of a resource object
-     *
-     * @return mixed
-     */
-    public function show($id = null)
-    {
-        //
-    }
-
-    /**
-     * Return a new resource object, with default properties
-     *
-     * @return mixed
-     */
-    public function new()
-    {
-        //
-    }
-
-    /**
      * Create a new photo content
      * POST: /photos/add
      * @return mixed
@@ -143,26 +123,6 @@ class Photo extends ResourceController
     }
 
     /**
-     * Return the editable properties of a resource object
-     *
-     * @return mixed
-     */
-    public function edit($id = null)
-    {
-        //
-    }
-
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return mixed
-     */
-    public function update($id = null)
-    {
-        //
-    }
-
-    /**
      * Delete photo content
      * DELETE: /photos/delete
      * @return mixed
@@ -178,6 +138,14 @@ class Photo extends ResourceController
                 ]);
         }
         $photo_content_model = new PhotoContentModel();
+        $check_id_exist = $photo_content_model->is_existed_id($photo_content_id);
+        if($check_id_exist == null) {
+            return $this->respond([
+                'message' => [
+                    'error' => 'No Such Data'
+                ]
+            ]);
+        }
         if ($photo_content_model->delete($photo_content_id)) {
             $content_caption_model = new ContentCaptionModel();
             $content_caption_model->delete_by($host_id, 1, $photo_content_id);

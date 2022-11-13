@@ -49,11 +49,11 @@ class FilterModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function get_filters() {
+    public function get_filters($record_status) {
         $db = \Config\Database::connect();
         $query   = $db->query('SELECT filter_code, filter_level, filter_name, filter_lang
         FROM filters
-        WHERE filter_status=1');
+        WHERE filter_status = ' . $record_status);
         $results = $query->getResult();
         return $results;
     }

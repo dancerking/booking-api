@@ -45,9 +45,9 @@ class LanguageModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    public function get_available_languages() {
+    public function get_available_languages($record_status) {
         $db = \Config\Database::connect();
-        $query   = $db->query('SELECT language_code FROM languages where language_status = 1');
+        $query   = $db->query('SELECT language_code FROM languages where language_status = ' . $record_status);
         $results = $query->getResult();
         return $results;
     }
