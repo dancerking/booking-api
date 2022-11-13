@@ -35,7 +35,7 @@ class Database extends Config
         'hostname' => 'localhost',
         'username' => 'root',
         'password' => 'root',
-        'database' => 'camping_api_dev',
+        'database' => 'camping_api_data',
         'DBDriver' => 'MySQLi',
         'DBPrefix' => '',
         'pConnect' => false,
