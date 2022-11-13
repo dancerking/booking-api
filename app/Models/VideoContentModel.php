@@ -52,13 +52,12 @@ class VideoContentModel extends Model
     protected $afterDelete    = [];
 
     public function get_level1_video($host_id) {
-        $db = \Config\Database::connect();
-        $query   = $db->query('SELECT video_content_id, video_content_channel, video_content_code, video_content_status
+        $query   = $this->db->query('SELECT video_content_id, video_content_channel, video_content_code, video_content_status
         FROM video_contents
         WHERE video_content_level = "1" AND  video_content_host_id = ' . $host_id);
         $results = $query->getResult();
         foreach($results as &$result) {
-            $content_caption_query = $db->query('SELECT IF' . '(ISNULL(content_caption)=1, ' . '""' . ', content_caption) AS content_caption, IF' . '(ISNULL(content_caption_lang)=1, ' . '""' . ', content_caption_lang) AS content_caption_lang FROM content_captions WHERE content_caption_connection_id = ' . $result->video_content_id . ' AND content_caption_host_id = ' . $host_id . ' AND content_caption_type = 2');
+            $content_caption_query = $this->db->query('SELECT IF' . '(ISNULL(content_caption)=1, ' . '""' . ', content_caption) AS content_caption, IF' . '(ISNULL(content_caption_lang)=1, ' . '""' . ', content_caption_lang) AS content_caption_lang FROM content_captions WHERE content_caption_connection_id = ' . $result->video_content_id . ' AND content_caption_host_id = ' . $host_id . ' AND content_caption_type = 2');
             $content_caption_results = $content_caption_query->getResult();
             $result->content_caption = $content_caption_results;
         }
@@ -66,13 +65,12 @@ class VideoContentModel extends Model
     }
 
     public function get_level2_video($host_id) {
-        $db = \Config\Database::connect();
-        $query   = $db->query('SELECT video_content_id, video_content_connection, video_content_channel, video_content_code, video_content_status
+        $query   = $this->db->query('SELECT video_content_id, video_content_connection, video_content_channel, video_content_code, video_content_status
         FROM video_contents
         WHERE video_content_level = "2" AND video_content_host_id = ' . $host_id);
         $results = $query->getResult();
         foreach($results as &$result) {
-            $query = $db->query('SELECT types_mapping.type_mapping_name
+            $query = $this->db->query('SELECT types_mapping.type_mapping_name
             FROM types_mapping
             WHERE types_mapping.type_mapping_code = ' . '"' . $result->video_content_connection . '"' . ' AND types_mapping.type_mapping_lang="it" AND types_mapping.type_mapping_host_id = ' . $host_id);
             $mapping_names = $query->getResult();
@@ -81,7 +79,7 @@ class VideoContentModel extends Model
                 array_push($type_mapping_names, $mapping_name->type_mapping_name);
             }
             $result->type_mapping_name = $type_mapping_names == null ? [] : $type_mapping_names;
-            $content_caption_query = $db->query('SELECT IF' . '(ISNULL(content_caption)=1, ' . '""' . ', content_caption) AS content_caption, IF' . '(ISNULL(content_caption_lang)=1, ' . '""' . ', content_caption_lang) AS content_caption_lang FROM content_captions WHERE content_caption_connection_id = ' . $result->video_content_id . ' AND content_caption_host_id = ' . $host_id . ' AND content_caption_type = 2');
+            $content_caption_query = $this->db->query('SELECT IF' . '(ISNULL(content_caption)=1, ' . '""' . ', content_caption) AS content_caption, IF' . '(ISNULL(content_caption_lang)=1, ' . '""' . ', content_caption_lang) AS content_caption_lang FROM content_captions WHERE content_caption_connection_id = ' . $result->video_content_id . ' AND content_caption_host_id = ' . $host_id . ' AND content_caption_type = 2');
             $content_caption_results = $content_caption_query->getResult();
             $result->content_caption = $content_caption_results;
         }
@@ -89,8 +87,7 @@ class VideoContentModel extends Model
     }
 
     public function is_existed_id($id) {
-        $db = \Config\Database::connect();
-        $query = $db->query('SELECT video_content_id FROM video_contents WHERE video_content_id = ' . $id);
+        $query = $this->db->query('SELECT video_content_id FROM video_contents WHERE video_content_id = ' . $id);
         $results = $query->getResult();
         return $results;
     }
