@@ -49,8 +49,7 @@ class GuestTypeModel extends Model
     protected $afterDelete    = [];
 
     public function get_guest_types($record_status) {
-        $db = \Config\Database::connect();
-        $query   = $db->query('SELECT guest_type_code, guest_type_name, guest_type_lang
+        $query   = $this->db->query('SELECT guest_type_code, guest_type_name, guest_type_lang
         FROM guest_types
         WHERE guest_type_status = ' . $record_status);
         $results = $query->getResult();

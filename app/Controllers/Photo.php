@@ -42,12 +42,7 @@ class Photo extends ResourceController
             'photo_content_level' => 'required|min_length[1]|max_length[1]',
             'img_url' => 'required'
         ])) {
-            $response = [
-                'messages' => [
-                    'error' => 'Failed save'
-                ]
-            ];
-            return $this->respondCreated($response);
+            return $this->fail('Input Data format is incorrect.');
         }
         $host_id = $this->get_host_id();
         $photo_content_level = $this->request->getVar('photo_content_level');
@@ -70,56 +65,51 @@ class Photo extends ResourceController
         if($new_id) {
             $is_upload = $this->uploadImage($img_url, $new_id, $host_id);
             if($is_upload == null) {
-                $response = [
-                    'messages' => [
-                        'error' => 'Failed upload'
-                    ]
-                ];
-                return $this->respondCreated($response);
+                return $this->failNotFound('Failed upload: Cound not find image url');
             }
-            $photo_content_model->update($new_id, [
+            if(!$photo_content_model->update($new_id, [
                 'photo_content_url' =>  $new_id . '.' . $is_upload['extension'],
                 'photo_content_status' => 1
-            ]);
+            ])){
+                return $this->fail('Failed photo content save');
+            }
 
             // Insert Caption Info into content_captions table
-            if($content_caption->it != null && $content_caption->en != null) {
-                $content_caption_model = new ContentCaptionModel();
-                $caption_data_it = [
-                    'content_caption_host_id'       => $host_id,
-                    'content_caption_type'          => 1,
-                    'content_caption_connection_id' => $new_id,
-                    'content_caption'               => $content_caption->it,
-                    'content_caption_lang'          => 'it',
-                    'content_caption_status'        => 1,
-                ];
-                $content_caption_model->insert($caption_data_it);
-                $caption_data_en = [
-                    'content_caption_host_id'       => $host_id,
-                    'content_caption_type'          => 1,
-                    'content_caption_connection_id' => $new_id,
-                    'content_caption'               => $content_caption->en,
-                    'content_caption_lang'          => 'en',
-                    'content_caption_status'        => 1,
-                ];
-                $content_caption_model->insert($caption_data_en);
+            if($content_caption->it == null) {
+                return $this->fail('Could not find Caption Data(it)');
             }
-            $response = [
-                'messages' => [
-                    'success' => 'Data Saved'
-                ],
+            if($content_caption->en == null) {
+                return $this->fail('Could not find Caption Data(en)');
+            }
+            $content_caption_model = new ContentCaptionModel();
+            $caption_data_it = [
+                'content_caption_host_id'       => $host_id,
+                'content_caption_type'          => 1,
+                'content_caption_connection_id' => $new_id,
+                'content_caption'               => $content_caption->it,
+                'content_caption_lang'          => 'it',
+                'content_caption_status'        => 1,
+            ];
+            if(!$content_caption_model->insert($caption_data_it)) {
+                return $this->fail('Failed Caption Data(it) insert');
+            }
+            $caption_data_en = [
+                'content_caption_host_id'       => $host_id,
+                'content_caption_type'          => 1,
+                'content_caption_connection_id' => $new_id,
+                'content_caption'               => $content_caption->en,
+                'content_caption_lang'          => 'en',
+                'content_caption_status'        => 1,
+            ];
+            if(!$content_caption_model->insert($caption_data_en)) {
+                return $this->fail('Failed Caption Data(en) insert');
+            }
+            $data = [
                 'photo_id'  => $new_id
             ];
+            return $this->respondCreated($data, 'Data saved');
         }
-        else {
-            $response = [
-                'messages' => [
-                    'error' => 'Failed Create'
-                ]
-            ];
-        }
-
-        return $this->respondCreated($response);
+        return $this->fail('Could not find new id');
     }
 
     /**
@@ -131,35 +121,21 @@ class Photo extends ResourceController
     {
         $host_id = $this->get_host_id();
         if($photo_content_id == null) {
-            return $this->respond([
-                'message' => [
-                    'error' => 'Failed Delete'
-                ]
-                ]);
+            return $this->fail('Could Not Find Such ID');
         }
         $photo_content_model = new PhotoContentModel();
         $check_id_exist = $photo_content_model->is_existed_id($photo_content_id);
         if($check_id_exist == null) {
-            return $this->respond([
-                'message' => [
-                    'error' => 'No Such Data'
-                ]
-            ]);
+            return $this->failNotFound('No Such Data');
         }
         if ($photo_content_model->delete($photo_content_id)) {
             $content_caption_model = new ContentCaptionModel();
             $content_caption_model->delete_by($host_id, 1, $photo_content_id);
             return $this->respond([
-                'message' => [
-                    'success' => 'id:' . $photo_content_id . ' Successfully Deleted'
-                ]
+                'success' => 'id:' . $photo_content_id . ' Successfully Deleted'
             ]);
         }
-        return $this->respond([
-            'message' => [
-                'error' => 'Failed Deleted'
-            ]
-        ]);
+        return $this->fail('Failed Deleted');
     }
 
     public function uploadImage($image_url, $photo_content_id, $host_id)

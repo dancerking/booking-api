@@ -2,13 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Database\Migrations\ContentCaption;
 use App\Models\ContentCaptionModel;
 use App\Models\VideoContentModel;
 use CodeIgniter\RESTful\ResourceController;
 use CodeIgniter\API\ResponseTrait;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 
 class Video extends ResourceController
 {
@@ -33,26 +30,6 @@ class Video extends ResourceController
 	}
 
     /**
-     * Return the properties of a resource object
-     *
-     * @return mixed
-     */
-    public function show($id = null)
-    {
-        //
-    }
-
-    /**
-     * Return a new resource object, with default properties
-     *
-     * @return mixed
-     */
-    public function new()
-    {
-        //
-    }
-
-    /**
      * Create a new video content
      * POST: /videos/add
      * @return mixed
@@ -67,12 +44,7 @@ class Video extends ResourceController
             'video_content_code'    => 'required',
             //'video_url' => 'required'
         ])) {
-            $response = [
-                'messages' => [
-                    'error' => 'Failed save'
-                ]
-            ];
-            return $this->respondCreated($response);
+            return $this->fail('Input Data format is incorrect.');
         }
         $host_id = $this->get_host_id();
         $video_content_level = $this->request->getVar('video_content_level');
@@ -97,62 +69,41 @@ class Video extends ResourceController
 
         $new_id = $video_content_model->insert($data);
         if($new_id) {
-            if($content_caption->it != null && $content_caption->en != null) {
-                $content_caption_model = new ContentCaptionModel();
-                $caption_data_it = [
-                    'content_caption_host_id'       => $host_id,
-                    'content_caption_type'          => 2,
-                    'content_caption_connection_id' => $new_id,
-                    'content_caption'               => $content_caption->it,
-                    'content_caption_lang'          => 'it',
-                    'content_caption_status'        => 1,
-                ];
-                $content_caption_model->insert($caption_data_it);
-                $caption_data_en = [
-                    'content_caption_host_id'       => $host_id,
-                    'content_caption_type'          => 2,
-                    'content_caption_connection_id' => $new_id,
-                    'content_caption'               => $content_caption->en,
-                    'content_caption_lang'          => 'en',
-                    'content_caption_status'        => 1,
-                ];
-                $content_caption_model->insert($caption_data_en);
+            if($content_caption->it == null) {
+                return $this->fail('Could not find Caption Data(it)');
             }
-            $response = [
-                'messages' => [
-                    'success' => 'Data Saved'
-                ],
+            if($content_caption->en == null) {
+                return $this->fail('Could not find Caption Data(en)');
+            }
+            $content_caption_model = new ContentCaptionModel();
+            $caption_data_it = [
+                'content_caption_host_id'       => $host_id,
+                'content_caption_type'          => 2,
+                'content_caption_connection_id' => $new_id,
+                'content_caption'               => $content_caption->it,
+                'content_caption_lang'          => 'it',
+                'content_caption_status'        => 1,
+            ];
+            if(!$content_caption_model->insert($caption_data_it)) {
+                return $this->fail('Failed Caption Data(it) insert');
+            }
+            $caption_data_en = [
+                'content_caption_host_id'       => $host_id,
+                'content_caption_type'          => 2,
+                'content_caption_connection_id' => $new_id,
+                'content_caption'               => $content_caption->en,
+                'content_caption_lang'          => 'en',
+                'content_caption_status'        => 1,
+            ];
+            if(!$content_caption_model->insert($caption_data_en)) {
+                return $this->fail('Failed Caption Data(en) insert');
+            }
+            $data = [
                 'video_id'  => $new_id
             ];
+            return $this->respondCreated($data, 'Data saved');
         }
-        else {
-            $response = [
-                'message' => [
-                    'error' => 'Failed Create'
-                ]
-            ];
-        }
-        return $this->respondCreated($response);
-    }
-
-    /**
-     * Return the editable properties of a resource object
-     *
-     * @return mixed
-     */
-    public function edit($id = null)
-    {
-        //
-    }
-
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return mixed
-     */
-    public function update($id = null)
-    {
-        //
+        return $this->fail('Could not find new id');
     }
 
     /**
@@ -164,35 +115,20 @@ class Video extends ResourceController
     {
         $host_id = $this->get_host_id();
         if($video_content_id == null) {
-            return $this->respond([
-                'message' => [
-                    'error' => 'Failed Delete'
-                ]
-                ]);
+            return $this->fail('Could Not Find Such ID');
         }
         $video_content_model = new VideoContentModel();
         $check_id_exist = $video_content_model->is_existed_id($video_content_id);
         if($check_id_exist == null) {
-            return $this->respond([
-                'message' => [
-                    'error' => 'No Such Data'
-                ]
-            ]);
+            return $this->failNotFound('No Such Data');
         }
         if ($video_content_model->delete($video_content_id)) {
             $content_caption_model = new ContentCaptionModel();
             $content_caption_model->delete_by($host_id, 2, $video_content_id);
             return $this->respond([
-                'message' => [
-                    'success' =>  'id:' . $video_content_id . ' Successfully Deleted'
-                ]
+               'success' =>  'id:' . $video_content_id . ' Successfully Deleted'
             ]);
         }
-
-        return $this->respond([
-            'message' => [
-                'error' => 'Failed Deleted'
-            ]
-        ]);
+        return $this->fail('Failed Deleted');
     }
 }

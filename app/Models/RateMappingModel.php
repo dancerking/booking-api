@@ -55,8 +55,7 @@ class RateMappingModel extends Model
     }
 
     public function is_existed_data($host_id, $rate_id) {
-        $db = \Config\Database::connect();
-        $query = $db->query('SELECT rate_mapping_id FROM rates_mapping WHERE rate_mapping_host_id = ' . $host_id . ' AND rate_mapping_rates_id = ' . $rate_id);
+        $query = $this->db->query('SELECT rate_mapping_id FROM rates_mapping WHERE rate_mapping_host_id = ' . $host_id . ' AND rate_mapping_rates_id = ' . $rate_id);
         $results = $query->getResult();
         return $results;
     }

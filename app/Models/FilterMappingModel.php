@@ -50,8 +50,7 @@ class FilterMappingModel extends Model
     protected $afterDelete    = [];
 
     public function get_mapped_filters($host_id, $record_status) {
-        $db = \Config\Database::connect();
-        $query   = $db->query('SELECT filter_mapping_code, filter_mapping_level, filter_mapping_type
+        $query   = $this->db->query('SELECT filter_mapping_code, filter_mapping_level, filter_mapping_type
         FROM filters_mapping
         WHERE filter_mapping_status = ' . $record_status . ' AND filter_mapping_host_id=' . $host_id);
         $results = $query->getResult();
