@@ -62,8 +62,15 @@ class HostModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules      = [
+        'host_referral_email'    => 'required|is_unique[hosts.host_referral_email]',
+        'host_password_security' => 'required|min_length[8]',
+    ];
+    protected $validationMessages   = [
+        'host_referral_email'  => [
+            'is_unique' => 'Sorry. That email has already been taken. Please choose another.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
