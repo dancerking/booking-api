@@ -4,11 +4,9 @@ namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\RESTful\ResourceController;
-use App\Models\UserModel;
-use DateTime;
+use App\Models\HostModel;
+use App\Models\IpWhiteListModel;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-
 class Login extends ResourceController
 {
     /**
@@ -20,17 +18,30 @@ class Login extends ResourceController
     public function index()
     {
         helper(['form']);
-        // $rules = [
-        //     'email' => 'required|valid_email',
-        //     'password' => 'required|min_length[6]'
-        // ];
-        // if(!$this->validate($rules)) return $this->fail($this->validator->getErrors());
-        // $model = new UserModel();
-        // $user = $model->where("email", $this->request->getVar('email'))->first();
-        // if(!$user) return $this->failNotFound('Email Not Found');
+        $rules = [
+            'username' => 'required|valid_email',
+            'password' => 'required'
+        ];
+        if(!$this->validate($rules)) return $this->fail($this->validator->getErrors());
 
-        // $verify = password_verify($this->request->getVar('password'), $user['password']);
-        // if(!$verify) return $this->fail('Wrong Password');
+        // Get Host IP address
+        $host_ip = $this->request->getIPAddress();
+
+        if(!$this->request->isValidIP($host_ip)) {
+            return $this->fail('IP Not Valid');
+        }
+
+        $host_model = new HostModel();
+        $ip_white_model = new IpWhiteListModel();
+
+        $host = $host_model->where("host_referral_email", $this->request->getVar('username'))->first();
+        if($host == null) return $this->failNotFound('Email Not Found');
+        $verify = hash('sha512', $this->request->getVar('password')) == $host['host_password_security'] ? true : false;
+        if(!$verify) return $this->fail('Wrong Password');
+        $check_hostID = $ip_white_model->where("host_id", $host['host_id'])->first();
+        if($check_hostID == null) return $this->fail('This host is black host');
+        $check_whiteIP = $ip_white_model->where('white_ip', $host_ip)->first();
+        if($check_whiteIP == null) return $this->fail('This IP is black IP');
 
         $key = getenv('TOKEN_SECRET');
         $payload = array(
@@ -38,72 +49,13 @@ class Login extends ResourceController
             "nbf"   => 1357000000,
             "username" => $this->request->getVar('username'),
             "password" => $this->request->getVar('password'),
-            "host_id"  => $this->request->getVar('host_id'),
+            "host_ip"  => $host_ip,
+            "host_id"  => $host['host_id'],
             //"exp"   => time() + (30000), //Expire the JWT after 30 secs from now
         );
 
         $token = JWT::encode($payload, $key, 'HS256');
 
         return $this->respond($token);
-    }
-
-    /**
-     * Return the properties of a resource object
-     *
-     * @return mixed
-     */
-    public function show($id = null)
-    {
-        //
-    }
-
-    /**
-     * Return a new resource object, with default properties
-     *
-     * @return mixed
-     */
-    public function new()
-    {
-        //
-    }
-
-    /**
-     * Create a new resource object, from "posted" parameters
-     *
-     * @return mixed
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Return the editable properties of a resource object
-     *
-     * @return mixed
-     */
-    public function edit($id = null)
-    {
-        //
-    }
-
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return mixed
-     */
-    public function update($id = null)
-    {
-        //
-    }
-
-    /**
-     * Delete the designated resource object from the model
-     *
-     * @return mixed
-     */
-    public function delete($id = null)
-    {
-        //
     }
 }

@@ -8,7 +8,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Config\Services;
-
+use CodeIgniter\API\ResponseTrait;
 class Auth implements FilterInterface
 {
     /**
@@ -26,6 +26,7 @@ class Auth implements FilterInterface
      *
      * @return mixed
      */
+    use ResponseTrait;
     public function before(RequestInterface $request, $arguments = null)
     {
         $key = getenv('TOKEN_SECRET');
@@ -34,14 +35,17 @@ class Auth implements FilterInterface
                             ->setJSON(['msg' => 'Token Required'])
                             ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         $token = explode(' ', $header)[1];
-
+        $current_host_ip = $request->getIPAddress();
         try {
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
             $response = [
 				'host_id' => $decoded->host_id,
+                'host_ip' => $decoded->host_ip,
 				'username' => $decoded->username,
                 'password' => $decoded->password,
 			];
+            $current_host_ip = $request->getIPAddress();
+            if($current_host_ip !== $response['host_ip']) return $this->fail('Warning: IP Conflict');
 			$config = config('Config\App');
             $config->JWTresponse = $response;
         } catch (\Throwable $th) {

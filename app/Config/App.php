@@ -465,4 +465,7 @@ class App extends BaseConfig
     public $CSPEnabled = false;
 
     public $JWTresponse = [];
+
+    public $Custom_photo1 = ['1024', '540'];
+    public $Custom_photo2 = ['330', '174'];
 }

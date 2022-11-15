@@ -40,10 +40,11 @@ class Photo extends ResourceController
         $response = [];
         if (! $this->validate([
             'photo_content_level' => 'required|min_length[1]|max_length[1]',
-            'img_url' => 'required'
+            'img_url' => 'required',
         ])) {
             return $this->fail('Input Data format is incorrect.');
         }
+
         $host_id = $this->get_host_id();
         $photo_content_level = $this->request->getVar('photo_content_level');
         $photo_content_connection = $photo_content_level == 2 ? $this->request->getVar('photo_content_connection') : '';
@@ -140,7 +141,7 @@ class Photo extends ResourceController
 
     public function uploadImage($image_url, $photo_content_id, $host_id)
     {
-        $url_to_image=$image_url;
+        $url_to_image = $image_url;
 
         if (!is_dir($_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/photos'))
         {
@@ -150,7 +151,7 @@ class Photo extends ResourceController
         $my_save_dir = $_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/photos/';
         $basename = basename($url_to_image);
         $ext = pathinfo($basename, PATHINFO_EXTENSION);
-        $available_ext = ['jpg', 'webp', 'png'];
+        $available_ext = ['jpg', 'webp'];
 
         if (!in_array($ext, $available_ext)) {
             return null;
@@ -160,14 +161,17 @@ class Photo extends ResourceController
         $complete_save_loc = $my_save_dir.$filename;
         $upload = file_put_contents($complete_save_loc,file_get_contents($url_to_image));
         if($upload) {
+            $config = config('Config\App');
+            $custom_photo1 = $config->Custom_photo1;
+            $custom_photo2 = $config->Custom_photo2;
             \Config\Services::image()
                 ->withFile($url_to_image)
-                ->resize(1024, 540, true, 'height')
+                ->resize($custom_photo1[0], $custom_photo1[1], true, 'height')
                 ->save($my_save_dir . '1_' . $suffix_filename);
 
             \Config\Services::image()
                 ->withFile($url_to_image)
-                ->resize(330, 174, true, 'height')
+                ->resize($custom_photo2[0], $custom_photo2[1], true, 'height')
                 ->save($my_save_dir . '2_' . $suffix_filename);
 
             return [
@@ -176,4 +180,5 @@ class Photo extends ResourceController
         }
         return null;
     }
+
 }
