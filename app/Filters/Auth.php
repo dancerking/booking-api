@@ -35,7 +35,6 @@ class Auth implements FilterInterface
                             ->setJSON(['msg' => 'Token Required'])
                             ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         $token = explode(' ', $header)[1];
-        $current_host_ip = $request->getIPAddress();
         try {
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
             $response = [
