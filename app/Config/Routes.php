@@ -62,6 +62,10 @@ $routes->put('baseratesettings/update', 'Rate::update', ['filter' => 'auth']);
 $routes->post('baseratesettings/add', 'Rate::create', ['filter' => 'auth']);
 $routes->delete('baseratesettings/delete/(:num)', 'Rate::delete/$1', ['filter' => 'auth']);
 
+/* Rate Calendar Route */
+$routes->post('baseratecalendar/add', 'RateCalendar::create', ['filter' => 'auth']);
+$routes->put('baseratecalendar/update', 'RateCalendar::update', ['filter' => 'auth']);
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
