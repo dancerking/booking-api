@@ -11,9 +11,9 @@ use App\Models\PhotoContentModel;
 use App\Models\TypeMainModel;
 use App\Models\TypeMappingModel;
 use App\Models\VideoChannelModel;
-use CodeIgniter\RESTful\ResourceController;
+use App\Controllers\APIBaseController;
 use CodeIgniter\API\ResponseTrait;
-class Code extends ResourceController
+class Code extends APIBaseController
 {
 	/**
 	 * Return an array of objects(The select WHERE condition to obtain data for this call  is host_ID (received from the JWT Token) AND Except for the host table, for every other table, the record status = 1 (it means we take only data with Active status))
@@ -41,7 +41,7 @@ class Code extends ResourceController
         if (! $this->validate([
             'record_status' => 'required',
         ])) {
-            return $this->fail('Input Data format is incorrect.');
+            return $this->notifyError('Input data format is incorrect.', 'invalid_data', 'code');
         }
 
         // Get data
@@ -54,7 +54,7 @@ class Code extends ResourceController
         $filters = $filter_model->get_filters($record_status);
         $mapped_filters = $filter_mapping_model->get_mapped_filters($host_id, $record_status);
         $photo_contents = $photo_content_model->get_photo_contents($host_id, $record_status);
-        $channel_video_codes = $video_channel_model->get_video_channel($record_status);
+        $channel_video_codes = $video_channel_model->get_video_channel($host_id, $record_status);
 
         return $this->respond([
             'main_host_data' => $main_host_data == null ? [] : $main_host_data,

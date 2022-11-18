@@ -44,13 +44,13 @@ class Auth implements FilterInterface
                 'password' => $decoded->password,
 			];
             $current_host_ip = $request->getIPAddress();
-            if($current_host_ip !== $response['host_ip']) return $this->fail('Warning: IP Conflict');
+            if($current_host_ip !== $response['host_ip']) {
+                return Services::response()->setJSON(['error' => '1', 'code' => '102', 'message' => 'Warning: IP conflict']);
+            }
 			$config = config('Config\App');
             $config->JWTresponse = $response;
         } catch (\Throwable $th) {
-            return Services::response()
-                            ->setJSON(['msg' => 'Invalid Token'])
-                            ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+            return Services::response()->setJSON(['error' => '1', 'code' => '102', 'message' => 'Invalid Token']);
         }
     }
 

@@ -3,11 +3,11 @@
 namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
-use CodeIgniter\RESTful\ResourceController;
+use App\Controllers\APIBaseController;
 use App\Models\HostModel;
 use App\Models\IpWhiteListModel;
 use Firebase\JWT\JWT;
-class Login extends ResourceController
+class Login extends APIBaseController
 {
     /**
      * Return an array of resource objects, themselves in array format
@@ -22,26 +22,25 @@ class Login extends ResourceController
             'username' => 'required|valid_email',
             'password' => 'required'
         ];
-        if(!$this->validate($rules)) return $this->fail($this->validator->getErrors());
+        if(!$this->validate($rules)) return $this->notifyError('Input data format is incorrect.', 'invalid_data', 'login');
 
         // Get Host IP address
         $host_ip = $this->request->getIPAddress();
-
-        if(!$this->request->isValidIP($host_ip)) {
-            return $this->fail('IP Not Valid');
-        }
 
         $host_model = new HostModel();
         $ip_white_model = new IpWhiteListModel();
 
         $host = $host_model->where("host_referral_email", $this->request->getVar('username'))->first();
-        if($host == null) return $this->failNotFound('Email Not Found');
+        if($host == null) return $this->notifyError('Email Not Found', 'notFound', 'login');
         $verify = hash('sha512', $this->request->getVar('password')) == $host['host_password_security'] ? true : false;
-        if(!$verify) return $this->fail('Wrong Password');
+
+        if(!$verify) return $this->notifyError('Wrong password', 'notFound', 'login');
         $check_hostID = $ip_white_model->where("host_id", $host['host_id'])->first();
-        if($check_hostID == null) return $this->fail('This host is black host');
+
+        if($check_hostID == null) return $this->notifyError('This host is black host', 'notFound', 'login');
         $check_whiteIP = $ip_white_model->where('white_ip', $host_ip)->first();
-        if($check_whiteIP == null) return $this->fail('This IP is black IP');
+
+        if($check_whiteIP == null) return $this->notifyError('This IP is black IP', 'notFound', 'login');
 
         $key = getenv('TOKEN_SECRET');
         $payload = array(
@@ -56,6 +55,9 @@ class Login extends ResourceController
 
         $token = JWT::encode($payload, $key, 'HS256');
 
-        return $this->respond($token);
+        return $this->respond([
+            'JWT token' => $token,
+            'message'   => 'Successfully created.'
+        ]);
     }
 }

@@ -4,10 +4,11 @@ namespace App\Controllers;
 
 use App\Models\ContentCaptionModel;
 use App\Models\PhotoContentModel;
-use CodeIgniter\RESTful\ResourceController;
+use App\Controllers\APIBaseController;
+use App\Models\LanguageModel;
 use CodeIgniter\API\ResponseTrait;
 
-class Photo extends ResourceController
+class Photo extends APIBaseController
 {
 	/**
 	 * Return an array of photo content
@@ -42,7 +43,7 @@ class Photo extends ResourceController
             'photo_content_level' => 'required|min_length[1]|max_length[1]',
             'img_url' => 'required',
         ])) {
-            return $this->fail('Input Data format is incorrect.');
+            return $this->notifyError('Input data format is incorrect', 'invalid_data', 'photo');
         }
 
         $host_id = $this->get_host_id();
@@ -64,53 +65,60 @@ class Photo extends ResourceController
 
         $new_id = $photo_content_model->insert($data);
         if($new_id) {
+            // Validation for download image size
+            if (!@getimagesize($img_url)) {
+                return $this->notifyError('No Such Image URL', 'notFound', 'photo');
+            }
+            $image_width = getimagesize($img_url)[0];
+            $image_height = getimagesize($img_url)[1];
+            $config = config('Config\App');
+            $valid_image_size = $config->minimum_download_image_size;
+            if(!($image_width >= $valid_image_size[0] && $image_height >= $valid_image_size[1])) {
+                $this->delete($new_id);
+                return $this->notifyError(lang('photo.failedDownload'), 'invalid_data', 'photo');
+            }
             $is_upload = $this->uploadImage($img_url, $new_id, $host_id);
             if($is_upload == null) {
-                return $this->failNotFound('Failed upload: Cound not find image url');
+                $this->delete($new_id);
+                return $this->notifyError(lang('Photo.failedUpload'),'invalid_data', 'photo');
             }
             if(!$photo_content_model->update($new_id, [
                 'photo_content_url' =>  $new_id . '.' . $is_upload['extension'],
-                'photo_content_status' => 1
+                'photo_content_status' => 1,
             ])){
-                return $this->fail('Failed photo content save');
+                $this->delete($new_id);
+                return $this->notifyError(lang('Photo.failedSave'), 'invalid_data', 'photo');
             }
 
             // Insert Caption Info into content_captions table
-            if($content_caption->it == null) {
-                return $this->fail('Could not find Caption Data(it)');
-            }
-            if($content_caption->en == null) {
-                return $this->fail('Could not find Caption Data(en)');
-            }
             $content_caption_model = new ContentCaptionModel();
-            $caption_data_it = [
-                'content_caption_host_id'       => $host_id,
-                'content_caption_type'          => 1,
-                'content_caption_connection_id' => $new_id,
-                'content_caption'               => $content_caption->it,
-                'content_caption_lang'          => 'it',
-                'content_caption_status'        => 1,
-            ];
-            if(!$content_caption_model->insert($caption_data_it)) {
-                return $this->fail('Failed Caption Data(it) insert');
+            $language_model = new LanguageModel();
+            $languages = $language_model->get_available_languages(1);
+            if($languages != null) {
+                foreach($languages as $language) {
+                    $language_code = $language->language_code;
+                    if(isset($content_caption->$language_code) && $content_caption->$language_code != null) {
+                        $caption_data = [
+                            'content_caption_host_id'       => $host_id,
+                            'content_caption_type'          => 1,
+                            'content_caption_connection_id' => $new_id,
+                            'content_caption'               => $content_caption->$language_code,
+                            'content_caption_lang'          => $language_code,
+                            'content_caption_status'        => 1,
+                        ];
+                        if(!$content_caption_model->insert($caption_data)) {
+                            $this->delete($new_id);
+                            return $this->notifyError('Failed content caption data insert', 'failed_create', 'photo');
+                        }
+                    }
+                }
             }
-            $caption_data_en = [
-                'content_caption_host_id'       => $host_id,
-                'content_caption_type'          => 1,
-                'content_caption_connection_id' => $new_id,
-                'content_caption'               => $content_caption->en,
-                'content_caption_lang'          => 'en',
-                'content_caption_status'        => 1,
-            ];
-            if(!$content_caption_model->insert($caption_data_en)) {
-                return $this->fail('Failed Caption Data(en) insert');
-            }
-            $data = [
-                'photo_id'  => $new_id
-            ];
-            return $this->respondCreated($data, 'Data saved');
+            return $this->respond([
+                "id" => $new_id,
+                'message' => 'Successfully created'
+            ]);
         }
-        return $this->fail('Could not find new id');
+        return $this->notifyError('Failed create', 'failed_create', 'photo');
     }
 
     /**
@@ -122,21 +130,29 @@ class Photo extends ResourceController
     {
         $host_id = $this->get_host_id();
         if($photo_content_id == null) {
-            return $this->fail('Could Not Find Such ID');
+            return $this->notifyError('Invalid request', 'invalid_request', 'photo');
         }
         $photo_content_model = new PhotoContentModel();
         $check_id_exist = $photo_content_model->is_existed_id($photo_content_id);
         if($check_id_exist == null) {
-            return $this->failNotFound('No Such Data');
+            return $this->notifyError('No Such Data', 'notFound', 'photo');
         }
+        $photo_content_filename = $photo_content_model->find($photo_content_id);
+
         if ($photo_content_model->delete($photo_content_id)) {
             $content_caption_model = new ContentCaptionModel();
             $content_caption_model->delete_by($host_id, 1, $photo_content_id);
+            if($photo_content_filename['photo_content_url'] != '') {
+                unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/photos/0_' . $photo_content_filename['photo_content_url']);
+                unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/photos/1_' . $photo_content_filename['photo_content_url']);
+                unlink($_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/photos/2_' . $photo_content_filename['photo_content_url']);
+            }
             return $this->respond([
-                'success' => 'id:' . $photo_content_id . ' Successfully Deleted'
+                'id' => $photo_content_id,
+                'success' => 'Successfully Deleted'
             ]);
         }
-        return $this->fail('Failed Deleted');
+        return $this->notifyError('Failed Delete', 'failed_delete', 'photo');
     }
 
     public function uploadImage($image_url, $photo_content_id, $host_id)
@@ -145,6 +161,7 @@ class Photo extends ResourceController
 
         if (!is_dir($_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/photos'))
         {
+            mkdir($_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/');
             mkdir($_SERVER['DOCUMENT_ROOT'] . '/' . $host_id . '/photos');
         }
 
@@ -165,12 +182,12 @@ class Photo extends ResourceController
             $custom_photo1 = $config->Custom_photo1;
             $custom_photo2 = $config->Custom_photo2;
             \Config\Services::image()
-                ->withFile($url_to_image)
+                ->withFile($complete_save_loc)
                 ->resize($custom_photo1[0], $custom_photo1[1], true, 'height')
                 ->save($my_save_dir . '1_' . $suffix_filename);
 
             \Config\Services::image()
-                ->withFile($url_to_image)
+                ->withFile($complete_save_loc)
                 ->resize($custom_photo2[0], $custom_photo2[1], true, 'height')
                 ->save($my_save_dir . '2_' . $suffix_filename);
 

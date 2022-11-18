@@ -6,11 +6,11 @@ use App\Models\RateCalendarModel;
 use App\Models\RateLangModel;
 use App\Models\RateMappingModel;
 use App\Models\RateModel;
-use CodeIgniter\RESTful\ResourceController;
+use App\Controllers\APIBaseController;
 use CodeIgniter\API\ResponseTrait;
 use DateTime;
 
-class RateCalendar extends ResourceController
+class RateCalendar extends APIBaseController
 {
 	/**
 	 * Return an array of Rate

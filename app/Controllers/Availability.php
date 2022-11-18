@@ -3,12 +3,11 @@
 namespace App\Controllers;
 
 use App\Models\TypeAvailabilityModel;
-use CodeIgniter\RESTful\ResourceController;
+use App\Controllers\APIBaseController;
 use CodeIgniter\API\ResponseTrait;
-use CodeIgniter\Entity\Cast\DatetimeCast;
 use DateTime;
 
-class Availability extends ResourceController
+class Availability extends APIBaseController
 {
 	/**
 	 * Return an array of Per type Calendar availability
