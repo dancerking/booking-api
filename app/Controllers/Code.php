@@ -66,6 +66,6 @@ class Code extends APIBaseController
             'mapped_filters' => $mapped_filters == null ? [] : $mapped_filters,
             'photo_contents' => $photo_contents == null ? [] : $photo_contents,
             'channel_video_codes' => $channel_video_codes == null ? [] : $channel_video_codes
-        ], 200);
+        ]);
 	}
 }

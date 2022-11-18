@@ -12,6 +12,7 @@ class APIBaseController extends ResourceController
         'code'                      => 200,
         'photo'                     => 300,
         'video'                     => 400,
+        'availability'              => 500,
     ];
 
     protected $errorCodes = [
@@ -22,9 +23,6 @@ class APIBaseController extends ResourceController
         'failed_create'             =>   4,
         'failed_update'             =>   5,
         'failed_delete'             =>   6,
-        'success_create'            =>   7,
-        'success_update'            =>   8,
-        'success_delete'            =>   9,
     ];
 
     protected function notifyError(?string $message = null, ?string $error = 'unknown', ?string $section = 'unknown') {
@@ -35,7 +33,7 @@ class APIBaseController extends ResourceController
             'code'    => $this->sectionCodes[$safeSection] + $this->errorCodes[$safeError],
             'message' => $message == null ? lang('APIErrors.' . $safeError) : $message,
         ];
-        return $this->respond($response);
+        return $this->respond($response, 400);
     }
 
     public function get_host_id()

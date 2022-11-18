@@ -74,19 +74,19 @@ class Photo extends APIBaseController
             $config = config('Config\App');
             $valid_image_size = $config->minimum_download_image_size;
             if(!($image_width >= $valid_image_size[0] && $image_height >= $valid_image_size[1])) {
-                $this->delete($new_id);
-                return $this->notifyError(lang('photo.failedDownload'), 'invalid_data', 'photo');
+                $photo_content_model->delete($new_id);
+                return $this->notifyError('Minimum photo size is 2048*1080', 'invalid_data', 'photo');
             }
             $is_upload = $this->uploadImage($img_url, $new_id, $host_id);
             if($is_upload == null) {
-                $this->delete($new_id);
+                $photo_content_model->delete($new_id);
                 return $this->notifyError(lang('Photo.failedUpload'),'invalid_data', 'photo');
             }
             if(!$photo_content_model->update($new_id, [
                 'photo_content_url' =>  $new_id . '.' . $is_upload['extension'],
                 'photo_content_status' => 1,
             ])){
-                $this->delete($new_id);
+                $photo_content_model->delete($new_id);
                 return $this->notifyError(lang('Photo.failedSave'), 'invalid_data', 'photo');
             }
 
@@ -107,7 +107,7 @@ class Photo extends APIBaseController
                             'content_caption_status'        => 1,
                         ];
                         if(!$content_caption_model->insert($caption_data)) {
-                            $this->delete($new_id);
+                            $photo_content_model->delete($new_id);
                             return $this->notifyError('Failed content caption data insert', 'failed_create', 'photo');
                         }
                     }
@@ -126,11 +126,17 @@ class Photo extends APIBaseController
      * DELETE: /photos/delete
      * @return mixed
      */
-    public function delete($photo_content_id = null)
+    public function delete($id = null)
     {
         $host_id = $this->get_host_id();
-        if($photo_content_id == null) {
-            return $this->notifyError('Invalid request', 'invalid_request', 'photo');
+        if (! $this->validate([
+            'photo_content_id' => 'required',
+        ])) {
+            return $this->notifyError('Input data format is incorrect', 'invalid_data', 'photo');
+        }
+        $photo_content_id = $this->request->getVar('photo_content_id');
+        if(!ctype_digit((string)$photo_content_id)) {
+            return $this->notifyError('Input data format is incorrect', 'invalid_data', 'photo');
         }
         $photo_content_model = new PhotoContentModel();
         $check_id_exist = $photo_content_model->is_existed_id($photo_content_id);
@@ -183,12 +189,12 @@ class Photo extends APIBaseController
             $custom_photo2 = $config->Custom_photo2;
             \Config\Services::image()
                 ->withFile($complete_save_loc)
-                ->resize($custom_photo1[0], $custom_photo1[1], true, 'height')
+                ->fit($custom_photo1[0], $custom_photo1[1], 'center')
                 ->save($my_save_dir . '1_' . $suffix_filename);
 
             \Config\Services::image()
                 ->withFile($complete_save_loc)
-                ->resize($custom_photo2[0], $custom_photo2[1], true, 'height')
+                ->fit($custom_photo2[0], $custom_photo2[1], 'center')
                 ->save($my_save_dir . '2_' . $suffix_filename);
 
             return [

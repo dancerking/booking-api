@@ -13,5 +13,4 @@
 return [
     'failedUpload' => 'Failed upload: Could not find image url',
     'failedSave'   => 'Failed photo url save',
-    'failedDownload' => 'Failed photo download: minimum photo size is 2048*1080',
 ];

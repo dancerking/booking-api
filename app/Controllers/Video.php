@@ -54,6 +54,11 @@ class Video extends APIBaseController
         $video_content_code = $this->request->getVar('video_content_code');
         $content_caption = $this->request->getVar('content_caption');
 
+        // Validation
+        if($video_content_level == 2 && $video_content_connection == ''){
+            return $this->notifyError('video_content_connection is required', 'invalid_data', 'video');
+        }
+
         // Insert video content
         $video_content_model = new VideoContentModel();
         $data = [
@@ -85,7 +90,7 @@ class Video extends APIBaseController
                             'content_caption_status'        => 1,
                         ];
                         if(!$content_caption_model->insert($caption_data)) {
-                            $this->delete($new_id);
+                            $video_content_model->delete($new_id);
                             return $this->notifyError('Failed content caption data insert', 'failed_create', 'photo');
                         }
                     }
@@ -104,11 +109,17 @@ class Video extends APIBaseController
      * DELETE /videos/delete
      * @return mixed
      */
-    public function delete($video_content_id = null)
+    public function delete($id = null)
     {
         $host_id = $this->get_host_id();
-        if($video_content_id == null) {
-            return $this->notifyError('Invalid request', 'invalid_request', 'video');
+        if (! $this->validate([
+            'video_content_id' => 'required',
+        ])) {
+            return $this->notifyError('Input data format is incorrect', 'invalid_data', 'video');
+        }
+        $video_content_id = $this->request->getVar('video_content_id');
+        if(!ctype_digit((string)$video_content_id)) {
+            return $this->notifyError('Input data format is incorrect', 'invalid_data', 'video');
         }
         $video_content_model = new VideoContentModel();
         $check_id_exist = $video_content_model->is_existed_id($video_content_id);
