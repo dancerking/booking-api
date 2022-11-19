@@ -45,4 +45,10 @@ class PromosMappingModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function is_existed_id($id) {
+        $query = $this->db->query('SELECT promo_mapping_id FROM promos_mapping WHERE promo_mapping_id = ' . $id);
+        $results = $query->getResult();
+        return $results;
+    }
 }
