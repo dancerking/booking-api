@@ -45,7 +45,7 @@ class RateCalendar extends APIBaseController
             'daily_rate_minstay'        => 'required',
             'daily_rate_maxstay'        => 'required',
         ];
-        if(!$this->validate($rules)) return $this->fail($this->validator->getErrors());
+        if(!$this->validate($rules)) return $this->notifyError('Input data format is incorrect.', 'invalid_data', 'rate_calendar');
 
         /* Getting data from raw */
         $daily_rate_code = $this->request->getVar('daily_rate_code');
@@ -61,49 +61,35 @@ class RateCalendar extends APIBaseController
 
         /* Format validation */
         if(!ctype_digit((string)$daily_rate_code)) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_code format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_code format is incorrect.', 'invalid_data', 'rate_calendar');
+        }
+        $rate_model = new RateModel();
+        if($rate_model->is_existed_id($daily_rate_code) == null) {
+            return $this->notifyError('No Such daily_rate_code', 'invalid_data', 'rate_calendar');
         }
         if(!$this->validateDate($daily_rate_day)) {
-            return $this->respond([
-                'Date format error' => 'daily_rate_day format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_day format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         if(fmod($daily_rate_baserate, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_baserate format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_baserate format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         if(fmod($daily_rate_guesttype_1, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_1 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_1 format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         if(fmod($daily_rate_guesttype_2, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_2 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_2 format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         if(fmod($daily_rate_guesttype_3, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_3 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_3 format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         if(fmod($daily_rate_guesttype_4, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_4 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_4 format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         if(!ctype_digit((string)$daily_rate_minstay)) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_minstay format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_minstay format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         if(!ctype_digit((string)$daily_rate_maxstay)) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_maxstay format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_maxstay format is incorrect.', 'invalid_data', 'rate_calendar');
         }
         /* Update data in DB */
         /** Rate Calendar Model management */
@@ -122,12 +108,11 @@ class RateCalendar extends APIBaseController
         ];
         $new_id = $rate_calendar_model->insert($rate_calendar_data);
         if($new_id == null) {
-            return $this->respond([
-                'Failed message' => 'Failed insert.'
-            ]);
+           return $this->notifyError('Falied create', 'failed_create', 'rate_calendar');
         }
         return $this->respond([
-            'Success' => 'new_id:' . $new_id . ' Successfully created.'
+            'id'        => $new_id,
+            'message'   => 'Successfully created.'
         ]);
     }
 
@@ -158,7 +143,7 @@ class RateCalendar extends APIBaseController
             'daily_rate_minstay'        => 'required',
             'daily_rate_maxstay'        => 'required',
         ];
-        if(!$this->validate($rules)) return $this->fail($this->validator->getErrors());
+        if(!$this->validate($rules)) return $this->notifyError('Input data format is incorrect.', 'invalid_data', 'rate_calendar');
 
         /* Getting data from raw */
         $daily_rate_id = $this->request->getVar('daily_rate_id');
@@ -175,54 +160,38 @@ class RateCalendar extends APIBaseController
 
         /* Format validation */
         if(!ctype_digit((string)$daily_rate_id)) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_id format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_id format is incorrect');
         }
         if(!ctype_digit((string)$daily_rate_code)) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_code format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_code format is incorrect');
+        }
+        $rate_model = new RateModel();
+        if($rate_model->is_existed_id($daily_rate_code) == null) {
+            return $this->notifyError('No Such daily_rate_code', 'invalid_data', 'rate_calendar');
         }
         if(!$this->validateDate($daily_rate_day)) {
-            return $this->respond([
-                'Date format error' => 'daily_rate_day format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_day format is incorrect');
         }
         if(fmod($daily_rate_baserate, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_baserate format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_baserate format is incorrect');
         }
         if(fmod($daily_rate_guesttype_1, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_1 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_1 format is incorrect');
         }
         if(fmod($daily_rate_guesttype_2, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_2 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_2 format is incorrect');
         }
         if(fmod($daily_rate_guesttype_3, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_3 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_3 format is incorrect');
         }
         if(fmod($daily_rate_guesttype_4, 1) !== 0.00) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_guesttype_4 format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_guesttype_4 format is incorrect');
         }
         if(!ctype_digit((string)$daily_rate_minstay)) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_minstay format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_minstay format is incorrect');
         }
         if(!ctype_digit((string)$daily_rate_maxstay)) {
-            return $this->respond([
-                'Int format error' => 'daily_rate_maxstay format is incorrect.'
-            ]);
+            return $this->notifyError('daily_rate_maxstay format is incorrect');
         }
         /* Update data in DB */
         /** Rate Calendar Model management */
@@ -240,67 +209,12 @@ class RateCalendar extends APIBaseController
             'daily_rate_minstay'        => $daily_rate_minstay,
             'daily_rate_maxstay'        => $daily_rate_maxstay,
         ];
-        if($rate_calendar_model->update($daily_rate_id, $rate_calendar_data) == null) {
-            return $this->respond([
-                'Failed message' => 'Failed update.'
-            ]);
+        if(!$rate_calendar_model->update($daily_rate_id, $rate_calendar_data)) {
+            return $this->notifyError('Failed update', 'failed_update', 'rate_calendar');
         }
         return $this->respond([
-            'Success' => 'daily_rate_id:' . $daily_rate_id . ' Successfully updated.'
-        ]);
-    }
-
-    /**
-     * Delete Rate content
-     * DELETE /baseratesettings/delete
-     * @return mixed
-     */
-    public function delete($rate_id = null)
-    {
-        $host_id = $this->get_host_id();
-        if($rate_id == null) {
-            return $this->respond([
-                'message' => [
-                    'error' => 'Failed Delete'
-                ]
-                ]);
-        }
-        $rate_model = new RateModel();
-        $check_id_exist = $rate_model->is_existed_id($rate_id);
-        if($check_id_exist == null) {
-            return $this->respond([
-                'message' => [
-                    'error' => 'No Such Data'
-                ]
-            ]);
-        }
-        if ($rate_model->delete($rate_id)) {
-            $rate_mapping_model = new RateMappingModel();
-            $rate_lang_model = new RateLangModel();
-            if(!$rate_mapping_model->delete_by($rate_id, $host_id)) {
-                return $this->respond([
-                    'message' => [
-                        'Error' => 'Failed Rate Mapping data Delete'
-                    ]
-                    ]);
-            }
-            if(!$rate_lang_model->delete_by($rate_id, $host_id)) {
-                return $this->respond([
-                    'message' => [
-                        'Error' => 'Failed Rate lang data Delete'
-                    ]
-                    ]);
-            }
-            return $this->respond([
-                'message' => [
-                    'success' => 'id:' . $rate_id .' Successfully Deleted'
-                ]
-            ]);
-        }
-        return $this->respond([
-            'message' => [
-                'error' => 'Failed Deleted'
-            ]
+            'id'        => $daily_rate_id,
+            'message'   => 'Successfully updated.'
         ]);
     }
 
