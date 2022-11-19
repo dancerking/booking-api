@@ -56,4 +56,26 @@ class FilterMappingModel extends Model
         $results = $query->getResult();
         return $results;
     }
+
+    public function is_existed_id($id) {
+        $query = $this->db->query('SELECT filter_mapping_id FROM filters_mapping WHERE filter_mapping_id = ' . $id);
+        $results = $query->getResult();
+        return $results;
+    }
+
+    public function get_available_ids($host_id, $filter_mapping_type, $filter_mapping_level) {
+        if($filter_mapping_level == 1) {
+            $query = $this->db->query('SELECT filter_mapping_id FROM filters_mapping WHERE filter_mapping_host_id = ' . $host_id . ' AND filter_mapping_type = ' . $filter_mapping_type . ' AND filter_mapping_level = ' . $filter_mapping_level . ' AND filter_mapping_status = 1');
+            $results = $query->getResult();
+            return $results;
+        }
+        if($filter_mapping_level == 2) {
+            $query = $this->db->query('SELECT filters_mapping.filter_mapping_id
+            FROM filters_mapping
+            LEFT JOIN filters ON filters.filter_code=filters_mapping.filter_mapping_code AND filters.filter_level=filters_mapping.filter_mapping_level AND filters.filter_status=1
+            WHERE filters_mapping.filter_mapping_host_id = ' . $host_id . ' AND filter_mapping_type = ' . $filter_mapping_type . ' AND filters_mapping.filter_mapping_status=1 AND filters_mapping.filter_mapping_level = ' . $filter_mapping_level . ' GROUP BY filters_mapping.filter_mapping_id');
+            $results = $query->getResult();
+            return $results;
+        }
+    }
 }
