@@ -45,12 +45,12 @@ class Auth implements FilterInterface
 			];
             $current_host_ip = $request->getIPAddress();
             if($current_host_ip !== $response['host_ip']) {
-                return Services::response()->setJSON(['error' => '1', 'code' => '102', 'message' => 'Warning: IP conflict']);
+                return Services::response()->setJSON(['error' => '1', 'code' => '102', 'message' => 'Warning: IP conflict'])->setStatusCode(400);
             }
 			$config = config('Config\App');
             $config->JWTresponse = $response;
         } catch (\Throwable $th) {
-            return Services::response()->setJSON(['error' => '1', 'code' => '102', 'message' => 'Invalid Token']);
+            return Services::response()->setJSON(['error' => '1', 'code' => '102', 'message' => 'Invalid Token'])->setStatusCode(400);
         }
     }
 

@@ -13,6 +13,10 @@ class APIBaseController extends ResourceController
         'photo'                     => 300,
         'video'                     => 400,
         'availability'              => 500,
+        'rate'                      => 600,
+        'rate_calendar'             => 700,
+        'filter'                    => 800,
+        'promo'                     => 900,
     ];
 
     protected $errorCodes = [

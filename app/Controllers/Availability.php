@@ -41,7 +41,7 @@ class Availability extends APIBaseController
             return $this->notifyError('Date format is incorrect', 'invalid_data', 'availability');
         }
         if(new DateTime($to) < new DateTime($from)) {
-            return $this->notifyError('To date should larger than From date.', 'invalid_data', 'availability');
+            return $this->notifyError('To date should be larger than From date.', 'invalid_data', 'availability');
         }
         // getting availability data from model
         $availability_type = $type_availability_model->get_availability_types($host_id, $type_availability_code, $from, $to);

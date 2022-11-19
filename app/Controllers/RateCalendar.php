@@ -226,7 +226,6 @@ class RateCalendar extends APIBaseController
 
     public function is_decimal( $val )
     {
-        var_dump(floor($val));
         return is_numeric( $val ) && floor( $val ) != $val;
     }
 }

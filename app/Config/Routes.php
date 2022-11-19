@@ -45,12 +45,12 @@ $routes->get('codes', 'Code::index', ['filter' => 'auth']);
 /* Photo Content Routes*/
 $routes->get('photos', 'Photo::index', ['filter' => 'auth']);
 $routes->post('photos/add', 'Photo::create', ['filter' => 'auth']);
-$routes->delete('photos/delete/(:num)', 'Photo::delete/$1', ['filter' => 'auth']);
+$routes->delete('photos/delete', 'Photo::delete', ['filter' => 'auth']);
 
 /* Video Content Route */
 $routes->get('videos', 'Video::index', ['filter' => 'auth']);
 $routes->post('videos/add', 'Video::create', ['filter' => 'auth']);
-$routes->delete('videos/delete/(:num)', 'Video::delete/$1', ['filter' => 'auth']);
+$routes->delete('videos/delete', 'Video::delete', ['filter' => 'auth']);
 
 /* Availability Route */
 $routes->get('availability', 'Availability::index', ['filter' => 'auth']);
@@ -60,11 +60,20 @@ $routes->put('availability/update', 'Availability::update', ['filter' => 'auth']
 $routes->get('baseratesettings', 'Rate::index', ['filter' => 'auth']);
 $routes->put('baseratesettings/update', 'Rate::update', ['filter' => 'auth']);
 $routes->post('baseratesettings/add', 'Rate::create', ['filter' => 'auth']);
-$routes->delete('baseratesettings/delete/(:num)', 'Rate::delete/$1', ['filter' => 'auth']);
+$routes->delete('baseratesettings/delete', 'Rate::delete', ['filter' => 'auth']);
 
 /* Rate Calendar Route */
 $routes->post('baseratecalendar/add', 'RateCalendar::create', ['filter' => 'auth']);
 $routes->put('baseratecalendar/update', 'RateCalendar::update', ['filter' => 'auth']);
+
+/* Filter Route */
+$routes->get('filters/map', 'Filter::map', ['filter' => 'auth']);
+$routes->delete('filters/delete', 'Filter::delete', ['filter' => 'auth']);
+
+/* Promo Route */
+$routes->get('promos', 'Promo::index', ['filter' => 'auth']);
+$routes->put('promos/update', 'Promo::update', ['filter' => 'auth']);
+$routes->delete('promos/delete', 'Promo::delete', ['filter' => 'auth']);
 
 /*
  * --------------------------------------------------------------------
