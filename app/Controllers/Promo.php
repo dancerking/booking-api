@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\APIBaseController;
 use App\Models\PromosMappingModel;
 use App\Models\PromosModel;
+use App\Models\TypeMappingModel;
 use CodeIgniter\API\ResponseTrait;
 use DateTime;
 
@@ -66,6 +67,7 @@ class Promo extends APIBaseController
         /* Load Model */
         $promo_model = new PromosModel();
         $promo_mapping_model = new PromosMappingModel();
+        $type_mapping_model = new TypeMappingModel();
 
         /* validation request fields */
         if (
@@ -176,6 +178,13 @@ class Promo extends APIBaseController
                 'promo'
             );
         }
+        if ($promo_status < 1 || $promo_status > 4) {
+            return $this->notifyError(
+                'promo_status should be between 1 and 4.',
+                'invalid_data',
+                'promo'
+            );
+        }
         if (!is_array($promos_mapping)) {
             return $this->notifyError(
                 'promos_mapping should be array'
@@ -194,6 +203,31 @@ class Promo extends APIBaseController
                     return $this->notifyError(
                         'promos_mapping requires promo_mapping_type and promo_mapping status.',
                         'invalied_data',
+                        'promo'
+                    );
+                }
+                if (
+                    $promo_mapping->promo_mapping_status <
+                        1 ||
+                    $promo_mapping->promo_mapping_status > 4
+                ) {
+                    return $this->notifyError(
+                        'promo_mapping_status should be between 1 and 4.',
+                        'invalid_data',
+                        'promo'
+                    );
+                }
+                if (
+                    $type_mapping_model
+                        ->where([
+                            'type_mapping_code' =>
+                                $promo_mapping->promo_mapping_type,
+                        ])
+                        ->findAll() == null
+                ) {
+                    return $this->notifyError(
+                        'Invalid promo_mapping_type exists',
+                        'invalid_data',
                         'promo'
                     );
                 }
@@ -229,22 +263,25 @@ class Promo extends APIBaseController
             );
         }
         /* Update promos_mapping table */
-        $promo_mapping_model
-            ->where([
-                'promo_mapping_host_id' => $host_id,
-                'promo_mapping_code' => $promo_id,
-            ])
-            ->delete();
-        foreach ($promos_mapping as $promo_mapping) {
-            $promo_mapping_model->insert([
-                'promo_mapping_host_id' => $host_id,
-                'promo_mapping_code' => $promo_id,
-                'promo_mapping_type' =>
-                    $promo_mapping->promo_mapping_type,
-                'promo_mapping_status' =>
-                    $promo_mapping->promo_mapping_status,
-            ]);
+        if ($promos_mapping != null) {
+            $promo_mapping_model
+                ->where([
+                    'promo_mapping_host_id' => $host_id,
+                    'promo_mapping_code' => $promo_id,
+                ])
+                ->delete();
+            foreach ($promos_mapping as $promo_mapping) {
+                $promo_mapping_model->insert([
+                    'promo_mapping_host_id' => $host_id,
+                    'promo_mapping_code' => $promo_id,
+                    'promo_mapping_type' =>
+                        $promo_mapping->promo_mapping_type,
+                    'promo_mapping_status' =>
+                        $promo_mapping->promo_mapping_status,
+                ]);
+            }
         }
+
         return $this->respond([
             'promo_id' => $promo_id,
             'message' => 'Successfully updated',
