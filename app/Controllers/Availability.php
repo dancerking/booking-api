@@ -17,6 +17,7 @@ class Availability extends APIBaseController
     use ResponseTrait;
     public function index()
     {
+        $config = config('Config\App');
         /* Load TypeAvailability Model */
         $type_availability_model = new TypeAvailabilityModel();
 
@@ -66,10 +67,31 @@ class Availability extends APIBaseController
             date_diff(
                 new DateTime($to),
                 new DateTime($from)
-            )->days > 90
+            )->days > $config->maximum_date_range
         ) {
             return $this->notifyError(
-                'date range is maximum 90 days',
+                'date range is maximum ' .
+                    $config->maximum_date_range .
+                    ' days',
+                'invalid_data',
+                'availability'
+            );
+        }
+        if (new DateTime($from) > new DateTime()) {
+            return $this->notifyError(
+                'from date should be smaller than today date.',
+                'invalid_data',
+                'availability'
+            );
+        }
+        if (
+            date_diff(new DateTime(), new DateTime($from))
+                ->days > $config->maximum_date_range
+        ) {
+            return $this->notifyError(
+                'date range is maximum ' .
+                    $config->maximum_date_range .
+                    ' days',
                 'invalid_data',
                 'availability'
             );
