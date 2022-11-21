@@ -6,6 +6,8 @@ use App\Models\ServiceLangModel;
 use App\Models\ServiceMappingModel;
 use App\Models\ServiceModel;
 use App\Controllers\APIBaseController;
+use App\Models\LanguageModel;
+use App\Models\TypeMappingModel;
 use CodeIgniter\API\ResponseTrait;
 use DateTime;
 
@@ -46,6 +48,8 @@ class Service extends APIBaseController
         $service_model = new ServiceModel();
         $service_mapping_model = new ServiceMappingModel();
         $service_lang_model = new ServiceLangModel();
+        $type_mapping_model = new TypeMappingModel();
+        $lang_model = new LanguageModel();
 
         // Service content
         if (
@@ -203,6 +207,44 @@ class Service extends APIBaseController
                         'service'
                     );
                 }
+                if (
+                    $service_mapping->service_mapping_status <
+                        1 ||
+                    $service_mapping->service_mapping_status >
+                        4
+                ) {
+                    return $this->notifyError(
+                        'service_mapping_status should be between 1 and 4.',
+                        'invalid_data',
+                        'service'
+                    );
+                }
+                if (
+                    $type_mapping_model
+                        ->where([
+                            'type_mapping_code' =>
+                                $service_mapping->service_mapping_type,
+                        ])
+                        ->findAll() == null
+                ) {
+                    return $this->notifyError(
+                        'Invalid service_mapping_type exists',
+                        'invalid_data',
+                        'service'
+                    );
+                }
+                if (
+                    $service_mapping->service_mapping_status <
+                        1 ||
+                    $service_mapping->service_mapping_status >
+                        4
+                ) {
+                    return $this->notifyError(
+                        'service_mapping_status should be between 1 and 4.',
+                        'invalid_data',
+                        'service'
+                    );
+                }
             }
         }
 
@@ -224,6 +266,20 @@ class Service extends APIBaseController
                 ) {
                     return $this->notifyError(
                         'services_lang requires service_lang_name, service_lang_description and service_lang_lang.',
+                        'invalid_data',
+                        'service'
+                    );
+                }
+                if (
+                    $lang_model
+                        ->where([
+                            'language_code' =>
+                                $service_lang->service_lang_lang,
+                        ])
+                        ->findAll() == null
+                ) {
+                    return $this->notifyError(
+                        'Invalid language exists.',
                         'invalid_data',
                         'service'
                     );
@@ -336,6 +392,8 @@ class Service extends APIBaseController
         $service_model = new ServiceModel();
         $service_mapping_model = new ServiceMappingModel();
         $service_lang_model = new ServiceLangModel();
+        $type_mapping_model = new TypeMappingModel();
+        $lang_model = new LanguageModel();
 
         // Service content
         if (
@@ -479,6 +537,42 @@ class Service extends APIBaseController
                     'service'
                 );
             }
+            if (
+                $service_mapping->service_mapping_status <
+                    1 ||
+                $service_mapping->service_mapping_status > 4
+            ) {
+                return $this->notifyError(
+                    'service_mapping_status should be between 1 and 4.',
+                    'invalid_data',
+                    'service'
+                );
+            }
+            if (
+                $type_mapping_model
+                    ->where([
+                        'type_mapping_code' =>
+                            $service_mapping->service_mapping_type,
+                    ])
+                    ->findAll() == null
+            ) {
+                return $this->notifyError(
+                    'Invalid service_mapping_type exists',
+                    'invalid_data',
+                    'service'
+                );
+            }
+            if (
+                $service_mapping->service_mapping_status <
+                    1 ||
+                $service_mapping->service_mapping_status > 4
+            ) {
+                return $this->notifyError(
+                    'service_mapping_status should be between 1 and 4.',
+                    'invalid_data',
+                    'service'
+                );
+            }
         }
         if (!is_array($services_lang)) {
             return $this->notifyError(
@@ -495,6 +589,20 @@ class Service extends APIBaseController
             ) {
                 return $this->notifyError(
                     'services_lang requires service_lang_name, service_lang_description and service_lang_lang.',
+                    'invalid_data',
+                    'service'
+                );
+            }
+            if (
+                $lang_model
+                    ->where([
+                        'language_code' =>
+                            $service_lang->service_lang_lang,
+                    ])
+                    ->findAll() == null
+            ) {
+                return $this->notifyError(
+                    'Invalid language exists.',
                     'invalid_data',
                     'service'
                 );
