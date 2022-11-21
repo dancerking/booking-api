@@ -101,7 +101,7 @@ $routes->put(
 );
 
 /* Filter Route */
-$routes->get('filters/map', 'Filter::map', [
+$routes->post('filters/map', 'Filter::map', [
     'filter' => 'auth',
 ]);
 $routes->delete('filters/delete', 'Filter::delete', [

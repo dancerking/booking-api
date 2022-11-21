@@ -469,4 +469,5 @@ class App extends BaseConfig
     public $minimum_download_image_size = ['2048', '1080'];
     public $Custom_photo1 = ['1024', '540'];
     public $Custom_photo2 = ['330', '174'];
+    public $maximum_date_range = 90;
 }
