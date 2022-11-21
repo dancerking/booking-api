@@ -80,9 +80,13 @@ class Service extends APIBaseController
         $service_mandatory_group_name =
             $service_mandatory == 1
                 ? ''
-                : $this->request->getVar(
+                : ($this->request->getVar(
                     'service_mandatory_group_name'
-                );
+                ) == null
+                    ? ''
+                    : $this->request->getVar(
+                        'service_mandatory_group_name'
+                    ));
         $service_mandatory_note = $this->request->getVar(
             'service_mandatory_note'
         );
@@ -290,6 +294,7 @@ class Service extends APIBaseController
         // Update Service content
         $data = [
             'service_mode' => $service_mode,
+            'service_host_id' => $host_id,
             'service_mandatory' => $service_mandatory,
             'service_mandatory_note' => $service_mandatory_note,
             'service_mandatory_group_name' => $service_mandatory_group_name,
@@ -424,9 +429,13 @@ class Service extends APIBaseController
         $service_mandatory_group_name =
             $service_mandatory == 1
                 ? ''
-                : $this->request->getVar(
+                : ($this->request->getVar(
                     'service_mandatory_group_name'
-                );
+                ) == null
+                    ? ''
+                    : $this->request->getVar(
+                        'service_mandatory_group_name'
+                    ));
         $service_mandatory_note = $this->request->getVar(
             'service_mandatory_note'
         );
@@ -611,6 +620,7 @@ class Service extends APIBaseController
         // Insert Service content
         $data = [
             'service_mode' => $service_mode,
+            'service_host_id' => $host_id,
             'service_mandatory' => $service_mandatory,
             'service_mandatory_note' => $service_mandatory_note,
             'service_mandatory_group_name' => $service_mandatory_group_name,

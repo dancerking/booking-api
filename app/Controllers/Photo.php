@@ -85,7 +85,16 @@ class Photo extends APIBaseController
             'content_caption'
         );
         $img_url = $this->request->getVar('img_url');
-
+        if (
+            $photo_content_level < 1 ||
+            $photo_content_level > 2
+        ) {
+            return $this->notifyError(
+                'photo_content_level should be 1 or 2.',
+                'invalid_data',
+                'photo'
+            );
+        }
         // Insert photo content
         $photo_content_model = new PhotoContentModel();
         $data = [

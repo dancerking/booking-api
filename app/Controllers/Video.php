@@ -101,6 +101,17 @@ class Video extends APIBaseController
             );
         }
 
+        if (
+            $video_content_level < 1 ||
+            $video_content_level > 2
+        ) {
+            return $this->notifyError(
+                'video_content_level should be 1 or 2.',
+                'invalid_data',
+                'video'
+            );
+        }
+
         // Insert video content
         $video_content_model = new VideoContentModel();
         $data = [
