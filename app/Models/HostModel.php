@@ -6,15 +6,15 @@ use CodeIgniter\Model;
 
 class HostModel extends Model
 {
-    protected $DBGroup          = 'default';
-    protected $table            = 'hosts';
-    protected $primaryKey       = 'host_id';
+    protected $DBGroup = 'default';
+    protected $table = 'hosts';
+    protected $primaryKey = 'host_id';
     protected $useAutoIncrement = true;
-    protected $insertID         = 0;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [
+    protected $insertID = 0;
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
+    protected $protectFields = true;
+    protected $allowedFields = [
         'host_id',
         'host_category_code',
         'host_sub_category_code',
@@ -56,40 +56,36 @@ class HostModel extends Model
 
     // Dates
     protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    protected $dateFormat = 'datetime';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+    protected $deletedField = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [
-        'host_referral_email'    => 'required|is_unique[hosts.host_referral_email]',
-        'host_password_security' => 'required|min_length[8]',
-    ];
-    protected $validationMessages   = [
-        'host_referral_email'  => [
-            'is_unique' => 'Sorry. That email has already been taken. Please choose another.',
-        ],
-    ];
-    protected $skipValidation       = false;
+    protected $validationRules = [];
+    protected $validationMessages = [];
+    protected $skipValidation = false;
     protected $cleanValidationRules = true;
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+    protected $beforeInsert = [];
+    protected $afterInsert = [];
+    protected $beforeUpdate = [];
+    protected $afterUpdate = [];
+    protected $beforeFind = [];
+    protected $afterFind = [];
+    protected $beforeDelete = [];
+    protected $afterDelete = [];
 
-    public function get_host_data($host_id) {
+    public function get_host_data($host_id)
+    {
         // $query   = $this->db->query('SELECT `hosts`.host_id, `hosts`.host_company_name, `hosts`.host_referral_phone, `hosts`.host_referral_email, `hosts`.host_status
         // FROM `hosts` WHERE `hosts`.host_status = "1"');
-        $query   = $this->db->query('SELECT `hosts`.host_id, `hosts`.host_company_name, `hosts`.host_referral_phone, `hosts`.host_referral_email, `hosts`.host_status
-        FROM `hosts` WHERE `hosts`.host_id = ' . $host_id);
+        $query = $this->db->query(
+            'SELECT `hosts`.host_id, `hosts`.host_company_name, `hosts`.host_referral_phone, `hosts`.host_referral_email, `hosts`.host_status
+        FROM `hosts` WHERE `hosts`.host_id = ' . $host_id
+        );
         $results = $query->getResult();
         return $results;
     }

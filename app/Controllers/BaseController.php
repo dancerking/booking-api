@@ -40,10 +40,17 @@ abstract class BaseController extends Controller
     /**
      * Constructor.
      */
-    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
-    {
+    public function initController(
+        RequestInterface $request,
+        ResponseInterface $response,
+        LoggerInterface $logger
+    ) {
         // Do Not Edit This Line
-        parent::initController($request, $response, $logger);
+        parent::initController(
+            $request,
+            $response,
+            $logger
+        );
 
         // Preload any models, libraries, etc, here.
 

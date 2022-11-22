@@ -27,31 +27,51 @@ class Auth implements FilterInterface
      * @return mixed
      */
     use ResponseTrait;
-    public function before(RequestInterface $request, $arguments = null)
-    {
+    public function before(
+        RequestInterface $request,
+        $arguments = null
+    ) {
         $key = getenv('TOKEN_SECRET');
         $header = $request->getServer('HTTP_AUTHORIZATION');
-        if(!$header) return Services::response()
-                            ->setJSON(['msg' => 'Token Required'])
-                            ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+        if (!$header) {
+            return Services::response()
+                ->setJSON(['msg' => 'Token Required'])
+                ->setStatusCode(
+                    ResponseInterface::HTTP_UNAUTHORIZED
+                );
+        }
         $token = explode(' ', $header)[1];
-        $current_host_ip = $request->getIPAddress();
         try {
-            $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            $decoded = JWT::decode(
+                $token,
+                new Key($key, 'HS256')
+            );
             $response = [
-				'host_id' => $decoded->host_id,
+                'host_id' => $decoded->host_id,
                 'host_ip' => $decoded->host_ip,
-				'username' => $decoded->username,
+                'username' => $decoded->username,
                 'password' => $decoded->password,
-			];
+            ];
             $current_host_ip = $request->getIPAddress();
-            if($current_host_ip !== $response['host_ip']) return $this->fail('Warning: IP Conflict');
-			$config = config('Config\App');
+            if ($current_host_ip !== $response['host_ip']) {
+                return Services::response()
+                    ->setJSON([
+                        'error' => '1',
+                        'code' => '102',
+                        'message' => 'Warning: IP conflict',
+                    ])
+                    ->setStatusCode(400);
+            }
+            $config = config('Config\App');
             $config->JWTresponse = $response;
         } catch (\Throwable $th) {
             return Services::response()
-                            ->setJSON(['msg' => 'Invalid Token'])
-                            ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
+                ->setJSON([
+                    'error' => '1',
+                    'code' => '102',
+                    'message' => 'Invalid Token',
+                ])
+                ->setStatusCode(400);
         }
     }
 
@@ -67,8 +87,11 @@ class Auth implements FilterInterface
      *
      * @return mixed
      */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
+    public function after(
+        RequestInterface $request,
+        ResponseInterface $response,
+        $arguments = null
+    ) {
         //
     }
 }
