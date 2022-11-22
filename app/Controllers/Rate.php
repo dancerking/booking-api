@@ -432,6 +432,24 @@ class Rate extends APIBaseController
 
         /* Update data in DB */
         /** Rate Model management */
+        if (
+            $rate_model
+                ->where([
+                    'rate_host_id' => $host_id,
+                    'rate_setting' => $rate_setting,
+                    'rate_discount_markup' => $rate_discount_markup,
+                    'rate_guests_included' => $rate_guests_included,
+                    'rate_downpayment' => $rate_downpayment,
+                    'rate_from_checkin' => $rate_from_checkin,
+                ])
+                ->findAll() != null
+        ) {
+            return $this->notifyError(
+                'Duplication error',
+                'duplicate',
+                'rate'
+            );
+        }
         $rate_data = [
             'rate_host_id' => $host_id,
             'rate_setting' => $rate_setting,

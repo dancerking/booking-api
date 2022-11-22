@@ -81,27 +81,23 @@ class Booking extends APIBaseController
                 'booking'
             );
         }
-        if (new DateTime($bookingfrom) > new DateTime()) {
-            return $this->notifyError(
-                'from date should be smaller than today date.',
-                'invalid_data',
-                'booking'
-            );
+        if (new DateTime($bookingfrom) < new DateTime()) {
+            if (
+                date_diff(
+                    new DateTime(),
+                    new DateTime($bookingfrom)
+                )->days > $config->maximum_date_range
+            ) {
+                return $this->notifyError(
+                    'date range is maximum ' .
+                        $config->maximum_date_range .
+                        ' days',
+                    'invalid_data',
+                    'booking'
+                );
+            }
         }
-        if (
-            date_diff(
-                new DateTime(),
-                new DateTime($bookingfrom)
-            )->days > $config->maximum_date_range
-        ) {
-            return $this->notifyError(
-                'date range is maximum ' .
-                    $config->maximum_date_range .
-                    ' days',
-                'invalid_data',
-                'booking'
-            );
-        }
+
         // Getting availabile data from model
         $booking = $host_booking_model->get_bookings(
             $host_id,

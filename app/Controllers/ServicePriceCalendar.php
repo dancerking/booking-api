@@ -88,27 +88,23 @@ class ServicePriceCalendar extends APIBaseController
                 'service_calendar'
             );
         }
-        if (new DateTime($servicefrom) > new DateTime()) {
-            return $this->notifyError(
-                'from date should be smaller than today date.',
-                'invalid_data',
-                'service_calendar'
-            );
+        if (new DateTime($servicefrom) < new DateTime()) {
+            if (
+                date_diff(
+                    new DateTime(),
+                    new DateTime($servicefrom)
+                )->days > $config->maximum_date_range
+            ) {
+                return $this->notifyError(
+                    'date range is maximum ' .
+                        $config->maximum_date_range .
+                        ' days',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
         }
-        if (
-            date_diff(
-                new DateTime(),
-                new DateTime($servicefrom)
-            )->days > $config->maximum_date_range
-        ) {
-            return $this->notifyError(
-                'date range is maximum ' .
-                    $config->maximum_date_range .
-                    ' days',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
+
         // getting availabile data from model
         $service_price_calendar = $service_calendar_model->get_price_calendar(
             $host_id,
@@ -217,6 +213,23 @@ class ServicePriceCalendar extends APIBaseController
             );
         }
         /* Insert data in DB */
+        if (
+            $service_calendar_model
+                ->where([
+                    'service_price_code' => $service_price_code,
+                    'service_price_type' => $service_price_type,
+                    'service_price_day' => $service_price_day,
+                    'service_price' => $service_price,
+                    'service_price_host_id' => $host_id,
+                ])
+                ->findAll() != null
+        ) {
+            return $this->notifyError(
+                'Duplication error',
+                'duplicate',
+                'service_calendar'
+            );
+        }
         $data = [
             'service_price_code' => $service_price_code,
             'service_price_type' => $service_price_type,

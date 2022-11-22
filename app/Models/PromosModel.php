@@ -79,7 +79,7 @@ class PromosModel extends Model
                         ' AND type_mapping_main_status = 1'
                 );
                 $type_mapping_name_results = $type_mapping_name_query->getResult();
-                $result->type_mapping_name = $type_mapping_name_results;
+                $result->type_mapping_names = $type_mapping_name_results;
             }
         }
         return $results;

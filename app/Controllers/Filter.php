@@ -107,6 +107,22 @@ class Filter extends APIBaseController
                 );
             }
         }
+        if (
+            $filter_mapping_model
+                ->where([
+                    'filter_mapping_host_id' => $host_id,
+                    'filter_mapping_code' => $filter_code,
+                    'filter_mapping_level' => $filter_mapping_level,
+                    'filter_mapping_type' => $filter_mapping_type,
+                ])
+                ->findAll() != null
+        ) {
+            return $this->notifyError(
+                'Duplication error.',
+                'duplicate',
+                'filter'
+            );
+        }
         $new_id = $filter_mapping_model->insert([
             'filter_mapping_host_id' => $host_id,
             'filter_mapping_code' => $filter_code,

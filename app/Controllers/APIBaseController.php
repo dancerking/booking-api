@@ -30,6 +30,7 @@ class APIBaseController extends ResourceController
         'failed_create' => 4,
         'failed_update' => 5,
         'failed_delete' => 6,
+        'duplicate' => 7,
     ];
 
     protected function notifyError(

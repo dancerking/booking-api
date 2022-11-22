@@ -65,7 +65,7 @@ class ServiceModel extends Model
                     $result->service_id
             );
             $service_mapping_result = $service_mapping_query->getResult();
-            $result->services_mapping = $service_mapping_result;
+            $result->service_mappings = $service_mapping_result;
 
             $service_lang_query = $this->db->query(
                 'SELECT service_lang_name, service_lang_description, service_lang_note_label, service_lang_group_label, service_lang_lang FROM services_lang WHERE service_lang_host_id = ' .
@@ -74,7 +74,7 @@ class ServiceModel extends Model
                     $result->service_id
             );
             $service_lang_result = $service_lang_query->getResult();
-            $result->services_lang = $service_lang_result;
+            $result->service_langs = $service_lang_result;
         }
         return $results;
     }

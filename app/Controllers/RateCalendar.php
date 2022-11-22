@@ -160,6 +160,29 @@ class RateCalendar extends APIBaseController
         }
         /* Update data in DB */
         /** Rate Calendar Model management */
+        if (
+            $rate_calendar_model
+                ->where([
+                    'rate_calendar_host_id' => $host_id,
+                    'daily_rate_code' => $daily_rate_code,
+                    'daily_rate_type' => $daily_rate_type,
+                    'daily_rate_day' => $daily_rate_day,
+                    'daily_rate_baserate' => $daily_rate_baserate,
+                    'daily_rate_guesttype_1' => $daily_rate_guesttype_1,
+                    'daily_rate_guesttype_2' => $daily_rate_guesttype_2,
+                    'daily_rate_guesttype_3' => $daily_rate_guesttype_3,
+                    'daily_rate_guesttype_4' => $daily_rate_guesttype_4,
+                    'daily_rate_minstay' => $daily_rate_minstay,
+                    'daily_rate_maxstay' => $daily_rate_maxstay,
+                ])
+                ->findAll() != null
+        ) {
+            return $this->notifyError(
+                'Duplication error',
+                'duplicate',
+                'rate'
+            );
+        }
         $rate_calendar_data = [
             'rate_calendar_host_id' => $host_id,
             'daily_rate_code' => $daily_rate_code,

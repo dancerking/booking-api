@@ -74,7 +74,7 @@ class PhotoContentModel extends Model
                     ' AND content_caption_type = 1'
             );
             $content_caption_results = $content_caption_query->getResult();
-            $result->content_caption = $content_caption_results;
+            $result->content_captions = $content_caption_results;
         }
         return $results;
     }
@@ -107,7 +107,7 @@ class PhotoContentModel extends Model
                     $mapping_name->type_mapping_name
                 );
             }
-            $result->type_mapping_name =
+            $result->type_mapping_names =
                 $type_mapping_names == null
                     ? []
                     : $type_mapping_names;
@@ -126,7 +126,7 @@ class PhotoContentModel extends Model
                     ' AND content_caption_type = 1'
             );
             $content_caption_results = $content_caption_query->getResult();
-            $result->content_caption = $content_caption_results;
+            $result->content_captions = $content_caption_results;
         }
         return $results;
     }
@@ -159,7 +159,7 @@ class PhotoContentModel extends Model
                     ' AND content_caption_type = 1'
             );
             $content_caption_results = $content_caption_query->getResult();
-            $result->content_caption = $content_caption_results;
+            $result->content_captions = $content_caption_results;
         }
         return $results;
     }
