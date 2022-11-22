@@ -134,6 +134,27 @@ $routes->delete('services/delete', 'Service::delete', [
 ]);
 
 /* Service price calendar Route*/
+$routes->get(
+    'servicecalendar',
+    'ServicePriceCalendar::index',
+    [
+        'filter' => 'auth',
+    ]
+);
+$routes->post(
+    'servicecalendar/add',
+    'ServicePriceCalendar::create',
+    [
+        'filter' => 'auth',
+    ]
+);
+$routes->put(
+    'servicecalendar/update',
+    'ServicePriceCalendar::update',
+    [
+        'filter' => 'auth',
+    ]
+);
 
 /*
  * --------------------------------------------------------------------

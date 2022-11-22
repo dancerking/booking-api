@@ -3,8 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\RateCalendarModel;
-use App\Models\RateLangModel;
-use App\Models\RateMappingModel;
 use App\Models\RateModel;
 use App\Controllers\APIBaseController;
 use CodeIgniter\API\ResponseTrait;
