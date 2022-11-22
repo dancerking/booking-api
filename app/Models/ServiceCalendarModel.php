@@ -46,4 +46,26 @@ class ServiceCalendarModel extends Model
     protected $afterFind = [];
     protected $beforeDelete = [];
     protected $afterDelete = [];
+
+    public function get_price_calendar(
+        $host_id,
+        $service_price_type,
+        $servicefrom,
+        $serviceto
+    ) {
+        $query = $this->db->query(
+            'SELECT service_price_code, service_price_type, service_price_day
+        FROM services_calendar
+        WHERE service_price_type = ' .
+                $service_price_type .
+                ' AND service_price_day >= "' .
+                $servicefrom .
+                '" AND service_price_day <= "' .
+                $serviceto .
+                '" AND service_price_host_id = ' .
+                $host_id
+        );
+        $results = $query->getResult();
+        return $results;
+    }
 }
