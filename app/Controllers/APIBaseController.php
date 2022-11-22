@@ -19,6 +19,7 @@ class APIBaseController extends ResourceController
         'promo' => 900,
         'service' => 1000,
         'service_calendar' => 1100,
+        'booking' => 1200,
     ];
 
     protected $errorCodes = [

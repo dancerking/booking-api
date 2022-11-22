@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\TypeAvailabilityModel;
 use App\Controllers\APIBaseController;
 use App\Models\ServiceCalendarModel;
 use App\Models\ServiceMappingModel;
