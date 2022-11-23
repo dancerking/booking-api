@@ -75,7 +75,7 @@ class VideoContentModel extends Model
                     ' AND content_caption_type = 2'
             );
             $content_caption_results = $content_caption_query->getResult();
-            $result->content_caption = $content_caption_results;
+            $result->content_captions = $content_caption_results;
         }
         return $results;
     }
@@ -108,7 +108,7 @@ class VideoContentModel extends Model
                     $mapping_name->type_mapping_name
                 );
             }
-            $result->type_mapping_name =
+            $result->type_mapping_names =
                 $type_mapping_names == null
                     ? []
                     : $type_mapping_names;
@@ -126,18 +126,8 @@ class VideoContentModel extends Model
                     ' AND content_caption_type = 2'
             );
             $content_caption_results = $content_caption_query->getResult();
-            $result->content_caption = $content_caption_results;
+            $result->content_captions = $content_caption_results;
         }
-        return $results;
-    }
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT video_content_id FROM video_contents WHERE video_content_id = ' .
-                $id
-        );
-        $results = $query->getResult();
         return $results;
     }
 }

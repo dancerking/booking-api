@@ -156,6 +156,11 @@ $routes->put(
     ]
 );
 
+/* Booking Route */
+$routes->get('bookings', 'Booking::index', [
+    'filter' => 'auth',
+]);
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing

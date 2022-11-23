@@ -19,7 +19,7 @@ class Promo extends APIBaseController
     use ResponseTrait;
     public function index()
     {
-        /* Load Rate Model */
+        /* Load necessary Model */
         $promo_model = new PromosModel();
 
         /* Getting host_id from JWT token */
@@ -64,12 +64,12 @@ class Promo extends APIBaseController
         /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
 
-        /* Load Model */
+        /* Load necessary Model */
         $promo_model = new PromosModel();
         $promo_mapping_model = new PromosMappingModel();
         $type_mapping_model = new TypeMappingModel();
 
-        /* validation request fields */
+        /* Validate */
         if (
             !$this->validate([
                 'promo_id' => 'required',
@@ -89,6 +89,8 @@ class Promo extends APIBaseController
                 'promo'
             );
         }
+
+        /* Getting request data */
         $promo_id = $this->request->getVar('promo_id');
         $promo_rate = $this->request->getVar('promo_rate');
         $promo_code = $this->request->getVar('promo_code');
@@ -113,6 +115,8 @@ class Promo extends APIBaseController
         $promos_mapping = $this->request->getVar(
             'promos_mapping'
         );
+
+        /* Validation for data format */
         if (!ctype_digit((string) $promo_id)) {
             return $this->notifyError(
                 'promo_id format is incorrect.',
@@ -120,9 +124,7 @@ class Promo extends APIBaseController
                 'promo'
             );
         }
-        if (
-            $promo_model->is_existed_id($promo_id) == null
-        ) {
+        if ($promo_model->find($promo_id) == null) {
             return $this->notifyError('No such promo_id');
         }
         if (!ctype_digit((string) $promo_rate)) {
@@ -234,10 +236,7 @@ class Promo extends APIBaseController
             }
         }
         /* Update promos table*/
-        $check_id_exist = $promo_model->is_existed_id(
-            $promo_id
-        );
-        if (!$check_id_exist) {
+        if ($promo_model->find($promo_id) == null) {
             return $this->notifyError(
                 'No Such ID',
                 'notFound',
@@ -298,15 +297,17 @@ class Promo extends APIBaseController
         /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
 
-        /* Load Model */
+        /* Load necessary Model */
         $promo_model = new PromosModel();
         $promo_mapping_model = new PromosMappingModel();
 
-        /* validation request fields */
+        /* Getting request data */
         $promo_mapping_id = $this->request->getVar(
             'promo_mapping_id'
         );
         $promo_id = $this->request->getVar('promo_id');
+
+        /* Validation for data format */
         if (
             $promo_id != null &&
             !ctype_digit((string) $promo_id)
@@ -327,7 +328,7 @@ class Promo extends APIBaseController
                 'promo'
             );
         }
-        /* Delete */
+        /* Delete with status=4*/
         if (
             $promo_id == null &&
             $promo_mapping_id == null
@@ -339,10 +340,7 @@ class Promo extends APIBaseController
             );
         }
         if ($promo_id != null) {
-            $check_id_exist = $promo_model->is_existed_id(
-                $promo_id
-            );
-            if ($check_id_exist == null) {
+            if ($promo_model->find($promo_id) == null) {
                 return $this->notifyError(
                     'No Such Data',
                     'notFound',
@@ -396,10 +394,11 @@ class Promo extends APIBaseController
             ]);
         }
         if ($promo_mapping_id != null) {
-            $check_id_exist = $promo_mapping_model->is_existed_id(
-                $promo_mapping_id
-            );
-            if ($check_id_exist == null) {
+            if (
+                $promo_mapping_model->find(
+                    $promo_mapping_id
+                ) == null
+            ) {
                 return $this->notifyError(
                     'No Such Data',
                     'notFound',
@@ -442,16 +441,5 @@ class Promo extends APIBaseController
                 'message' => 'Successfully deleted',
             ]);
         }
-    }
-
-    public function validateDate($date, $format = 'Y-m-d')
-    {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) === $date;
-    }
-
-    public function is_decimal($val)
-    {
-        return is_numeric($val) && floor($val) != $val;
     }
 }

@@ -65,6 +65,9 @@ class ContentCaptionModel extends Model
                 'content_caption_connection_id',
                 $content_caption_connection_id
             );
-        $builder->delete();
+        if (!$builder->delete()) {
+            return false;
+        }
+        return true;
     }
 }

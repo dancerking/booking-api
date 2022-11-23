@@ -2,12 +2,11 @@
 
 namespace App\Controllers;
 
+use App\Controllers\APIBaseController;
 use App\Models\RateLangModel;
 use App\Models\RateMappingModel;
 use App\Models\RateModel;
-use App\Controllers\APIBaseController;
 use CodeIgniter\API\ResponseTrait;
-use DateTime;
 
 class Rate extends APIBaseController
 {
@@ -40,7 +39,7 @@ class Rate extends APIBaseController
      */
     public function update($id = null)
     {
-        /* Load Rate relation Models */
+        /* Load necessary Models */
         $rate_model = new RateModel();
         $rate_mapping_model = new RateMappingModel();
         $rate_lang_model = new RateLangModel();
@@ -66,7 +65,7 @@ class Rate extends APIBaseController
             );
         }
 
-        /* Getting data from raw */
+        /* Getting request data */
         $rate_id = $this->request->getVar('rate_id');
         $rate_setting = $this->request->getVar(
             'rate_setting'
@@ -198,11 +197,14 @@ class Rate extends APIBaseController
         }
         /** Rate mapping Model management */
         if ($rates_mapping != null) {
-            $is_existed_data = $rate_mapping_model->is_existed_data(
-                $host_id,
-                $rate_id
-            );
-            if ($is_existed_data != null) {
+            if (
+                $rate_mapping_model
+                    ->where([
+                        'rate_mapping_host_id' => $host_id,
+                        'rate_mapping_rates_id' => $rate_id,
+                    ])
+                    ->findAll() != null
+            ) {
                 if (
                     !$rate_mapping_model->delete_by(
                         $rate_id,
@@ -243,11 +245,14 @@ class Rate extends APIBaseController
 
         /** Rate lang Model management */
         if ($rates_lang != null) {
-            $is_existed_data = $rate_lang_model->is_existed_data(
-                $host_id,
-                $rate_id
-            );
-            if ($is_existed_data != null) {
+            if (
+                $rate_lang_model
+                    ->where([
+                        'rate_lang_host_id' => $host_id,
+                        'rate_lang_code' => $rate_id,
+                    ])
+                    ->findAll() != null
+            ) {
                 if (
                     !$rate_lang_model->delete_by(
                         $rate_id,
@@ -299,7 +304,7 @@ class Rate extends APIBaseController
      */
     public function create()
     {
-        /* Load Rate relation Models */
+        /* Load necessary Models */
         $rate_model = new RateModel();
         $rate_mapping_model = new RateMappingModel();
         $rate_lang_model = new RateLangModel();
@@ -326,7 +331,7 @@ class Rate extends APIBaseController
             );
         }
 
-        /* Getting data from raw */
+        /* Getting request data */
         $rate_setting = $this->request->getVar(
             'rate_setting'
         );
@@ -432,6 +437,24 @@ class Rate extends APIBaseController
 
         /* Update data in DB */
         /** Rate Model management */
+        if (
+            $rate_model
+                ->where([
+                    'rate_host_id' => $host_id,
+                    'rate_setting' => $rate_setting,
+                    'rate_discount_markup' => $rate_discount_markup,
+                    'rate_guests_included' => $rate_guests_included,
+                    'rate_downpayment' => $rate_downpayment,
+                    'rate_from_checkin' => $rate_from_checkin,
+                ])
+                ->findAll() != null
+        ) {
+            return $this->notifyError(
+                'Duplication error',
+                'duplicate',
+                'rate'
+            );
+        }
         $rate_data = [
             'rate_host_id' => $host_id,
             'rate_setting' => $rate_setting,
@@ -511,7 +534,7 @@ class Rate extends APIBaseController
      */
     public function delete($id = null)
     {
-        $host_id = $this->get_host_id();
+        /* Validate */
         if (
             !$this->validate([
                 'rate_id' => 'required',
@@ -523,12 +546,13 @@ class Rate extends APIBaseController
                 'rate'
             );
         }
+
+        /* Getting request data */
         $rate_id = $this->request->getVar('rate_id');
         $rate_model = new RateModel();
-        $check_id_exist = $rate_model->is_existed_id(
-            $rate_id
-        );
-        if ($check_id_exist == null) {
+
+        /* Delete with status=4 */
+        if ($rate_model->find($rate_id) == null) {
             return $this->notifyError(
                 'No Such Data',
                 'notFound',
@@ -550,16 +574,5 @@ class Rate extends APIBaseController
             'id' => $rate_id,
             'message' => 'Successfully Deleted',
         ]);
-    }
-
-    public function validateDate($date, $format = 'Y-m-d')
-    {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) === $date;
-    }
-
-    public function is_decimal($val)
-    {
-        return is_numeric($val) && floor($val) != $val;
     }
 }

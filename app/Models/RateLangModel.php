@@ -56,16 +56,4 @@ class RateLangModel extends Model
             ->where('rate_lang_code', $rate_id);
         return $builder->delete();
     }
-
-    public function is_existed_data($host_id, $rate_id)
-    {
-        $query = $this->db->query(
-            'SELECT rate_lang_id FROM rates_lang WHERE rate_lang_host_id = ' .
-                $host_id .
-                ' AND rate_lang_code = ' .
-                $rate_id
-        );
-        $results = $query->getResult();
-        return $results;
-    }
 }

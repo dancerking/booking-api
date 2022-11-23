@@ -69,7 +69,6 @@ class PromosModel extends Model
         );
         $results = $query->getResult();
         foreach ($results as &$result) {
-            $result->type_mapping_name = [];
             if ($result->promo_mapping_type != null) {
                 $type_mapping_name_query = $this->db->query(
                     'SELECT type_mapping_name FROM types_mapping WHERE type_mapping_code = ' .
@@ -79,19 +78,10 @@ class PromosModel extends Model
                         ' AND type_mapping_main_status = 1'
                 );
                 $type_mapping_name_results = $type_mapping_name_query->getResult();
-                $result->type_mapping_name = $type_mapping_name_results;
+                $result->type_mapping_names = $type_mapping_name_results;
             }
+            $result->type_mapping_names = [];
         }
-        return $results;
-    }
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT promo_id FROM promos WHERE promo_id = ' .
-                $id
-        );
-        $results = $query->getResult();
         return $results;
     }
 }

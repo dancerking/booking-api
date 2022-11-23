@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use CodeIgniter\RESTful\ResourceController;
+use DateTime;
 
 class APIBaseController extends ResourceController
 {
@@ -19,6 +20,7 @@ class APIBaseController extends ResourceController
         'promo' => 900,
         'service' => 1000,
         'service_calendar' => 1100,
+        'booking' => 1200,
     ];
 
     protected $errorCodes = [
@@ -29,6 +31,7 @@ class APIBaseController extends ResourceController
         'failed_create' => 4,
         'failed_update' => 5,
         'failed_delete' => 6,
+        'duplicate' => 7,
     ];
 
     protected function notifyError(
@@ -62,5 +65,11 @@ class APIBaseController extends ResourceController
         $response = $config->JWTresponse;
         $host_id = $response['host_id'];
         return $host_id;
+    }
+
+    public function validateDate($date, $format = 'Y-m-d')
+    {
+        $d = DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) === $date;
     }
 }

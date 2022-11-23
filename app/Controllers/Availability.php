@@ -2,8 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Models\TypeAvailabilityModel;
 use App\Controllers\APIBaseController;
+use App\Models\TypeAvailabilityModel;
 use CodeIgniter\API\ResponseTrait;
 use DateTime;
 
@@ -67,35 +67,33 @@ class Availability extends APIBaseController
             date_diff(
                 new DateTime($to),
                 new DateTime($from)
-            )->days > $config->maximum_date_range
+            )->days > $config->MAXIMUM_DATE_RANGE
         ) {
             return $this->notifyError(
                 'date range is maximum ' .
-                    $config->maximum_date_range .
+                    $config->MAXIMUM_DATE_RANGE .
                     ' days',
                 'invalid_data',
                 'availability'
             );
         }
-        if (new DateTime($from) > new DateTime()) {
-            return $this->notifyError(
-                'from date should be smaller than today date.',
-                'invalid_data',
-                'availability'
-            );
+        if (new DateTime($from) < new DateTime()) {
+            if (
+                date_diff(
+                    new DateTime(),
+                    new DateTime($from)
+                )->days > $config->MAXIMUM_DATE_RANGE
+            ) {
+                return $this->notifyError(
+                    'date range is maximum ' .
+                        $config->MAXIMUM_DATE_RANGE .
+                        ' days',
+                    'invalid_data',
+                    'availability'
+                );
+            }
         }
-        if (
-            date_diff(new DateTime(), new DateTime($from))
-                ->days > $config->maximum_date_range
-        ) {
-            return $this->notifyError(
-                'date range is maximum ' .
-                    $config->maximum_date_range .
-                    ' days',
-                'invalid_data',
-                'availability'
-            );
-        }
+
         // getting availability data from model
         $availability_type = $type_availability_model->get_availability_types(
             $host_id,
@@ -105,7 +103,7 @@ class Availability extends APIBaseController
         );
 
         return $this->respond([
-            'availability_type' =>
+            'availability_types' =>
                 $availability_type == null
                     ? []
                     : $availability_type,
@@ -143,7 +141,7 @@ class Availability extends APIBaseController
             );
         }
 
-        /* Getting data from raw */
+        /* Getting request data */
         $type_availability_id = $this->request->getVar(
             'type_availability_id'
         );
@@ -202,6 +200,16 @@ class Availability extends APIBaseController
                 'availability'
             );
         }
+        if (
+            $type_availability_coa < 0 ||
+            $type_availability_coa > 1
+        ) {
+            return $this->notifyError(
+                'type_availability_coa should be 0 or 1',
+                'invalid_data',
+                'availability'
+            );
+        }
         if (!ctype_digit((string) $type_availability_cod)) {
             return $this->notifyError(
                 'Type availability cod format is incorrect',
@@ -209,7 +217,16 @@ class Availability extends APIBaseController
                 'availability'
             );
         }
-
+        if (
+            $type_availability_cod < 0 ||
+            $type_availability_cod > 1
+        ) {
+            return $this->notifyError(
+                'type_availability_cod should be 0 or 1',
+                'invalid_data',
+                'availability'
+            );
+        }
         /* Update data in DB */
         $data = [
             'type_availability_host_id' => $host_id,
@@ -236,11 +253,5 @@ class Availability extends APIBaseController
             'id' => $type_availability_id,
             'Success' => 'Successfully updated',
         ]);
-    }
-
-    public function validateDate($date, $format = 'Y-m-d')
-    {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) === $date;
     }
 }

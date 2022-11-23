@@ -45,14 +45,4 @@ class ServiceMappingModel extends Model
     protected $afterFind = [];
     protected $beforeDelete = [];
     protected $afterDelete = [];
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT service_mapping_id FROM services_mapping WHERE service_mapping_id = ' .
-                $id
-        );
-        $results = $query->getResult();
-        return $results;
-    }
 }

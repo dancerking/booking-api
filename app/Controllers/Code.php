@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Controllers\APIBaseController;
 use App\Models\FilterMappingModel;
 use App\Models\FilterModel;
 use App\Models\GuestTypeModel;
@@ -11,7 +12,6 @@ use App\Models\PhotoContentModel;
 use App\Models\TypeMainModel;
 use App\Models\TypeMappingModel;
 use App\Models\VideoChannelModel;
-use App\Controllers\APIBaseController;
 use CodeIgniter\API\ResponseTrait;
 class Code extends APIBaseController
 {
@@ -23,10 +23,10 @@ class Code extends APIBaseController
     use ResponseTrait;
     public function index()
     {
-        // Get host_id from JWT token
+        // Getting host_id from JWT token
         $host_id = $this->get_host_id();
 
-        // Load models
+        // Load necessary Model
         $host_model = new HostModel();
         $language_model = new LanguageModel();
         $types_main_model = new TypeMainModel();
@@ -50,7 +50,7 @@ class Code extends APIBaseController
             );
         }
 
-        // Get data
+        /* Getting request data */
         $record_status = $this->request->getVar(
             'record_status'
         );

@@ -65,7 +65,7 @@ class RateModel extends Model
                     $result->rate_id
             );
             $rate_mapping_result = $rate_mapping_query->getResult();
-            $result->rates_mapping = $rate_mapping_result;
+            $result->rate_mappings = $rate_mapping_result;
 
             $rate_lang_query = $this->db->query(
                 'SELECT rate_lang_id, rate_lang_code, rate_lang_rules, rate_name, rate_short_description, rates_lang FROM rates_lang WHERE rate_lang_host_id = ' .
@@ -74,18 +74,8 @@ class RateModel extends Model
                     $result->rate_id
             );
             $rate_lang_result = $rate_lang_query->getResult();
-            $result->rates_lang = $rate_lang_result;
+            $result->rate_langs = $rate_lang_result;
         }
-        return $results;
-    }
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT rate_id FROM rates WHERE rate_id = ' .
-                $id
-        );
-        $results = $query->getResult();
         return $results;
     }
 }

@@ -2,25 +2,29 @@
 
 namespace App\Controllers;
 
-use App\Models\ContentCaptionModel;
-use App\Models\VideoContentModel;
 use App\Controllers\APIBaseController;
+use App\Models\ContentCaptionModel;
 use App\Models\LanguageModel;
+use App\Models\VideoContentModel;
 use CodeIgniter\API\ResponseTrait;
 
 class Video extends APIBaseController
 {
     /**
-     * Return an array of photo content
+     * Return an array of video content
      * GET/videos
      * @return mixed
      */
     use ResponseTrait;
     public function index()
     {
-        $videos = new VideoContentModel();
+        /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
-        /* Getting photo for level1, level2 from PhotoContentModel */
+
+        /* Load necessary Model */
+        $videos = new VideoContentModel();
+
+        /* Getting video for level1, level2 from VideoContentModel */
         $L1_type_videos = $videos->get_level1_video(
             $host_id
         );
@@ -50,8 +54,15 @@ class Video extends APIBaseController
      */
     public function create()
     {
-        //Video content
-        $response = [];
+        /* Getting host_id from JWT token */
+        $host_id = $this->get_host_id();
+
+        /* Load necessary Model */
+        $video_content_model = new VideoContentModel();
+        $content_caption_model = new ContentCaptionModel();
+        $language_model = new LanguageModel();
+
+        /* Validate */
         if (
             !$this->validate([
                 'video_content_level' =>
@@ -66,7 +77,8 @@ class Video extends APIBaseController
                 'video'
             );
         }
-        $host_id = $this->get_host_id();
+
+        /* Getting request data */
         $video_content_level = $this->request->getVar(
             'video_content_level'
         );
@@ -89,7 +101,7 @@ class Video extends APIBaseController
             'content_caption'
         );
 
-        // Validation
+        /* Validation for data format */
         if (
             $video_content_level == 2 &&
             $video_content_connection == ''
@@ -112,8 +124,26 @@ class Video extends APIBaseController
             );
         }
 
-        // Insert video content
-        $video_content_model = new VideoContentModel();
+        // Check if duplicated
+        if (
+            $video_content_model
+                ->where([
+                    'video_content_host_id' => $host_id,
+                    'video_content_level' => $video_content_level,
+                    'video_content_channel' => $video_content_channel,
+                    'video_content_connection' => $video_content_connection,
+                    'video_content_code' => $video_content_code,
+                ])
+                ->findAll() != null
+        ) {
+            return $this->notifyError(
+                'Duplication error',
+                'duplicate',
+                'video'
+            );
+        }
+
+        // Insert data
         $data = [
             'video_content_host_id' => $host_id,
             'video_content_level' => $video_content_level,
@@ -127,8 +157,6 @@ class Video extends APIBaseController
         $new_id = $video_content_model->insert($data);
         if ($new_id) {
             // Insert Caption Info into content_captions table
-            $content_caption_model = new ContentCaptionModel();
-            $language_model = new LanguageModel();
             $languages = $language_model->get_available_languages(
                 1
             );
@@ -188,7 +216,17 @@ class Video extends APIBaseController
      */
     public function delete($id = null)
     {
+        /* Import config variable */
+        $config = config('Config\App');
+
+        /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
+
+        /* Load necessary Model */
+        $video_content_model = new VideoContentModel();
+        $content_caption_model = new ContentCaptionModel();
+
+        /* Validate */
         if (
             !$this->validate([
                 'video_content_id' => 'required',
@@ -200,9 +238,13 @@ class Video extends APIBaseController
                 'video'
             );
         }
+
+        /* Getting request data */
         $video_content_id = $this->request->getVar(
             'video_content_id'
         );
+
+        /* Validation for data format */
         if (!ctype_digit((string) $video_content_id)) {
             return $this->notifyError(
                 'Input data format is incorrect',
@@ -210,35 +252,45 @@ class Video extends APIBaseController
                 'video'
             );
         }
-        $video_content_model = new VideoContentModel();
-        $check_id_exist = $video_content_model->is_existed_id(
-            $video_content_id
-        );
-        if ($check_id_exist == null) {
+
+        /* Check if id exists */
+        if (
+            $video_content_model->find($video_content_id) ==
+            null
+        ) {
             return $this->notifyError(
                 'No Such Data',
                 'notFound',
                 'video'
             );
         }
+
+        /* Delete video content */
         if (
-            $video_content_model->delete($video_content_id)
+            !$video_content_model->delete($video_content_id)
         ) {
-            $content_caption_model = new ContentCaptionModel();
-            $content_caption_model->delete_by(
-                $host_id,
-                2,
-                $video_content_id
+            return $this->notifyError(
+                'Failed Delete',
+                'failed_delete',
+                'video'
             );
-            return $this->respond([
-                'id' => $video_content_id,
-                'success' => 'Successfully Deleted',
-            ]);
         }
-        return $this->notifyError(
-            'Failed Delete',
-            'failed_delete',
-            'video'
-        );
+        if (
+            !$content_caption_model->delete_by(
+                $host_id,
+                $config->CONTENT_CAPTION_TYPE['video'],
+                $video_content_id
+            )
+        ) {
+            return $this->notifyError(
+                'Failed delete',
+                'failed_delete',
+                'video'
+            );
+        }
+        return $this->respond([
+            'id' => $video_content_id,
+            'success' => 'Successfully Deleted',
+        ]);
     }
 }
