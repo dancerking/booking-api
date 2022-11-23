@@ -65,16 +65,6 @@ class FilterMappingModel extends Model
         return $results;
     }
 
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT filter_mapping_id FROM filters_mapping WHERE filter_mapping_id = ' .
-                $id
-        );
-        $results = $query->getResult();
-        return $results;
-    }
-
     public function get_available_ids(
         $host_id,
         $filter_mapping_type,

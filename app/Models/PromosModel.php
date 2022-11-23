@@ -84,14 +84,4 @@ class PromosModel extends Model
         }
         return $results;
     }
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT promo_id FROM promos WHERE promo_id = ' .
-                $id
-        );
-        $results = $query->getResult();
-        return $results;
-    }
 }

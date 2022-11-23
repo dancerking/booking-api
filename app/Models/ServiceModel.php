@@ -78,14 +78,4 @@ class ServiceModel extends Model
         }
         return $results;
     }
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT service_id FROM services WHERE service_id = ' .
-                $id
-        );
-        $results = $query->getResult();
-        return $results;
-    }
 }

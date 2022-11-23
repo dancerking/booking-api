@@ -78,14 +78,4 @@ class RateModel extends Model
         }
         return $results;
     }
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT rate_id FROM rates WHERE rate_id = ' .
-                $id
-        );
-        $results = $query->getResult();
-        return $results;
-    }
 }

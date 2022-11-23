@@ -163,14 +163,4 @@ class PhotoContentModel extends Model
         }
         return $results;
     }
-
-    public function is_existed_id($id)
-    {
-        $query = $this->db->query(
-            'SELECT photo_content_id FROM photo_contents WHERE photo_content_id = ' .
-                $id
-        );
-        $results = $query->getResult();
-        return $results;
-    }
 }
