@@ -125,7 +125,6 @@ class Availability extends APIBaseController
 
         /* Validate */
         $rules = [
-            'type_availability_id' => 'required',
             'type_availability_code' => 'required',
             'type_availability_day' => 'required',
             'type_availability_qty' => 'required',
@@ -142,9 +141,6 @@ class Availability extends APIBaseController
         }
 
         /* Getting request data */
-        $type_availability_id = $this->request->getVar(
-            'type_availability_id'
-        );
         $type_availability_code = $this->request->getVar(
             'type_availability_code'
         );
@@ -165,16 +161,19 @@ class Availability extends APIBaseController
         );
 
         /* Format validation */
-        if (!ctype_digit((string) $type_availability_id)) {
+        if (!$this->validateDate($type_availability_day)) {
             return $this->notifyError(
-                'Type availability id format is incorrect',
+                'Date format is incorrect',
                 'invalid_data',
                 'availability'
             );
         }
-        if (!$this->validateDate($type_availability_day)) {
+        if (
+            new DateTime() >
+            new DateTime($type_availability_day)
+        ) {
             return $this->notifyError(
-                'Date format is incorrect',
+                'type_availability_day should be larger than today',
                 'invalid_data',
                 'availability'
             );
@@ -237,20 +236,39 @@ class Availability extends APIBaseController
             'type_availability_coa' => $type_availability_coa,
             'type_availability_cod' => $type_availability_cod,
         ];
-        if (
-            !$type_availability_model->update(
-                $type_availability_id,
-                $data
-            )
-        ) {
-            return $this->notifyError(
-                'Failed update',
-                'failed_update',
-                'availability'
-            );
+        $matched_ids = $type_availability_model
+            ->where([
+                'type_availability_host_id' => $host_id,
+                'type_availability_code' => $type_availability_code,
+                'type_availability_day' => $type_availability_day,
+            ])
+            ->findAll();
+        if ($matched_ids != null) {
+            foreach ($matched_ids as $matched_id) {
+                if (
+                    !$type_availability_model->update(
+                        $matched_id['type_availability_id'],
+                        $data
+                    )
+                ) {
+                    return $this->notifyError(
+                        'Failed update',
+                        'failed_update',
+                        'availability'
+                    );
+                }
+            }
+        } else {
+            if (!$type_availability_model->insert($data)) {
+                return $this->notifyError(
+                    'Failed insert',
+                    'failed_insert',
+                    'availability'
+                );
+            }
         }
+
         return $this->respond([
-            'id' => $type_availability_id,
             'Success' => 'Successfully updated',
         ]);
     }

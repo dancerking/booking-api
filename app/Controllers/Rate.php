@@ -51,7 +51,7 @@ class Rate extends APIBaseController
         $rules = [
             'rate_id' => 'required',
             'rate_setting' => 'required',
-            'rate_discount_markup' => 'required',
+            'rate_master' => 'required',
             'rate_guests_included' => 'required',
             'rate_downpayment' => 'required',
             'rate_from_checkin' => 'required',
@@ -69,6 +69,9 @@ class Rate extends APIBaseController
         $rate_id = $this->request->getVar('rate_id');
         $rate_setting = $this->request->getVar(
             'rate_setting'
+        );
+        $rate_master = $this->request->getVar(
+            'rate_master'
         );
         $rate_discount_markup = $this->request->getVar(
             'rate_discount_markup'
@@ -108,9 +111,66 @@ class Rate extends APIBaseController
                 'rate'
             );
         }
-        if (fmod($rate_discount_markup, 1) !== 0.0) {
+        if (!ctype_digit((string) $rate_master)) {
             return $this->notifyError(
-                'discount_markup format is incorrect',
+                'rate_master format is incorrect',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if ($rate_setting == 1 && $rate_master != 0) {
+            return $this->notifyError(
+                'When rate_setting is 1, rate_master must be 0.',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if ($rate_setting == 2) {
+            if ($rate_master < 1) {
+                return $this->notifyError(
+                    'When rate_setting is 2, rate_master should be larger than 0'
+                );
+            }
+            $derived_id = $rate_model->find($rate_master);
+            if ($derived_id == null) {
+                return $this->notifyError(
+                    'No Such rate id',
+                    'notFound',
+                    'rate'
+                );
+            }
+            if ($derived_id['rate_setting'] != 1) {
+                return $this->notifyError(
+                    'Given rate_master is not standard rate id.',
+                    'notFound',
+                    'rate'
+                );
+            }
+        }
+
+        if (!is_numeric($rate_discount_markup)) {
+            return $this->notifyError(
+                'rate_discount_markup format is incorrect',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if (
+            $rate_setting == 1 &&
+            $rate_discount_markup != 0
+        ) {
+            return $this->notifyError(
+                'When rate_setting is 1, rate_discount_markup must be 0.',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if (
+            $rate_setting == 2 &&
+            $rate_discount_markup == 0
+        ) {
+            return $this->notifyError(
+                'When rate_setting is 2, rate_discount_markup cannot be 0.',
                 'invalid_data',
                 'rate'
             );
@@ -182,6 +242,7 @@ class Rate extends APIBaseController
         $rate_data = [
             'rate_host_id' => $host_id,
             'rate_setting' => $rate_setting,
+            'rate_master' => $rate_master,
             'rate_discount_markup' => $rate_discount_markup,
             'rate_guests_included' => $rate_guests_included,
             'rate_downpayment' => $rate_downpayment,
@@ -315,6 +376,7 @@ class Rate extends APIBaseController
         /* Validate */
         $rules = [
             'rate_setting' => 'required',
+            'rate_master' => 'required',
             'rate_discount_markup' => 'required',
             'rate_guests_included' => 'required',
             'rate_downpayment' => 'required',
@@ -334,6 +396,9 @@ class Rate extends APIBaseController
         /* Getting request data */
         $rate_setting = $this->request->getVar(
             'rate_setting'
+        );
+        $rate_master = $this->request->getVar(
+            'rate_master'
         );
         $rate_discount_markup = $this->request->getVar(
             'rate_discount_markup'
@@ -366,9 +431,66 @@ class Rate extends APIBaseController
                 'rate'
             );
         }
-        if (fmod($rate_discount_markup, 1) !== 0.0) {
+        if (!ctype_digit((string) $rate_master)) {
             return $this->notifyError(
-                'discount_markup format is incorrect',
+                'rate_master format is incorrect',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if ($rate_setting == 1 && $rate_master != 0) {
+            return $this->notifyError(
+                'When rate_setting is 1, rate_master must be 0.',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if ($rate_setting == 2) {
+            if ($rate_master < 1) {
+                return $this->notifyError(
+                    'When rate_setting is 2, rate_master should be larger than 0'
+                );
+            }
+            $derived_id = $rate_model->find($rate_master);
+            if ($derived_id == null) {
+                return $this->notifyError(
+                    'No Such rate id',
+                    'notFound',
+                    'rate'
+                );
+            }
+            if ($derived_id['rate_setting'] != 1) {
+                return $this->notifyError(
+                    'Given rate_master is not standard rate id.',
+                    'notFound',
+                    'rate'
+                );
+            }
+        }
+
+        if (!is_numeric($rate_discount_markup)) {
+            return $this->notifyError(
+                'rate_discount_markup format is incorrect',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if (
+            $rate_setting == 1 &&
+            $rate_discount_markup != 0
+        ) {
+            return $this->notifyError(
+                'When rate_setting is 1, rate_discount_markup must be 0.',
+                'invalid_data',
+                'rate'
+            );
+        }
+        if (
+            $rate_setting == 2 &&
+            $rate_discount_markup == 0
+        ) {
+            return $this->notifyError(
+                'When rate_setting is 2, rate_discount_markup cannot be 0.',
                 'invalid_data',
                 'rate'
             );
@@ -442,6 +564,7 @@ class Rate extends APIBaseController
                 ->where([
                     'rate_host_id' => $host_id,
                     'rate_setting' => $rate_setting,
+                    'rate_master' => $rate_master,
                     'rate_discount_markup' => $rate_discount_markup,
                     'rate_guests_included' => $rate_guests_included,
                     'rate_downpayment' => $rate_downpayment,
@@ -458,6 +581,7 @@ class Rate extends APIBaseController
         $rate_data = [
             'rate_host_id' => $host_id,
             'rate_setting' => $rate_setting,
+            'rate_master' => $rate_master,
             'rate_discount_markup' => $rate_discount_markup,
             'rate_guests_included' => $rate_guests_included,
             'rate_downpayment' => $rate_downpayment,

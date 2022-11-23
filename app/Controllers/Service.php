@@ -163,7 +163,7 @@ class Service extends APIBaseController
                 'service'
             );
         }
-        if (fmod($service_vat_percentage, 1) !== 0.0) {
+        if (!is_numeric($service_vat_percentage)) {
             return $this->notifyError(
                 'service_vat_percentage format is incorrect',
                 'invalid_data',
@@ -505,7 +505,7 @@ class Service extends APIBaseController
                 'service'
             );
         }
-        if (fmod($service_vat_percentage, 1) !== 0.0) {
+        if (!is_numeric($service_vat_percentage)) {
             return $this->notifyError(
                 'service_vat_percentage format is incorrect',
                 'invalid_data',
