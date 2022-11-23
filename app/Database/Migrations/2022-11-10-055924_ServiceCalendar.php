@@ -28,7 +28,9 @@ class ServiceCalendar extends Migration
             ],
             'service_price_day' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'service_price' => [
                 'type' => 'DECIMAL',

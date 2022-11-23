@@ -47,7 +47,9 @@ class ServiceBooked extends Migration
             ],
             'service_booked_registration_date' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
         ]);
         $this->forge->addPrimaryKey('service_booked_id');

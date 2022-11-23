@@ -17,7 +17,9 @@ class Payment extends Migration
             ],
             'payment_date' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'payment_value' => [
                 'type' => 'DECIMAL',

@@ -195,7 +195,9 @@ class Guest extends Migration
             'guest_last_update' => [
                 'type' => 'TIMESTAMP',
                 'null' => true,
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'guest_username_security' => [
                 'type' => 'VARCHAR',
@@ -211,12 +213,14 @@ class Guest extends Migration
             ],
             'guest_password_lastupdate_security' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'guest_status' => [
                 'type' => 'INT',
-                'constraint'=> '11',
-                'deafult' => '0'
+                'constraint' => '11',
+                'deafult' => '0',
             ],
         ]);
         $this->forge->addPrimaryKey('guest_id');
