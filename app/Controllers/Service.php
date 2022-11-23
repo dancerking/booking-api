@@ -2,11 +2,11 @@
 
 namespace App\Controllers;
 
+use App\Controllers\APIBaseController;
+use App\Models\LanguageModel;
 use App\Models\ServiceLangModel;
 use App\Models\ServiceMappingModel;
 use App\Models\ServiceModel;
-use App\Controllers\APIBaseController;
-use App\Models\LanguageModel;
 use App\Models\TypeMappingModel;
 use CodeIgniter\API\ResponseTrait;
 
@@ -43,6 +43,9 @@ class Service extends APIBaseController
      */
     public function update($id = null)
     {
+        /* Getting host_id from JWT token */
+        $host_id = $this->get_host_id();
+
         // Load necessary Model
         $service_model = new ServiceModel();
         $service_mapping_model = new ServiceMappingModel();
@@ -50,7 +53,7 @@ class Service extends APIBaseController
         $type_mapping_model = new TypeMappingModel();
         $lang_model = new LanguageModel();
 
-        // Service content
+        // Validate
         if (
             !$this->validate([
                 'service_id' => 'required',
@@ -67,8 +70,8 @@ class Service extends APIBaseController
                 'service'
             );
         }
-        // Getting data from request fields
-        $host_id = $this->get_host_id();
+
+        // Getting request data
         $service_id = $this->request->getVar('service_id');
         $service_mode = $this->request->getVar(
             'service_mode'
@@ -102,7 +105,7 @@ class Service extends APIBaseController
             'services_lang'
         );
 
-        // Validation input data
+        // Validation for data formats
         if (!ctype_digit((string) $service_id)) {
             return $this->notifyError(
                 'service_id format is incorrect',
@@ -301,10 +304,7 @@ class Service extends APIBaseController
             'service_status' => $service_status,
         ];
 
-        $check_id_exist = $service_model->is_existed_id(
-            $service_id
-        );
-        if (!$check_id_exist) {
+        if ($service_model->find($service_id) == null) {
             return $this->notifyError(
                 'No Such ID',
                 'notFound',
@@ -392,14 +392,17 @@ class Service extends APIBaseController
      */
     public function create()
     {
-        // Load necessary Model
+        /* Getting host_id from JWT token */
+        $host_id = $this->get_host_id();
+
+        /* Load necessary Model */
         $service_model = new ServiceModel();
         $service_mapping_model = new ServiceMappingModel();
         $service_lang_model = new ServiceLangModel();
         $type_mapping_model = new TypeMappingModel();
         $lang_model = new LanguageModel();
 
-        // Service content
+        /* Validate */
         if (
             !$this->validate([
                 'service_mode' => 'required',
@@ -418,7 +421,7 @@ class Service extends APIBaseController
             );
         }
 
-        $host_id = $this->get_host_id();
+        /* Getting request data */
         $service_mode = $this->request->getVar(
             'service_mode'
         );
@@ -451,7 +454,7 @@ class Service extends APIBaseController
             'services_lang'
         );
 
-        // Validation input data
+        // Validation for data format
         if (!ctype_digit((string) $service_mode)) {
             return $this->notifyError(
                 'service_mode format is incorrect',
@@ -616,7 +619,9 @@ class Service extends APIBaseController
                 );
             }
         }
-        // Insert Service content
+
+        /* Insert Service content */
+        // Check if duplicated
         if (
             $service_model
                 ->where([
@@ -703,22 +708,20 @@ class Service extends APIBaseController
      */
     public function delete($id = null)
     {
-        // Load Model
+        /* Load Model */
         $service_model = new ServiceModel();
         $service_mapping_model = new ServiceMappingModel();
 
-        // Getting host id
+        /* Getting host id */
         $host_id = $this->get_host_id();
 
+        /* Getting request data */
         $service_id = $this->request->getVar('service_id');
         $service_mapping_id = $this->request->getVar(
             'service_mapping_id'
         );
         if ($service_id != null) {
-            $check_id_exist = $service_model->is_existed_id(
-                $service_id
-            );
-            if ($check_id_exist == null) {
+            if ($service_model->find($service_id) == null) {
                 return $this->notifyError(
                     'No Such Data',
                     'notFound',
@@ -786,10 +789,11 @@ class Service extends APIBaseController
             ]);
         }
         if ($service_mapping_id != null) {
-            $check_id_exist = $service_mapping_model->is_existed_id(
-                $service_mapping_id
-            );
-            if ($check_id_exist == null) {
+            if (
+                $service_mapping_model->find(
+                    $service_mapping_id
+                ) == null
+            ) {
                 return $this->notifyError(
                     'No Such Data',
                     'notFound',
@@ -813,7 +817,7 @@ class Service extends APIBaseController
             $service_mapping = $service_mapping_model->find(
                 $service_mapping_id
             );
-            $check_service_id_exist = $service_model->is_existed_id(
+            $check_service_id_exist = $service_model->find(
                 $service_mapping['service_mapping_code']
             );
             if ($check_service_id_exist) {

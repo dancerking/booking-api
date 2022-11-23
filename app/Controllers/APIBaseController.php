@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use CodeIgniter\RESTful\ResourceController;
+use DateTime;
 
 class APIBaseController extends ResourceController
 {
@@ -64,5 +65,11 @@ class APIBaseController extends ResourceController
         $response = $config->JWTresponse;
         $host_id = $response['host_id'];
         return $host_id;
+    }
+
+    public function validateDate($date, $format = 'Y-m-d')
+    {
+        $d = DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) === $date;
     }
 }

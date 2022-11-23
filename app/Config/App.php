@@ -466,8 +466,21 @@ class App extends BaseConfig
 
     public $JWTresponse = [];
 
-    public $minimum_download_image_size = ['2048', '1080'];
-    public $Custom_photo1 = ['1024', '540'];
-    public $Custom_photo2 = ['330', '174'];
-    public $maximum_date_range = 90;
+    public $CONTENT_CAPTION_TYPE = [
+        'photo' => 1,
+        'video' => 2,
+    ];
+    public $MINIMUM_DOWNLOAD_IMAGE_SIZE = [
+        'width' => '2048',
+        'height' => '1080',
+    ];
+    public $CUSTOM_PHOTO1 = [
+        'width' => '1024',
+        'height' => '540',
+    ];
+    public $CUSTOM_PHOTO2 = [
+        'width' => '330',
+        'height' => '174',
+    ];
+    public $MAXIMUM_DATE_RANGE = 90;
 }

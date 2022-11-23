@@ -2,16 +2,15 @@
 
 namespace App\Controllers;
 
+use App\Controllers\APIBaseController;
 use App\Models\RateCalendarModel;
 use App\Models\RateModel;
-use App\Controllers\APIBaseController;
 use CodeIgniter\API\ResponseTrait;
-use DateTime;
 
 class RateCalendar extends APIBaseController
 {
     /**
-     * Return an array of Rate
+     * Return an array of Rate calendar
      * GET/baseratesettings
      * @return mixed
      */
@@ -26,6 +25,7 @@ class RateCalendar extends APIBaseController
     {
         /* Load Rate relation Models */
         $rate_calendar_model = new RateCalendarModel();
+        $rate_model = new RateModel();
 
         /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
@@ -91,11 +91,7 @@ class RateCalendar extends APIBaseController
                 'rate_calendar'
             );
         }
-        $rate_model = new RateModel();
-        if (
-            $rate_model->is_existed_id($daily_rate_code) ==
-            null
-        ) {
+        if ($rate_model->find($daily_rate_code) == null) {
             return $this->notifyError(
                 'No Such daily_rate_code',
                 'invalid_data',
@@ -160,6 +156,7 @@ class RateCalendar extends APIBaseController
         }
         /* Update data in DB */
         /** Rate Calendar Model management */
+        // check if duplicated
         if (
             $rate_calendar_model
                 ->where([
@@ -183,6 +180,7 @@ class RateCalendar extends APIBaseController
                 'rate'
             );
         }
+        // Insert data
         $rate_calendar_data = [
             'rate_calendar_host_id' => $host_id,
             'daily_rate_code' => $daily_rate_code,
@@ -221,6 +219,7 @@ class RateCalendar extends APIBaseController
     {
         /* Load Rate relation Models */
         $rate_calendar_model = new RateCalendarModel();
+        $rate_model = new RateModel();
 
         /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
@@ -293,11 +292,7 @@ class RateCalendar extends APIBaseController
                 'daily_rate_code format is incorrect'
             );
         }
-        $rate_model = new RateModel();
-        if (
-            $rate_model->is_existed_id($daily_rate_code) ==
-            null
-        ) {
+        if ($rate_model->find($daily_rate_code) == null) {
             return $this->notifyError(
                 'No Such daily_rate_code',
                 'invalid_data',
@@ -346,6 +341,19 @@ class RateCalendar extends APIBaseController
         }
         /* Update data in DB */
         /** Rate Calendar Model management */
+        // Check if id exists
+        if (
+            $rate_calendar_model->find($daily_rate_id) ==
+            null
+        ) {
+            return $this->notifyError(
+                'No Such id',
+                'notFound',
+                'rate_calendar'
+            );
+        }
+
+        // Update data
         $rate_calendar_data = [
             'daily_rate_id' => $daily_rate_id,
             'rate_calendar_host_id' => $host_id,
@@ -376,16 +384,5 @@ class RateCalendar extends APIBaseController
             'id' => $daily_rate_id,
             'message' => 'Successfully updated.',
         ]);
-    }
-
-    public function validateDate($date, $format = 'Y-m-d')
-    {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) === $date;
-    }
-
-    public function is_decimal($val)
-    {
-        return is_numeric($val) && floor($val) != $val;
     }
 }

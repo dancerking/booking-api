@@ -12,13 +12,13 @@ class Filter extends APIBaseController
 {
     /**
      * Insert Filter mapping
-     * POST/filters
+     * POST/filters/map
      * @return mixed
      */
     use ResponseTrait;
     public function map()
     {
-        /* Load Rate Model */
+        /* Load necessary Model */
         $filter_mapping_model = new FilterMappingModel();
         $filter_model = new FilterModel();
         $type_mapping_model = new TypeMappingModel();
@@ -51,6 +51,8 @@ class Filter extends APIBaseController
         $filter_code = $this->request->getVar(
             'filter_code'
         );
+
+        /* Validation for data format */
         if (
             $filter_mapping_level != 1 &&
             $filter_mapping_level != 2
@@ -81,7 +83,6 @@ class Filter extends APIBaseController
                 'filter'
             );
         }
-        /* Insert filter mapping ids in FilterMapping Model */
         if (
             $filter_mapping_level == 1 &&
             $filter_mapping_type != 0
@@ -107,6 +108,8 @@ class Filter extends APIBaseController
                 );
             }
         }
+
+        /* Insert data */
         if (
             $filter_mapping_model
                 ->where([
@@ -151,6 +154,10 @@ class Filter extends APIBaseController
      */
     public function delete($id = null)
     {
+        /* Load necessary Model */
+        $filter_mapping_model = new FilterMappingModel();
+
+        /* Validate */
         if (
             !$this->validate([
                 'filter_mapping_id' => 'required',
@@ -162,20 +169,26 @@ class Filter extends APIBaseController
                 'filter'
             );
         }
+
+        /* Getting request data */
         $filter_mapping_id = $this->request->getVar(
             'filter_mapping_id'
         );
-        $filter_mapping_model = new FilterMappingModel();
-        $check_id_exist = $filter_mapping_model->is_existed_id(
-            $filter_mapping_id
-        );
-        if ($check_id_exist == null) {
+
+        /* Check if id exists */
+        if (
+            $filter_mapping_model->find(
+                $filter_mapping_id
+            ) == null
+        ) {
             return $this->notifyError(
                 'No Such Data',
                 'notFound',
                 'filter'
             );
         }
+
+        /* Delete data */
         if (
             !$filter_mapping_model->delete(
                 $filter_mapping_id
@@ -189,7 +202,7 @@ class Filter extends APIBaseController
         }
         return $this->respond([
             'id' => $filter_mapping_id,
-            'message' => 'Successfully deleted.',
+            'message' => 'Successfully deleted',
         ]);
     }
 }

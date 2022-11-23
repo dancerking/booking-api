@@ -71,11 +71,11 @@ class Booking extends APIBaseController
             date_diff(
                 new DateTime($bookingto),
                 new DateTime($bookingfrom)
-            )->days > $config->maximum_date_range
+            )->days > $config->MAXIMUM_DATE_RANGE
         ) {
             return $this->notifyError(
                 'date range is maximum ' .
-                    $config->maximum_date_range .
+                    $config->MAXIMUM_DATE_RANGE .
                     ' days',
                 'invalid_data',
                 'booking'
@@ -86,11 +86,11 @@ class Booking extends APIBaseController
                 date_diff(
                     new DateTime(),
                     new DateTime($bookingfrom)
-                )->days > $config->maximum_date_range
+                )->days > $config->MAXIMUM_DATE_RANGE
             ) {
                 return $this->notifyError(
                     'date range is maximum ' .
-                        $config->maximum_date_range .
+                        $config->MAXIMUM_DATE_RANGE .
                         ' days',
                     'invalid_data',
                     'booking'
@@ -108,11 +108,5 @@ class Booking extends APIBaseController
         return $this->respond([
             'booking' => $booking == null ? [] : $booking,
         ]);
-    }
-
-    public function validateDate($date, $format = 'Y-m-d')
-    {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) === $date;
     }
 }

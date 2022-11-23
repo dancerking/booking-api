@@ -2,10 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Models\ContentCaptionModel;
-use App\Models\PhotoContentModel;
 use App\Controllers\APIBaseController;
+use App\Models\ContentCaptionModel;
 use App\Models\LanguageModel;
+use App\Models\PhotoContentModel;
 use CodeIgniter\API\ResponseTrait;
 
 class Photo extends APIBaseController
@@ -50,8 +50,18 @@ class Photo extends APIBaseController
      */
     public function create()
     {
-        // Photo content
-        $response = [];
+        /* Import config variable */
+        $config = config('Config\App');
+
+        /* Load Rate relation Models */
+        $photo_content_model = new PhotoContentModel();
+        $content_caption_model = new ContentCaptionModel();
+        $language_model = new LanguageModel();
+
+        /* Getting host_id from JWT token */
+        $host_id = $this->get_host_id();
+
+        /* Validate */
         if (
             !$this->validate([
                 'photo_content_level' =>
@@ -66,7 +76,7 @@ class Photo extends APIBaseController
             );
         }
 
-        $host_id = $this->get_host_id();
+        /* Getting request data */
         $photo_content_level = $this->request->getVar(
             'photo_content_level'
         );
@@ -85,6 +95,8 @@ class Photo extends APIBaseController
             'content_caption'
         );
         $img_url = $this->request->getVar('img_url');
+
+        /* Validation for data format */
         if (
             $photo_content_level < 1 ||
             $photo_content_level > 2
@@ -95,8 +107,21 @@ class Photo extends APIBaseController
                 'photo'
             );
         }
+        if (!@getimagesize($img_url)) {
+            return $this->notifyError(
+                'No Such Image URL',
+                'notFound',
+                'photo'
+            );
+        }
+
         // Insert photo content
-        $photo_content_model = new PhotoContentModel();
+        // $photo_content_model->where([
+        //     'photo_content_host_id' => $host_id,
+        //     'photo_content_level' => $photo_content_level,
+        //     'photo_content_connection' => $photo_content_connection,
+        //     'photo_content_order' => $photo_content_order,
+        // ])
         $data = [
             'photo_content_host_id' => $host_id,
             'photo_content_level' => $photo_content_level,
@@ -107,23 +132,18 @@ class Photo extends APIBaseController
 
         $new_id = $photo_content_model->insert($data);
         if ($new_id) {
-            // Validation for download image size
-            if (!@getimagesize($img_url)) {
-                return $this->notifyError(
-                    'No Such Image URL',
-                    'notFound',
-                    'photo'
-                );
-            }
+            // Check if image size validates
             $image_width = getimagesize($img_url)[0];
             $image_height = getimagesize($img_url)[1];
-            $config = config('Config\App');
+
             $valid_image_size =
-                $config->minimum_download_image_size;
+                $config->MINIMUM_DOWNLOAD_IMAGE_SIZE;
             if (
                 !(
-                    $image_width >= $valid_image_size[0] &&
-                    $image_height >= $valid_image_size[1]
+                    $image_width >=
+                        $valid_image_size['width'] &&
+                    $image_height >=
+                        $valid_image_size['height']
                 )
             ) {
                 $photo_content_model->delete($new_id);
@@ -133,6 +153,8 @@ class Photo extends APIBaseController
                     'photo'
                 );
             }
+
+            // Upload image
             $is_upload = $this->uploadImage(
                 $img_url,
                 $new_id,
@@ -146,6 +168,8 @@ class Photo extends APIBaseController
                     'photo'
                 );
             }
+
+            // Update photo content
             if (
                 !$photo_content_model->update($new_id, [
                     'photo_content_url' =>
@@ -164,8 +188,6 @@ class Photo extends APIBaseController
             }
 
             // Insert Caption Info into content_captions table
-            $content_caption_model = new ContentCaptionModel();
-            $language_model = new LanguageModel();
             $languages = $language_model->get_available_languages(
                 1
             );
@@ -225,7 +247,16 @@ class Photo extends APIBaseController
      */
     public function delete($id = null)
     {
+        /* Import config variable */
+        $config = config('Config\App');
+
+        /* Getting host id from jwt token */
         $host_id = $this->get_host_id();
+
+        /* Load necessary Model */
+        $photo_content_model = new PhotoContentModel();
+
+        /* Validate */
         if (
             !$this->validate([
                 'photo_content_id' => 'required',
@@ -237,9 +268,13 @@ class Photo extends APIBaseController
                 'photo'
             );
         }
+
+        /* Getting request data */
         $photo_content_id = $this->request->getVar(
             'photo_content_id'
         );
+
+        /* Validation for data format */
         if (!ctype_digit((string) $photo_content_id)) {
             return $this->notifyError(
                 'Input data format is incorrect',
@@ -247,11 +282,10 @@ class Photo extends APIBaseController
                 'photo'
             );
         }
-        $photo_content_model = new PhotoContentModel();
-        $check_id_exist = $photo_content_model->is_existed_id(
-            $photo_content_id
-        );
-        if ($check_id_exist == null) {
+        if (
+            $photo_content_model->find($photo_content_id) ==
+            null
+        ) {
             return $this->notifyError(
                 'No Such Data',
                 'notFound',
@@ -262,15 +296,17 @@ class Photo extends APIBaseController
             $photo_content_id
         );
 
+        /* Delete photo content */
         if (
             $photo_content_model->delete($photo_content_id)
         ) {
             $content_caption_model = new ContentCaptionModel();
             $content_caption_model->delete_by(
                 $host_id,
-                1,
+                $config->CONTENT_CAPTION_TYPE['photo'],
                 $photo_content_id
             );
+            // Uploaded image delete
             if (
                 $photo_content_filename[
                     'photo_content_url'
@@ -316,6 +352,7 @@ class Photo extends APIBaseController
         );
     }
 
+    /* Image upload function */
     public function uploadImage(
         $image_url,
         $photo_content_id,
@@ -323,6 +360,10 @@ class Photo extends APIBaseController
     ) {
         $url_to_image = $image_url;
 
+        // Import config variable
+        $config = config('Config\App');
+
+        // Creating directory
         if (
             !is_dir(
                 $_SERVER['DOCUMENT_ROOT'] .
@@ -362,14 +403,15 @@ class Photo extends APIBaseController
             file_get_contents($url_to_image)
         );
         if ($upload) {
-            $config = config('Config\App');
-            $custom_photo1 = $config->Custom_photo1;
-            $custom_photo2 = $config->Custom_photo2;
+            $custom_photo1 = $config->CUSTOM_PHOTO1;
+            $custom_photo2 = $config->CUSTOM_PHOTO2;
+
+            // Image fitting(cropping image from center)
             \Config\Services::image()
                 ->withFile($complete_save_loc)
                 ->fit(
-                    $custom_photo1[0],
-                    $custom_photo1[1],
+                    $custom_photo1['width'],
+                    $custom_photo1['height'],
                     'center'
                 )
                 ->save(
@@ -379,8 +421,8 @@ class Photo extends APIBaseController
             \Config\Services::image()
                 ->withFile($complete_save_loc)
                 ->fit(
-                    $custom_photo2[0],
-                    $custom_photo2[1],
+                    $custom_photo2['width'],
+                    $custom_photo2['height'],
                     'center'
                 )
                 ->save(
