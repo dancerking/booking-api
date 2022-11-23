@@ -381,6 +381,17 @@ class ServicePriceCalendar extends APIBaseController
 
         /* Update data in DB */
         if (
+            $service_calendar_model->find(
+                $service_price_id
+            ) == null
+        ) {
+            return $this->notifyError(
+                'No Such id',
+                'notFound',
+                'service_calendar'
+            );
+        }
+        if (
             !$service_calendar_model->update(
                 $service_price_id,
                 $data
