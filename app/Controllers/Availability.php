@@ -269,7 +269,7 @@ class Availability extends APIBaseController
         }
 
         return $this->respond([
-            'Success' => 'Successfully updated',
+            'message' => 'Successfully updated',
         ]);
     }
 }

@@ -119,7 +119,7 @@ class Code extends APIBaseController
                 $photo_contents == null
                     ? []
                     : $photo_contents,
-            'channel_video_codes' =>
+            'video_contents' =>
                 $channel_video_codes == null
                     ? []
                     : $channel_video_codes,

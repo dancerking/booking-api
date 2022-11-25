@@ -413,7 +413,7 @@ class Photo extends APIBaseController
             }
             return $this->respond([
                 'id' => $photo_content_id,
-                'success' => 'Successfully Deleted',
+                'message' => 'Successfully Deleted',
             ]);
         }
         return $this->notifyError(

@@ -290,7 +290,7 @@ class Video extends APIBaseController
         }
         return $this->respond([
             'id' => $video_content_id,
-            'success' => 'Successfully Deleted',
+            'message' => 'Successfully Deleted',
         ]);
     }
 }
