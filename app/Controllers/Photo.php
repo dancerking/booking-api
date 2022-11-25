@@ -117,45 +117,45 @@ class Photo extends APIBaseController
 
         /* Insert photo content */
         // Check if already exist
-        $upload_file_content = file_get_contents($img_url);
-        $photo_contents = $photo_content_model->findAll();
-        if ($photo_contents != null) {
-            foreach ($photo_contents as $photo) {
-                $my_save_dir =
-                    $_SERVER['DOCUMENT_ROOT'] .
-                    '/' .
-                    $host_id .
-                    '/photos/0_' .
-                    $photo['photo_content_url'];
-                if (file_exists($my_save_dir)) {
-                    $existed_file_content = file_get_contents(
-                        $my_save_dir
-                    );
+        // $upload_file_content = file_get_contents($img_url);
+        // $photo_contents = $photo_content_model->findAll();
+        // if ($photo_contents != null) {
+        //     foreach ($photo_contents as $photo) {
+        //         $my_save_dir =
+        //             $_SERVER['DOCUMENT_ROOT'] .
+        //             '/' .
+        //             $host_id .
+        //             '/photos/0_' .
+        //             $photo['photo_content_url'];
+        //         if (file_exists($my_save_dir)) {
+        //             $existed_file_content = file_get_contents(
+        //                 $my_save_dir
+        //             );
 
-                    if (
-                        $upload_file_content ==
-                        $existed_file_content
-                    ) {
-                        if (
-                            $photo[
-                                'photo_content_host_id'
-                            ] == $host_id &&
-                            $photo['photo_content_level'] ==
-                                $photo_content_level &&
-                            $photo[
-                                'photo_content_connection'
-                            ] == $photo_content_connection
-                        ) {
-                            return $this->notifyError(
-                                'Duplication error',
-                                'duplicate',
-                                'photo'
-                            );
-                        }
-                    }
-                }
-            }
-        }
+        //             if (
+        //                 $upload_file_content ==
+        //                 $existed_file_content
+        //             ) {
+        //                 if (
+        //                     $photo[
+        //                         'photo_content_host_id'
+        //                     ] == $host_id &&
+        //                     $photo['photo_content_level'] ==
+        //                         $photo_content_level &&
+        //                     $photo[
+        //                         'photo_content_connection'
+        //                     ] == $photo_content_connection
+        //                 ) {
+        //                     return $this->notifyError(
+        //                         'Duplication error',
+        //                         'duplicate',
+        //                         'photo'
+        //                     );
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         // Insert data
         $data = [
             'photo_content_host_id' => $host_id,
