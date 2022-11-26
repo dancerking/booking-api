@@ -289,21 +289,13 @@ class Availability extends APIBaseController
             );
         }
         /* Update data in DB */
-        $from = new DateTime($type_availability_day->from);
-        $to = new DateTime($type_availability_day->to);
-
-        $interval = DateInterval::createFromDateString(
-            '1 day'
-        );
-        $period = new DatePeriod($from, $interval, $to);
-
-        foreach ($period as $availability_day) {
+        $from = $type_availability_day->from;
+        $to = $type_availability_day->to;
+        while (strtotime($from) <= strtotime($to)) {
             $data = [
                 'type_availability_host_id' => $host_id,
                 'type_availability_code' => $type_availability_code,
-                'type_availability_day' => $availability_day->format(
-                    'Y-m-d'
-                ),
+                'type_availability_day' => $from,
                 'type_availability_qty' => $type_availability_qty,
                 'type_availability_msa' => $type_availability_msa,
                 'type_availability_coa' => $type_availability_coa,
@@ -345,6 +337,10 @@ class Availability extends APIBaseController
                     );
                 }
             }
+            $from = date(
+                'Y-m-d',
+                strtotime('+1 day', strtotime($from))
+            );
         }
         return $this->respond([
             'message' => 'Successfully updated',
