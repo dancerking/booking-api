@@ -65,7 +65,8 @@ class TypeAvailabilityModel extends Model
                 '" AND type_availability_day <= "' .
                 $to .
                 '" AND type_availability_host_id = ' .
-                $host_id
+                $host_id .
+                ' GROUP BY type_availability_day'
         );
         $results = $query->getResult();
         return $results;

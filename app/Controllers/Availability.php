@@ -4,7 +4,10 @@ namespace App\Controllers;
 
 use App\Controllers\APIBaseController;
 use App\Models\TypeAvailabilityModel;
+use App\Models\TypeMappingModel;
 use CodeIgniter\API\ResponseTrait;
+use DateInterval;
+use DatePeriod;
 use DateTime;
 
 class Availability extends APIBaseController
@@ -117,8 +120,10 @@ class Availability extends APIBaseController
      */
     public function update($id = null)
     {
+        $config = config('Config\App');
         /* Load TypeAvailability Model */
         $type_availability_model = new TypeAvailabilityModel();
+        $type_mapping_model = new TypeMappingModel();
 
         /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
@@ -161,7 +166,36 @@ class Availability extends APIBaseController
         );
 
         /* Format validation */
-        if (!$this->validateDate($type_availability_day)) {
+        if (
+            $type_mapping_model
+                ->where([
+                    'type_mapping_host_id' => $host_id,
+                    'type_mapping_code' => $type_availability_code,
+                ])
+                ->findAll() == null
+        ) {
+            return $this->notifyError(
+                'type_mapping_code is invalid',
+                'notFound',
+                'availability'
+            );
+        }
+        if (
+            !isset($type_availability_day->from) ||
+            !isset($type_availability_day->to)
+        ) {
+            return $this->notifyError(
+                'type_availability_day must have `from` and `to` fields',
+                'invalid_data',
+                'availability'
+            );
+        }
+        if (
+            !$this->validateDate(
+                $type_availability_day->from
+            ) ||
+            !$this->validateDate($type_availability_day->to)
+        ) {
             return $this->notifyError(
                 'Date format is incorrect',
                 'invalid_data',
@@ -170,10 +204,38 @@ class Availability extends APIBaseController
         }
         if (
             new DateTime() >
-            new DateTime($type_availability_day)
+                new DateTime(
+                    $type_availability_day->from
+                ) ||
+            new DateTime() >
+                new DateTime($type_availability_day->to)
         ) {
             return $this->notifyError(
                 'type_availability_day should be larger than today',
+                'invalid_data',
+                'availability'
+            );
+        }
+        if (
+            new DateTime($type_availability_day->to) <
+            new DateTime($type_availability_day->from)
+        ) {
+            return $this->notifyError(
+                'To date should be larger than From date.',
+                'invalid_data',
+                'availability'
+            );
+        }
+        if (
+            date_diff(
+                new DateTime($type_availability_day->to),
+                new DateTime($type_availability_day->from)
+            )->days > $config->MAXIMUM_DATE_RANGE
+        ) {
+            return $this->notifyError(
+                'date range is maximum ' .
+                    $config->MAXIMUM_DATE_RANGE .
+                    ' days',
                 'invalid_data',
                 'availability'
             );
@@ -227,47 +289,63 @@ class Availability extends APIBaseController
             );
         }
         /* Update data in DB */
-        $data = [
-            'type_availability_host_id' => $host_id,
-            'type_availability_code' => $type_availability_code,
-            'type_availability_day' => $type_availability_day,
-            'type_availability_qty' => $type_availability_qty,
-            'type_availability_msa' => $type_availability_msa,
-            'type_availability_coa' => $type_availability_coa,
-            'type_availability_cod' => $type_availability_cod,
-        ];
-        $matched_ids = $type_availability_model
-            ->where([
+        $from = new DateTime($type_availability_day->from);
+        $to = new DateTime($type_availability_day->to);
+
+        $interval = DateInterval::createFromDateString(
+            '1 day'
+        );
+        $period = new DatePeriod($from, $interval, $to);
+
+        foreach ($period as $availability_day) {
+            $data = [
                 'type_availability_host_id' => $host_id,
                 'type_availability_code' => $type_availability_code,
-                'type_availability_day' => $type_availability_day,
-            ])
-            ->findAll();
-        if ($matched_ids != null) {
-            foreach ($matched_ids as $matched_id) {
+                'type_availability_day' => $availability_day->format(
+                    'Y-m-d'
+                ),
+                'type_availability_qty' => $type_availability_qty,
+                'type_availability_msa' => $type_availability_msa,
+                'type_availability_coa' => $type_availability_coa,
+                'type_availability_cod' => $type_availability_cod,
+            ];
+            $matched_ids = $type_availability_model
+                ->where([
+                    'type_availability_host_id' => $host_id,
+                    'type_availability_code' => $type_availability_code,
+                    'type_availability_day' =>
+                        $data['type_availability_day'],
+                ])
+                ->findAll();
+            if ($matched_ids != null) {
+                foreach ($matched_ids as $matched_id) {
+                    if (
+                        !$type_availability_model->update(
+                            $matched_id[
+                                'type_availability_id'
+                            ],
+                            $data
+                        )
+                    ) {
+                        return $this->notifyError(
+                            'Failed update',
+                            'failed_update',
+                            'availability'
+                        );
+                    }
+                }
+            } else {
                 if (
-                    !$type_availability_model->update(
-                        $matched_id['type_availability_id'],
-                        $data
-                    )
+                    !$type_availability_model->insert($data)
                 ) {
                     return $this->notifyError(
-                        'Failed update',
-                        'failed_update',
+                        'Failed insert',
+                        'failed_insert',
                         'availability'
                     );
                 }
             }
-        } else {
-            if (!$type_availability_model->insert($data)) {
-                return $this->notifyError(
-                    'Failed insert',
-                    'failed_insert',
-                    'availability'
-                );
-            }
         }
-
         return $this->respond([
             'message' => 'Successfully updated',
         ]);
