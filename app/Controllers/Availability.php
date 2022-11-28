@@ -59,7 +59,7 @@ class Availability extends APIBaseController
         }
         if (new DateTime($to) < new DateTime($from)) {
             return $this->notifyError(
-                'To date should be larger than From date.',
+                'To date should be greater than From date.',
                 'invalid_data',
                 'availability'
             );
@@ -248,7 +248,7 @@ class Availability extends APIBaseController
                 new DateTime($row->type_availability_from)
             ) {
                 return $this->notifyError(
-                    'type_availability_from should be larger than today',
+                    'type_availability_from should be greater than today',
                     'invalid_data',
                     'availability'
                 );
@@ -258,7 +258,7 @@ class Availability extends APIBaseController
                 new DateTime($row->type_availability_from)
             ) {
                 return $this->notifyError(
-                    'type_availability_to should be larger than type_availability_from.',
+                    'type_availability_to should be greater than type_availability_from.',
                     'invalid_data',
                     'availability'
                 );
