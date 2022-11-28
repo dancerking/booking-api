@@ -246,6 +246,7 @@ class RateCalendar extends APIBaseController
             }
         }
         /* Update data in DB */
+        $multi_query = [];
         foreach ($rate_code as $row) {
             if (
                 !isset($row->daily_rate_guesttype_1) ||
@@ -329,37 +330,90 @@ class RateCalendar extends APIBaseController
                             $data['daily_rate_type'],
                         'daily_rate_day' =>
                             $data['daily_rate_day'],
-                        'daily_rate_baserate' =>
-                            $data['daily_rate_baserate'],
                     ])
                     ->findAll();
                 if ($matched_ids != null) {
                     foreach ($matched_ids as $matched_id) {
-                        if (
-                            !$rate_calendar_model->update(
-                                $matched_id[
-                                    'daily_rate_id'
-                                ],
-                                $data
-                            )
-                        ) {
-                            return $this->notifyError(
-                                'Failed update',
-                                'failed_update',
-                                'rate_calendar'
-                            );
-                        }
-                    }
-                } else {
-                    if (
-                        !$rate_calendar_model->insert($data)
-                    ) {
-                        return $this->notifyError(
-                            'Failed insert',
-                            'failed_insert',
-                            'rate_calendar'
+                        array_push(
+                            $multi_query,
+                            'UPDATE rates_calendar SET rate_calendar_host_id = ' .
+                                $data[
+                                    'rate_calendar_host_id'
+                                ] .
+                                ', daily_rate_code = ' .
+                                $data['daily_rate_code'] .
+                                ', daily_rate_type = "' .
+                                $data['daily_rate_type'] .
+                                '", daily_rate_day = "' .
+                                $data['daily_rate_day'] .
+                                '", daily_rate_baserate = ' .
+                                $data[
+                                    'daily_rate_baserate'
+                                ] .
+                                ', daily_rate_guesttype_1 = ' .
+                                $data[
+                                    'daily_rate_guesttype_1'
+                                ] .
+                                ', daily_rate_guesttype_2 = ' .
+                                $data[
+                                    'daily_rate_guesttype_2'
+                                ] .
+                                ', daily_rate_guesttype_3 = ' .
+                                $data[
+                                    'daily_rate_guesttype_3'
+                                ] .
+                                ', daily_rate_guesttype_4 = ' .
+                                $data[
+                                    'daily_rate_guesttype_4'
+                                ] .
+                                ', daily_rate_minstay = ' .
+                                $data[
+                                    'daily_rate_minstay'
+                                ] .
+                                ', daily_rate_maxstay = ' .
+                                $data[
+                                    'daily_rate_maxstay'
+                                ] .
+                                ' WHERE daily_rate_id = ' .
+                                $matched_id['daily_rate_id']
                         );
                     }
+                } else {
+                    array_push(
+                        $multi_query,
+                        'INSERT INTO rates_calendar (rate_calendar_host_id, daily_rate_code, daily_rate_type, daily_rate_day, daily_rate_baserate, daily_rate_guesttype_1, daily_rate_guesttype_2, daily_rate_guesttype_3, daily_rate_guesttype_4, daily_rate_minstay, daily_rate_maxstay)
+                    VALUES (' .
+                            $data['rate_calendar_host_id'] .
+                            ', ' .
+                            $data['daily_rate_code'] .
+                            ', "' .
+                            $data['daily_rate_type'] .
+                            '", "' .
+                            $data['daily_rate_day'] .
+                            '", ' .
+                            $data['daily_rate_baserate'] .
+                            ', ' .
+                            $data[
+                                'daily_rate_guesttype_1'
+                            ] .
+                            ', ' .
+                            $data[
+                                'daily_rate_guesttype_2'
+                            ] .
+                            ', ' .
+                            $data[
+                                'daily_rate_guesttype_3'
+                            ] .
+                            ', ' .
+                            $data[
+                                'daily_rate_guesttype_4'
+                            ] .
+                            ', ' .
+                            $data['daily_rate_minstay'] .
+                            ', ' .
+                            $data['daily_rate_maxstay'] .
+                            ')'
+                    );
                 }
                 $from = date(
                     'Y-m-d',
@@ -367,7 +421,17 @@ class RateCalendar extends APIBaseController
                 );
             }
         }
-
+        if (
+            !$rate_calendar_model->multi_query_execute(
+                $multi_query
+            )
+        ) {
+            return $this->notifyError(
+                'Failed update',
+                'failed_update',
+                'rate_calendar'
+            );
+        }
         return $this->respond([
             'message' => 'Successfully updated.',
         ]);

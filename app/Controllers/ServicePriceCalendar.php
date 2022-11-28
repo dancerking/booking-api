@@ -304,6 +304,7 @@ class ServicePriceCalendar extends APIBaseController
         }
 
         /* Update data in DB */
+        $multi_query = [];
         foreach ($price_code as $row) {
             $from = $row->service_price_from;
             $to = $row->service_price_to;
@@ -314,8 +315,7 @@ class ServicePriceCalendar extends APIBaseController
                         $row->service_price_code,
                     'service_price_type' =>
                         $row->service_price_type,
-                    'service_price_day' =>
-                        $row->service_price_from,
+                    'service_price_day' => $from,
                     'service_price' => $row->service_price,
                 ];
                 // Check if data exist
@@ -333,33 +333,46 @@ class ServicePriceCalendar extends APIBaseController
                 // Update data
                 if ($matched_ids != null) {
                     foreach ($matched_ids as $matched_id) {
-                        if (
-                            !$service_calendar_model->update(
+                        array_push(
+                            $multi_query,
+                            'UPDATE services_calendar SET service_price_host_id = ' .
+                                $data[
+                                    'service_price_host_id'
+                                ] .
+                                ', service_price_code = ' .
+                                $data[
+                                    'service_price_code'
+                                ] .
+                                ', service_price_type = "' .
+                                $data[
+                                    'service_price_type'
+                                ] .
+                                '", service_price_day = "' .
+                                $data['service_price_day'] .
+                                '", service_price = ' .
+                                $data['service_price'] .
+                                ' WHERE service_price_id = ' .
                                 $matched_id[
                                     'service_price_id'
-                                ],
-                                $data
-                            )
-                        ) {
-                            return $this->notifyError(
-                                'Failed update',
-                                'failed_update',
-                                'service_calendar'
-                            );
-                        }
-                    }
-                } else {
-                    if (
-                        !$service_calendar_model->insert(
-                            $data
-                        )
-                    ) {
-                        return $this->notifyError(
-                            'Failed insert',
-                            'failed_insert',
-                            'service_calendar'
+                                ]
                         );
                     }
+                } else {
+                    array_push(
+                        $multi_query,
+                        'INSERT INTO services_calendar (service_price_host_id, service_price_code, service_price_type, service_price_day, service_price)
+                    VALUES (' .
+                            $data['service_price_host_id'] .
+                            ', ' .
+                            $data['service_price_code'] .
+                            ', "' .
+                            $data['service_price_type'] .
+                            '", "' .
+                            $data['service_price_day'] .
+                            '", ' .
+                            $data['service_price'] .
+                            ')'
+                    );
                 }
                 $from = date(
                     'Y-m-d',
@@ -367,7 +380,17 @@ class ServicePriceCalendar extends APIBaseController
                 );
             }
         }
-
+        if (
+            !$service_calendar_model->multi_query_execute(
+                $multi_query
+            )
+        ) {
+            return $this->notifyError(
+                'Failed update',
+                'failed_update',
+                'service_calendar'
+            );
+        }
         return $this->respond([
             'message' => 'Successfully updated.',
         ]);

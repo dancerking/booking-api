@@ -7,6 +7,7 @@ use App\Models\TypeAvailabilityModel;
 use App\Models\TypeMappingModel;
 use CodeIgniter\API\ResponseTrait;
 use DateTime;
+use mysqli;
 
 class Availability extends APIBaseController
 {
@@ -348,6 +349,7 @@ class Availability extends APIBaseController
         }
 
         /* Update data in DB */
+        $multi_query = [];
         foreach ($type_code as $row) {
             $from = $row->type_availability_from;
             $to = $row->type_availability_to;
@@ -377,33 +379,66 @@ class Availability extends APIBaseController
                     ->findAll();
                 if ($matched_ids != null) {
                     foreach ($matched_ids as $matched_id) {
-                        if (
-                            !$type_availability_model->update(
+                        array_push(
+                            $multi_query,
+                            'UPDATE type_availability SET type_availability_host_id = ' .
+                                $data[
+                                    'type_availability_host_id'
+                                ] .
+                                ', type_availability_code = "' .
+                                $data[
+                                    'type_availability_code'
+                                ] .
+                                '", type_availability_day = "' .
+                                $data[
+                                    'type_availability_day'
+                                ] .
+                                '", type_availability_qty = ' .
+                                $data[
+                                    'type_availability_qty'
+                                ] .
+                                ', type_availability_msa = ' .
+                                $data[
+                                    'type_availability_msa'
+                                ] .
+                                ', type_availability_coa = ' .
+                                $data[
+                                    'type_availability_coa'
+                                ] .
+                                ', type_availability_cod = ' .
+                                $data[
+                                    'type_availability_cod'
+                                ] .
+                                ' WHERE type_availability_id = ' .
                                 $matched_id[
                                     'type_availability_id'
-                                ],
-                                $data
-                            )
-                        ) {
-                            return $this->notifyError(
-                                'Failed update',
-                                'failed_update',
-                                'availability'
-                            );
-                        }
-                    }
-                } else {
-                    if (
-                        !$type_availability_model->insert(
-                            $data
-                        )
-                    ) {
-                        return $this->notifyError(
-                            'Failed insert',
-                            'failed_insert',
-                            'availability'
+                                ]
                         );
                     }
+                } else {
+                    array_push(
+                        $multi_query,
+                        'INSERT INTO type_availability (type_availability_host_id, type_availability_code, type_availability_day, type_availability_qty, type_availability_msa, type_availability_coa, type_availability_cod)
+                    VALUES (' .
+                            $data[
+                                'type_availability_host_id'
+                            ] .
+                            ', "' .
+                            $data[
+                                'type_availability_code'
+                            ] .
+                            '", "' .
+                            $data['type_availability_day'] .
+                            '", ' .
+                            $data['type_availability_qty'] .
+                            ', ' .
+                            $data['type_availability_msa'] .
+                            ', ' .
+                            $data['type_availability_coa'] .
+                            ', ' .
+                            $data['type_availability_cod'] .
+                            ')'
+                    );
                 }
                 $from = date(
                     'Y-m-d',
@@ -411,7 +446,17 @@ class Availability extends APIBaseController
                 );
             }
         }
-
+        if (
+            !$type_availability_model->multi_query_execute(
+                $multi_query
+            )
+        ) {
+            return $this->notifyError(
+                'Failed update',
+                'failed_update',
+                'availability'
+            );
+        }
         return $this->respond([
             'message' => 'Successfully updated',
         ]);
