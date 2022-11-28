@@ -86,9 +86,9 @@ class Availability extends APIBaseController
                 )->days > $config->MAXIMUM_DATE_RANGE
             ) {
                 return $this->notifyError(
-                    'date range is maximum ' .
+                    'maximum ' .
                         $config->MAXIMUM_DATE_RANGE .
-                        ' days',
+                        ' days back date range',
                     'invalid_data',
                     'availability'
                 );
@@ -274,9 +274,9 @@ class Availability extends APIBaseController
                 )->days > $config->MAXIMUM_DATE_RANGE
             ) {
                 return $this->notifyError(
-                    'date range is maximum ' .
+                    'maximum ' .
                         $config->MAXIMUM_DATE_RANGE .
-                        ' days',
+                        ' days back date range',
                     'invalid_data',
                     'availability'
                 );
