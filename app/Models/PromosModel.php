@@ -69,20 +69,20 @@ class PromosModel extends Model
                 '" AND promos_mapping.promo_mapping_status = 1'
         );
         $results = $query->getResult();
-        foreach ($results as &$result) {
-            if ($result->promo_mapping_type != null) {
-                $type_mapping_name_query = $this->db->query(
-                    'SELECT type_mapping_name FROM types_mapping WHERE type_mapping_code = "' .
-                        $result->promo_mapping_type .
-                        '" AND type_mapping_lang = "it" AND type_mapping_host_id = ' .
-                        $host_id .
-                        ' AND type_mapping_main_status = 1'
-                );
-                $type_mapping_name_results = $type_mapping_name_query->getResult();
-                $result->type_mapping_names = $type_mapping_name_results;
-            }
-            $result->type_mapping_names = [];
-        }
+        // foreach ($results as &$result) {
+        //     if ($result->promo_mapping_type != null) {
+        //         $type_mapping_name_query = $this->db->query(
+        //             'SELECT type_mapping_name FROM types_mapping WHERE type_mapping_code = "' .
+        //                 $result->promo_mapping_type .
+        //                 '" AND type_mapping_lang = "it" AND type_mapping_host_id = ' .
+        //                 $host_id .
+        //                 ' AND type_mapping_main_status = 1'
+        //         );
+        //         $type_mapping_name_results = $type_mapping_name_query->getResult();
+        //         $result->type_mapping_names = $type_mapping_name_results;
+        //     }
+        //     $result->type_mapping_names = [];
+        // }
         return $results;
     }
 }
