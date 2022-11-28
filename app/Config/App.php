@@ -485,4 +485,5 @@ class App extends BaseConfig
         'height' => '174',
     ];
     public $MAXIMUM_DATE_RANGE = 90;
+    public $INVALID_VIDEO_CODE_STRING = ['http', 'www'];
 }
