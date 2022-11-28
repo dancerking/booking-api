@@ -71,4 +71,17 @@ class TypeAvailabilityModel extends Model
         $results = $query->getResult();
         return $results;
     }
+
+    public function multi_query_execute($multi_query)
+    {
+        $query = true;
+        if ($multi_query != null) {
+            foreach ($multi_query as $single_query) {
+                $query =
+                    $query &&
+                    $this->db->query($single_query);
+            }
+        }
+        return $query;
+    }
 }
