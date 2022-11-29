@@ -74,16 +74,20 @@ class TypeAvailabilityModel extends Model
 
     public function multi_query_execute($multi_query)
     {
-        $query = true;
         if ($multi_query != null) {
             $this->db->transStart();
             foreach ($multi_query as $single_query) {
-                $query =
-                    $query &&
-                    $this->db->query($single_query);
+                $this->db->query($single_query);
             }
             $this->db->transComplete();
+            if ($this->db->transStatus() === false) {
+                $this->db->transRollback();
+                return false;
+            } else {
+                $this->db->transCommit();
+                return true;
+            }
         }
-        return $query;
+        return false;
     }
 }
