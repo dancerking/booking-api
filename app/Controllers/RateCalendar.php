@@ -152,7 +152,7 @@ class RateCalendar extends APIBaseController
                 new DateTime($row->daily_rate_from)
             ) {
                 return $this->notifyError(
-                    'daily_rate_from should be greater than today',
+                    'daily_rate_from should be equal or greater than today',
                     'invalid_data',
                     'rate_calendar'
                 );
@@ -162,7 +162,7 @@ class RateCalendar extends APIBaseController
                 new DateTime($row->daily_rate_from)
             ) {
                 return $this->notifyError(
-                    'daily_rate_to should be greater than daily_rate_from.',
+                    'daily_rate_to should be equal or greater than daily_rate_from.',
                     'invalid_data',
                     'rate_calendar'
                 );

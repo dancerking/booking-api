@@ -58,11 +58,13 @@ class RateCalendarModel extends Model
     {
         $query = true;
         if ($multi_query != null) {
+            $this->db->transStart();
             foreach ($multi_query as $single_query) {
                 $query =
                     $query &&
                     $this->db->query($single_query);
             }
+            $this->db->transComplete();
         }
         return $query;
     }

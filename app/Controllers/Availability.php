@@ -249,7 +249,7 @@ class Availability extends APIBaseController
                 new DateTime($row->type_availability_from)
             ) {
                 return $this->notifyError(
-                    'type_availability_from should be greater than today',
+                    'type_availability_from should be equal or greater than today',
                     'invalid_data',
                     'availability'
                 );

@@ -69,7 +69,7 @@ class ServicePriceCalendar extends APIBaseController
             new DateTime($servicefrom)
         ) {
             return $this->notifyError(
-                'To date should be greater than From date.',
+                'To date should be equal or greater than From date.',
                 'invalid_data',
                 'service_calendar'
             );
@@ -228,7 +228,7 @@ class ServicePriceCalendar extends APIBaseController
                 new DateTime($row->service_price_from)
             ) {
                 return $this->notifyError(
-                    'service_price_from should be greater than today',
+                    'service_price_from should be equal or greater than today',
                     'invalid_data',
                     'service_calendar'
                 );
