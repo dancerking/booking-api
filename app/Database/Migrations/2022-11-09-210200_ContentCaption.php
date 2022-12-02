@@ -9,7 +9,7 @@ class ContentCaption extends Migration
 {
     public function up()
     {
-       $this->forge->addField([
+        $this->forge->addField([
             'content_caption_id' => [
                 'type' => 'INT',
                 'constraint' => '11',
@@ -40,8 +40,10 @@ class ContentCaption extends Migration
                 'constraint' => '11',
             ],
             'content_activation' => [
-                'type'     => 'TIMESTAMP',
-                'default'  => new RawSql('CURRENT_TIMESTAMP'),
+                'type' => 'TIMESTAMP',
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
         ]);
         $this->forge->addPrimaryKey('content_caption_id');

@@ -33,11 +33,15 @@ class TypeMain extends Migration
             ],
             'main_type_activation' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'main_type_last_update' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
                 'null' => true,
             ],
         ]);

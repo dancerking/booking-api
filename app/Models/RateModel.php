@@ -18,6 +18,7 @@ class RateModel extends Model
         'rate_id',
         'rate_host_id',
         'rate_setting',
+        'rate_master',
         'rate_discount_markup',
         'rate_guests_included',
         'rate_downpayment',
@@ -52,7 +53,7 @@ class RateModel extends Model
     public function get_rate_data($host_id)
     {
         $rate_query = $this->db->query(
-            'SELECT rate_id, rate_setting, rate_discount_markup, rate_guests_included, rate_downpayment, rate_from_checkin, rate_status
+            'SELECT rate_id, rate_setting, rate_master, rate_discount_markup, rate_guests_included, rate_downpayment, rate_from_checkin, rate_status
         FROM rates
         WHERE rate_host_id = ' . $host_id
         );

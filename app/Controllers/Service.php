@@ -163,7 +163,7 @@ class Service extends APIBaseController
                 'service'
             );
         }
-        if (fmod($service_vat_percentage, 1) !== 0.0) {
+        if (!is_numeric($service_vat_percentage)) {
             return $this->notifyError(
                 'service_vat_percentage format is incorrect',
                 'invalid_data',
@@ -505,7 +505,7 @@ class Service extends APIBaseController
                 'service'
             );
         }
-        if (fmod($service_vat_percentage, 1) !== 0.0) {
+        if (!is_numeric($service_vat_percentage)) {
             return $this->notifyError(
                 'service_vat_percentage format is incorrect',
                 'invalid_data',
@@ -622,24 +622,24 @@ class Service extends APIBaseController
 
         /* Insert Service content */
         // Check if duplicated
-        if (
-            $service_model
-                ->where([
-                    'service_mode' => $service_mode,
-                    'service_host_id' => $host_id,
-                    'service_mandatory' => $service_mandatory,
-                    'service_mandatory_note' => $service_mandatory_note,
-                    'service_mandatory_group_name' => $service_mandatory_group_name,
-                    'service_vat_percentage' => $service_vat_percentage,
-                ])
-                ->findAll() != null
-        ) {
-            return $this->notifyError(
-                'Duplication error',
-                'duplicate',
-                'service'
-            );
-        }
+        // if (
+        //     $service_model
+        //         ->where([
+        //             'service_mode' => $service_mode,
+        //             'service_host_id' => $host_id,
+        //             'service_mandatory' => $service_mandatory,
+        //             'service_mandatory_note' => $service_mandatory_note,
+        //             'service_mandatory_group_name' => $service_mandatory_group_name,
+        //             'service_vat_percentage' => $service_vat_percentage,
+        //         ])
+        //         ->findAll() != null
+        // ) {
+        //     return $this->notifyError(
+        //         'Duplication error',
+        //         'duplicate',
+        //         'service'
+        //     );
+        // }
         $data = [
             'service_mode' => $service_mode,
             'service_host_id' => $host_id,

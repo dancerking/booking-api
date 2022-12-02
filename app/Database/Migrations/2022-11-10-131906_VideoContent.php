@@ -44,11 +44,15 @@ class VideoContent extends Migration
             ],
             'video_content_activation' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'video_content_last_update' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
                 'null' => true,
             ],
         ]);

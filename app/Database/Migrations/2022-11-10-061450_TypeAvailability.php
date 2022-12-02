@@ -21,7 +21,9 @@ class TypeAvailability extends Migration
             ],
             'type_availability_day' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
                 'null' => true,
             ],
             'type_availability_code' => [

@@ -85,6 +85,9 @@ class Code extends APIBaseController
             $host_id,
             $record_status
         );
+        $channel_codes = $video_channel_model->get_channel_codes(
+            $record_status
+        );
 
         return $this->respond([
             'main_host_data' =>
@@ -116,10 +119,14 @@ class Code extends APIBaseController
                 $photo_contents == null
                     ? []
                     : $photo_contents,
-            'channel_video_codes' =>
+            'video_contents' =>
                 $channel_video_codes == null
                     ? []
                     : $channel_video_codes,
+            'channel_codes' =>
+                $channel_codes == null
+                    ? []
+                    : $channel_codes,
         ]);
     }
 }

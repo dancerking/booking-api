@@ -37,11 +37,15 @@ class FilterMapping extends Migration
             ],
             'filter_mapping_activation' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'filter_mapping_lastupdate' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
                 'null' => true,
             ],
         ]);

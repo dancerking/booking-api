@@ -65,9 +65,29 @@ class TypeAvailabilityModel extends Model
                 '" AND type_availability_day <= "' .
                 $to .
                 '" AND type_availability_host_id = ' .
-                $host_id
+                $host_id .
+                ' GROUP BY type_availability_day'
         );
         $results = $query->getResult();
         return $results;
+    }
+
+    public function multi_query_execute($multi_query)
+    {
+        if ($multi_query != null) {
+            $this->db->transStart();
+            foreach ($multi_query as $single_query) {
+                $this->db->query($single_query);
+            }
+            $this->db->transComplete();
+            if ($this->db->transStatus() === false) {
+                $this->db->transRollback();
+                return false;
+            } else {
+                $this->db->transCommit();
+                return true;
+            }
+        }
+        return false;
     }
 }

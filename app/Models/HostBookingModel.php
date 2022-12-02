@@ -80,7 +80,7 @@ class HostBookingModel extends Model
         $bookingto
     ) {
         $query = $this->db->query(
-            'SELECT host_booking_id, host_booking_code, host_booking_ota_code, host_booking_registration_date, host_booking_arrival, host_booking_departure, host_booking_property_type, host_booking_guests_number, host_booking_gtype1, host_booking_gtype2, host_booking_gtype3, host_booking_gtype3, host_booking_gtype4, host_booking_total_amount, host_booking_currency, host_booking_paid, host_booking_referral_email, host_booking_referral_name, host_booking_referral_surname, host_booking_referral_mobile_phone, host_booking_referral_id, host_booking_referral_lang, host_booking_note, host_booking_rate_id, host_booking_promo, host_booking_status, host_booking_last_update
+            'SELECT host_booking_id, host_booking_code, host_booking_ota_code, host_booking_registration_date, Cast(host_booking_arrival AS DATE) as host_booking_arrival , Cast(host_booking_departure AS DATE) as host_booking_departure , host_booking_property_type, host_booking_guests_number, host_booking_gtype1, host_booking_gtype2, host_booking_gtype3, host_booking_gtype3, host_booking_gtype4, host_booking_total_amount, host_booking_currency, host_booking_paid, host_booking_referral_email, host_booking_referral_name, host_booking_referral_surname, host_booking_referral_mobile_phone, host_booking_referral_id, host_booking_referral_lang, host_booking_note, host_booking_rate_id, host_booking_promo, host_booking_status, host_booking_last_update
         FROM host_bookings
         WHERE host_booking_host_id = ' .
                 $host_id .

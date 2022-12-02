@@ -9,7 +9,7 @@ class Filter extends Migration
 {
     public function up()
     {
-       $this->forge->addField([
+        $this->forge->addField([
             'filter_id' => [
                 'type' => 'INT',
                 'constraint' => '11',
@@ -36,12 +36,16 @@ class Filter extends Migration
                 'constraint' => '11',
             ],
             'filter_activation' => [
-                'type'     => 'TIMESTAMP',
-                'default'  => new RawSql('CURRENT_TIMESTAMP'),
+                'type' => 'TIMESTAMP',
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'filter_lastupdate' => [
-                'type'     => 'TIMESTAMP',
-                'default'  => new RawSql('CURRENT_TIMESTAMP'),
+                'type' => 'TIMESTAMP',
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
                 'null' => true,
             ],
         ]);

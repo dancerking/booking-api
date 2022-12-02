@@ -75,4 +75,14 @@ class VideoChannelModel extends Model
         }
         return $results;
     }
+
+    public function get_channel_codes($record_status)
+    {
+        $query = $this->db->query(
+            'SELECT video_channel_id, video_channel_name FROM video_channels WHERE video_channel_status = ' .
+                $record_status
+        );
+        $results = $query->getResult();
+        return $results;
+    }
 }

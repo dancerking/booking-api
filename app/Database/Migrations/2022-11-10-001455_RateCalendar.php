@@ -29,7 +29,9 @@ class RateCalendar extends Migration
             ],
             'daily_rate_day' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'daily_rate_baserate' => [
                 'type' => 'DECIMAL',
@@ -61,7 +63,9 @@ class RateCalendar extends Migration
             ],
             'daily_rate_last_update' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
         ]);
         $this->forge->addPrimaryKey('daily_rate_id');

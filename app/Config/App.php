@@ -466,6 +466,8 @@ class App extends BaseConfig
 
     public $JWTresponse = [];
 
+    public $EXPIRATION_PERIOD = 2592000000; // Expiration period: 30 days
+
     public $CONTENT_CAPTION_TYPE = [
         'photo' => 1,
         'video' => 2,
@@ -483,4 +485,5 @@ class App extends BaseConfig
         'height' => '174',
     ];
     public $MAXIMUM_DATE_RANGE = 90;
+    public $INVALID_VIDEO_CODE_STRING = ['http', 'www'];
 }

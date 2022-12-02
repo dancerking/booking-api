@@ -166,7 +166,7 @@ class Promo extends APIBaseController
                 'promo'
             );
         }
-        if (fmod($promo_percentage, 1) !== 0.0) {
+        if (!is_numeric($promo_percentage)) {
             return $this->notifyError(
                 'promo_percentage format is incorrect.',
                 'invalid_data',
@@ -180,9 +180,9 @@ class Promo extends APIBaseController
                 'promo'
             );
         }
-        if ($promo_status < 1 || $promo_status > 4) {
+        if ($promo_status < 0 || $promo_status > 4) {
             return $this->notifyError(
-                'promo_status should be between 1 and 4.',
+                'promo_status should be between 0 and 4.',
                 'invalid_data',
                 'promo'
             );

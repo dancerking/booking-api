@@ -36,7 +36,9 @@ class HostBooking extends Migration
             ],
             'host_booking_registration_date' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'host_booking_arrival' => [
                 'type' => 'TIMESTAMP',
@@ -81,12 +83,12 @@ class HostBooking extends Migration
             'host_booking_total_amount' => [
                 'type' => 'DECIMAL',
                 'constraint' => '10, 2',
-                'default' => '0.00'
+                'default' => '0.00',
             ],
             'host_booking_paid' => [
                 'type' => 'DECIMAL',
                 'constraint' => '10, 2',
-                'default' => '0.00'
+                'default' => '0.00',
             ],
             'host_booking_currency' => [
                 'type' => 'VARCHAR',
@@ -133,7 +135,7 @@ class HostBooking extends Migration
             'host_booking_ota_fee' => [
                 'type' => 'DECIMAL',
                 'constraint' => '10, 2',
-                'default' => '0.00'
+                'default' => '0.00',
             ],
             'host_booking_note' => [
                 'type' => 'TEXT',
@@ -164,7 +166,9 @@ class HostBooking extends Migration
             ],
             'host_booking_activation_date' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
             'host_booking_ip_connection' => [
                 'type' => 'VARCHAR',
@@ -174,7 +178,9 @@ class HostBooking extends Migration
             ],
             'host_booking_last_update' => [
                 'type' => 'TIMESTAMP',
-                'default' => new RawSql('CURRENT_TIMESTAMP'),
+                'default' => new RawSql(
+                    'CURRENT_TIMESTAMP'
+                ),
             ],
         ]);
         $this->forge->addPrimaryKey('host_booking_id');

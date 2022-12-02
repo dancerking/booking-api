@@ -88,6 +88,7 @@ class Login extends APIBaseController
         }
 
         $key = getenv('TOKEN_SECRET');
+        $config = config('Config\App');
         $payload = [
             'iat' => 1356999524,
             'nbf' => 1357000000,
@@ -99,7 +100,7 @@ class Login extends APIBaseController
             ),
             'host_ip' => $host_ip,
             'host_id' => $host['host_id'],
-            //"exp"   => time() + (30000), //Expire the JWT after 30 secs from now
+            'exp' => time() + $config->EXPIRATION_PERIOD, //Expire the JWT after 30 days from now
         ];
 
         $token = JWT::encode($payload, $key, 'HS256');

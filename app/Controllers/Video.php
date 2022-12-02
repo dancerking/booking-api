@@ -54,6 +54,7 @@ class Video extends APIBaseController
      */
     public function create()
     {
+        $config = config('Config\App');
         /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
 
@@ -124,6 +125,18 @@ class Video extends APIBaseController
             );
         }
 
+        if (
+            in_array(
+                $video_content_code,
+                $config->INVALID_VIDEO_CODE_STRING
+            )
+        ) {
+            return $this->notifyError(
+                'video_content_code format is invalid',
+                'invalid_data',
+                'video'
+            );
+        }
         // Check if duplicated
         if (
             $video_content_model
@@ -290,7 +303,7 @@ class Video extends APIBaseController
         }
         return $this->respond([
             'id' => $video_content_id,
-            'success' => 'Successfully Deleted',
+            'message' => 'Successfully Deleted',
         ]);
     }
 }

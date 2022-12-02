@@ -68,4 +68,23 @@ class ServiceCalendarModel extends Model
         $results = $query->getResult();
         return $results;
     }
+
+    public function multi_query_execute($multi_query)
+    {
+        if ($multi_query != null) {
+            $this->db->transStart();
+            foreach ($multi_query as $single_query) {
+                $this->db->query($single_query);
+            }
+            $this->db->transComplete();
+            if ($this->db->transStatus() === false) {
+                $this->db->transRollback();
+                return false;
+            } else {
+                $this->db->transCommit();
+                return true;
+            }
+        }
+        return false;
+    }
 }

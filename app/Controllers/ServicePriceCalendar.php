@@ -69,7 +69,7 @@ class ServicePriceCalendar extends APIBaseController
             new DateTime($servicefrom)
         ) {
             return $this->notifyError(
-                'To date should be larger than From date.',
+                'To date should be equal or greater than From date.',
                 'invalid_data',
                 'service_calendar'
             );
@@ -96,9 +96,9 @@ class ServicePriceCalendar extends APIBaseController
                 )->days > $config->MAXIMUM_DATE_RANGE
             ) {
                 return $this->notifyError(
-                    'date range is maximum ' .
+                    'maximum ' .
                         $config->MAXIMUM_DATE_RANGE .
-                        ' days',
+                        ' days back date range',
                     'invalid_data',
                     'service_calendar'
                 );
@@ -122,143 +122,13 @@ class ServicePriceCalendar extends APIBaseController
     }
 
     /**
-     * Insert model
-     * POST/servicecalendar/add
-     * @return mixed
-     */
-    public function create($id = null)
-    {
-        /* Load necessary Model */
-        $service_calendar_model = new ServiceCalendarModel();
-        $service_mapping_model = new ServiceMappingModel();
-        $type_mapping_model = new TypeMappingModel();
-
-        /* Getting host_id from JWT token */
-        $host_id = $this->get_host_id();
-
-        /* Validate */
-        $rules = [
-            'service_price_code' => 'required',
-            'service_price_type' => 'required',
-            'service_price_day' => 'required',
-            'service_price' => 'required',
-        ];
-        if (!$this->validate($rules)) {
-            return $this->notifyError(
-                'Input data format is incorrect',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-
-        /* Getting request data */
-        $service_price_code = $this->request->getVar(
-            'service_price_code'
-        );
-        $service_price_type = $this->request->getVar(
-            'service_price_type'
-        );
-        $service_price_day = $this->request->getVar(
-            'service_price_day'
-        );
-        $service_price = $this->request->getVar(
-            'service_price'
-        );
-        $data = [];
-
-        /* Validation for data format */
-        if (!$this->validateDate($service_price_day)) {
-            return $this->notifyError(
-                'Date format is incorrect',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-        if (!ctype_digit((string) $service_price_code)) {
-            return $this->notifyError(
-                'service_price_code ormat is incorrect',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-        if (fmod($service_price, 1) !== 0.0) {
-            return $this->notifyError(
-                'service_price format is incorrect.',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-        if (
-            $service_mapping_model->find(
-                $service_price_code
-            ) == null
-        ) {
-            return $this->notifyError(
-                'No Such service_price_code(service_mapping_id)',
-                'notFound',
-                'service_calendar'
-            );
-        }
-        if (
-            $type_mapping_model
-                ->where([
-                    'type_mapping_code' => $service_price_type,
-                    'type_mapping_host_id' => $host_id,
-                ])
-                ->findAll() == null
-        ) {
-            return $this->notifyError(
-                'No Such service_price_type(type_mapping_code)',
-                'notFound',
-                'service_calendar'
-            );
-        }
-
-        /* Insert data in DB */
-        if (
-            $service_calendar_model
-                ->where([
-                    'service_price_code' => $service_price_code,
-                    'service_price_type' => $service_price_type,
-                    'service_price_day' => $service_price_day,
-                    'service_price' => $service_price,
-                    'service_price_host_id' => $host_id,
-                ])
-                ->findAll() != null
-        ) {
-            return $this->notifyError(
-                'Duplication error',
-                'duplicate',
-                'service_calendar'
-            );
-        }
-        $data = [
-            'service_price_code' => $service_price_code,
-            'service_price_type' => $service_price_type,
-            'service_price_day' => $service_price_day,
-            'service_price' => $service_price,
-            'service_price_host_id' => $host_id,
-        ];
-        $new_id = $service_calendar_model->insert($data);
-        if (!$new_id) {
-            return $this->notifyError(
-                'Failed create',
-                'failed_create',
-                'service_calendar'
-            );
-        }
-        return $this->respond([
-            'id' => $new_id,
-            'Success' => 'Successfully created.',
-        ]);
-    }
-    /**
      * Update model
      * PUT/servicecalendar/update
      * @return mixed
      */
     public function update($id = null)
     {
+        $config = config('Config\App');
         /* Load necessary Model */
         $service_calendar_model = new ServiceCalendarModel();
         $service_mapping_model = new ServiceMappingModel();
@@ -269,7 +139,7 @@ class ServicePriceCalendar extends APIBaseController
 
         /* Validate */
         $rules = [
-            'service_price_id' => 'required',
+            'price_code' => 'required',
         ];
         if (!$this->validate($rules)) {
             return $this->notifyError(
@@ -280,121 +150,239 @@ class ServicePriceCalendar extends APIBaseController
         }
 
         /* Getting request data */
-        $service_price_id = $this->request->getVar(
-            'service_price_id'
-        );
-        $service_price_code = $this->request->getVar(
-            'service_price_code'
-        );
-        $service_price_type = $this->request->getVar(
-            'service_price_type'
-        );
-        $service_price_day = $this->request->getVar(
-            'service_price_day'
-        );
-        $service_price = $this->request->getVar(
-            'service_price'
-        );
-        $data = [];
+        $price_code = $this->request->getVar('price_code');
+        if (!is_array($price_code)) {
+            return $this->notifyError(
+                'price_code should be array',
+                'invalid_data',
+                'service_calendar'
+            );
+        }
+        if (
+            count($price_code) > $config->MAXIMUM_DATE_RANGE
+        ) {
+            return $this->notifyError(
+                'Max rows are ' .
+                    $config->MAXIMUM_DATE_RANGE,
+                'overflow',
+                'service_calendar'
+            );
+        }
 
-        /* Validation for data format */
-        if (!ctype_digit((string) $service_price_id)) {
-            return $this->notifyError(
-                'Type service_price_id id format is incorrect',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-        if (
-            $service_price_day != null &&
-            !$this->validateDate($service_price_day)
-        ) {
-            return $this->notifyError(
-                'Date format is incorrect',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-        if ($service_price_day != null) {
-            $data['service_price_day'] = $service_price_day;
-        }
-        if (
-            $service_price_code != null &&
-            !ctype_digit((string) $service_price_code)
-        ) {
-            return $this->notifyError(
-                'service_price_code ormat is incorrect',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-        if (
-            $service_price != null &&
-            fmod($service_price, 1) !== 0.0
-        ) {
-            return $this->notifyError(
-                'service_price format is incorrect.',
-                'invalid_data',
-                'service_calendar'
-            );
-        }
-        if ($service_price != null) {
-            $data['service_price'] = $service_price;
-        }
-        if (
-            $service_price_code != null &&
-            $service_mapping_model->find(
-                $service_price_code
-            ) == null
-        ) {
-            return $this->notifyError(
-                'No Such service_price_code(service_mapping_id)',
-                'notFound',
-                'service_calendar'
-            );
-        }
-        if ($service_price_code != null) {
-            $data[
-                'service_price_code'
-            ] = $service_price_code;
-        }
-        if (
-            $service_price_type != null &&
-            $type_mapping_model
-                ->where([
-                    'type_mapping_code' => $service_price_type,
-                    'type_mapping_host_id' => $host_id,
-                ])
-                ->findAll() == null
-        ) {
-            return $this->notifyError(
-                'No Such service_price_type(type_mapping_code)',
-                'notFound',
-                'service_calendar'
-            );
-        }
-        if ($service_price_type != null) {
-            $data[
-                'service_price_type'
-            ] = $service_price_type;
+        /* Format Validation */
+        foreach ($price_code as $row) {
+            if (!isset($row->service_price_code)) {
+                return $this->notifyError(
+                    'service_price_code is required',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+
+            if (!isset($row->service_price_type)) {
+                return $this->notifyError(
+                    'service_price_type is required',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+
+            if (!isset($row->service_price_from)) {
+                return $this->notifyError(
+                    'service_price_from is required',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+
+            if (!isset($row->service_price_to)) {
+                return $this->notifyError(
+                    'service_price_to is required',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+
+            if (!isset($row->service_price)) {
+                return $this->notifyError(
+                    'service_price is required',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+
+            if (
+                !$this->validateDate(
+                    $row->service_price_from
+                ) ||
+                !$this->validateDate($row->service_price_to)
+            ) {
+                return $this->notifyError(
+                    'Date format is incorrect',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+            if (
+                new DateTime() >
+                new DateTime($row->service_price_from)
+            ) {
+                return $this->notifyError(
+                    'service_price_from should be equal or greater than today',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+            if (
+                new DateTime($row->service_price_from) >
+                new DateTime($row->service_price_to)
+            ) {
+                return $this->notifyError(
+                    'service_price_from should be smaller than service_price_to',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+            if (
+                date_diff(
+                    new DateTime($row->service_price_to),
+                    new DateTime($row->service_price_from)
+                )->days > $config->MAXIMUM_DATE_RANGE
+            ) {
+                return $this->notifyError(
+                    'date range is maximum ' .
+                        $config->MAXIMUM_DATE_RANGE .
+                        ' days',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+            if (
+                !ctype_digit(
+                    (string) $row->service_price_code
+                )
+            ) {
+                return $this->notifyError(
+                    'service_price_code format is incorrect',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
+            if (
+                $service_mapping_model->find(
+                    $row->service_price_code
+                ) == null
+            ) {
+                return $this->notifyError(
+                    'No Such service_price_code(service_mapping_id)',
+                    'notFound',
+                    'service_calendar'
+                );
+            }
+            if (
+                $type_mapping_model
+                    ->where([
+                        'type_mapping_code' =>
+                            $row->service_price_type,
+                        'type_mapping_host_id' => $host_id,
+                    ])
+                    ->findAll() == null
+            ) {
+                return $this->notifyError(
+                    'No Such service_price_type(type_mapping_code).',
+                    'notFound',
+                    'service_calendar'
+                );
+            }
+            if (!is_numeric($row->service_price)) {
+                return $this->notifyError(
+                    'service_price format is incorrect.',
+                    'invalid_data',
+                    'service_calendar'
+                );
+            }
         }
 
         /* Update data in DB */
-        if (
-            $service_calendar_model->find(
-                $service_price_id
-            ) == null
-        ) {
-            return $this->notifyError(
-                'No Such id',
-                'notFound',
-                'service_calendar'
-            );
+        $multi_query = [];
+        foreach ($price_code as $row) {
+            $from = $row->service_price_from;
+            $to = $row->service_price_to;
+            while (strtotime($from) <= strtotime($to)) {
+                $data = [
+                    'service_price_host_id' => $host_id,
+                    'service_price_code' =>
+                        $row->service_price_code,
+                    'service_price_type' =>
+                        $row->service_price_type,
+                    'service_price_day' => $from,
+                    'service_price' => $row->service_price,
+                ];
+                // Check if data exist
+                $matched_ids = $service_calendar_model
+                    ->where([
+                        'service_price_host_id' => $host_id,
+                        'service_price_code' =>
+                            $data['service_price_code'],
+                        'service_price_type' =>
+                            $data['service_price_type'],
+                        'service_price_day' =>
+                            $data['service_price_day'],
+                    ])
+                    ->findAll();
+                // Update data
+                if ($matched_ids != null) {
+                    foreach ($matched_ids as $matched_id) {
+                        array_push(
+                            $multi_query,
+                            'UPDATE services_calendar SET service_price_host_id = ' .
+                                $data[
+                                    'service_price_host_id'
+                                ] .
+                                ', service_price_code = ' .
+                                $data[
+                                    'service_price_code'
+                                ] .
+                                ', service_price_type = "' .
+                                $data[
+                                    'service_price_type'
+                                ] .
+                                '", service_price_day = "' .
+                                $data['service_price_day'] .
+                                '", service_price = ' .
+                                $data['service_price'] .
+                                ' WHERE service_price_id = ' .
+                                $matched_id[
+                                    'service_price_id'
+                                ]
+                        );
+                    }
+                } else {
+                    array_push(
+                        $multi_query,
+                        'INSERT INTO services_calendar (service_price_host_id, service_price_code, service_price_type, service_price_day, service_price)
+                    VALUES (' .
+                            $data['service_price_host_id'] .
+                            ', ' .
+                            $data['service_price_code'] .
+                            ', "' .
+                            $data['service_price_type'] .
+                            '", "' .
+                            $data['service_price_day'] .
+                            '", ' .
+                            $data['service_price'] .
+                            ')'
+                    );
+                }
+                $from = date(
+                    'Y-m-d',
+                    strtotime('+1 day', strtotime($from))
+                );
+            }
         }
         if (
-            !$service_calendar_model->update(
-                $service_price_id,
-                $data
+            !$service_calendar_model->multi_query_execute(
+                $multi_query
             )
         ) {
             return $this->notifyError(
@@ -404,8 +392,7 @@ class ServicePriceCalendar extends APIBaseController
             );
         }
         return $this->respond([
-            'id' => $service_price_id,
-            'Success' => 'Successfully updated',
+            'message' => 'Successfully updated.',
         ]);
     }
 }
