@@ -89,6 +89,9 @@ $routes->delete('baseratesettings/delete', 'Rate::delete', [
 ]);
 
 /* Rate Calendar Route */
+$routes->get('baseratecalendar', 'RateCalendar::index', [
+    'filter' => 'auth',
+]);
 $routes->put(
     'baseratecalendar/update',
     'RateCalendar::update',
