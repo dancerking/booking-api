@@ -472,6 +472,13 @@ class App extends BaseConfig
         'photo' => 1,
         'video' => 2,
     ];
+    public $LIMIT_FOR_L1_TYPE_PHOTO = 10;
+    public $LIMIT_FOR_L2_TYPE_PHOTO = 6;
+
+    public $LIMIT_FOR_L1_TYPE_video = 2;
+    public $LIMIT_FOR_L2_TYPE_video = 2;
+
+    public $COMPRESSION_RATIO = 75; // Once image size is greater than 1MB, compression ratio is 75
     public $MINIMUM_DOWNLOAD_IMAGE_SIZE = [
         'width' => '2048',
         'height' => '1080',

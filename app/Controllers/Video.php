@@ -18,6 +18,7 @@ class Video extends APIBaseController
     use ResponseTrait;
     public function index()
     {
+        $config = config('Config\App');
         /* Getting host_id from JWT token */
         $host_id = $this->get_host_id();
 
@@ -26,10 +27,12 @@ class Video extends APIBaseController
 
         /* Getting video for level1, level2 from VideoContentModel */
         $L1_type_videos = $videos->get_level1_video(
-            $host_id
+            $host_id,
+            $config->LIMIT_FOR_L1_TYPE_video
         );
         $L2_type_videos = $videos->get_level2_video(
-            $host_id
+            $host_id,
+            $config->LIMIT_FOR_L2_TYPE_video
         );
 
         return $this->respond(
