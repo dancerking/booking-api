@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use CodeIgniter\API\ResponseTrait;
 use App\Controllers\APIBaseController;
+use App\Models\ApiAdminModel;
 use App\Models\HostModel;
 use App\Models\IpWhiteListModel;
 use Firebase\JWT\JWT;
@@ -18,13 +19,20 @@ class Login extends APIBaseController
     public function index()
     {
         helper(['form']);
+        $config = config('Config\App');
+        /* Validator */
         $rules = [
             'username' => 'required|valid_email',
             'password' => 'required',
         ];
         if (!$this->validate($rules)) {
+            $errors = $this->validator->getErrors();
+            $error_string = '';
+            foreach ($errors as $key => $value) {
+                $error_string .= $value . ' ';
+            }
             return $this->notifyError(
-                'Input data format is incorrect.',
+                $error_string,
                 'invalid_data',
                 'login'
             );
@@ -32,38 +40,72 @@ class Login extends APIBaseController
 
         // Get Host IP address
         $host_ip = $this->request->getIPAddress();
-
+        // Load Models
         $host_model = new HostModel();
         $ip_white_model = new IpWhiteListModel();
+        $api_admin_model = new ApiAdminModel();
 
+        // Check if host or admin
         $host = $host_model
             ->where(
                 'host_referral_email',
                 $this->request->getVar('username')
             )
             ->first();
-        if ($host == null) {
+        $api_admin = $api_admin_model
+            ->where(
+                'api_admin_username',
+                $this->request->getVar('username')
+            )
+            ->first();
+        if ($host == null && $api_admin == null) {
             return $this->notifyError(
                 'Email Not Found',
                 'notFound',
                 'login'
             );
         }
-        $verify =
-            hash(
-                'sha512',
-                $this->request->getVar('password')
-            ) == $host['host_password_security']
-                ? true
-                : false;
+        // In admin case
+        if ($api_admin != null) {
+            $admin_verify =
+                hash(
+                    'sha512',
+                    $this->request->getVar('password')
+                ) == $api_admin['api_admin_password']
+                    ? true
+                    : false;
 
-        if (!$verify) {
-            return $this->notifyError(
-                'Wrong password',
-                'notFound',
-                'login'
-            );
+            if (!$admin_verify) {
+                return $this->notifyError(
+                    'Wrong password',
+                    'notFound',
+                    'login'
+                );
+            }
+            $config->USER_LEVEL =
+                $config->USER_LEVELS['admin'];
         }
+        // In host case
+        if ($host != null) {
+            $host_verify =
+                hash(
+                    'sha512',
+                    $this->request->getVar('password')
+                ) == $host['host_password_security']
+                    ? true
+                    : false;
+
+            if (!$host_verify) {
+                return $this->notifyError(
+                    'Wrong password',
+                    'notFound',
+                    'login'
+                );
+            }
+            $config->USER_LEVEL =
+                $config->USER_LEVELS['host'];
+        }
+
         $check_hostID = $ip_white_model
             ->where('host_id', $host['host_id'])
             ->first();
@@ -88,7 +130,7 @@ class Login extends APIBaseController
         }
 
         $key = getenv('TOKEN_SECRET');
-        $config = config('Config\App');
+
         $payload = [
             'iat' => 1356999524,
             'nbf' => 1357000000,
@@ -99,7 +141,13 @@ class Login extends APIBaseController
                 'password'
             ),
             'host_ip' => $host_ip,
-            'host_id' => $host['host_id'],
+            'host_id' =>
+                $host != null ? $host['host_id'] : 0,
+            'admin_id' =>
+                $api_admin != null
+                    ? $api_admin['api_admin_id']
+                    : 0,
+            'user_level' => $config->USER_LEVEL,
             'exp' => time() + $config->EXPIRATION_PERIOD, //Expire the JWT after 30 days from now
         ];
 
