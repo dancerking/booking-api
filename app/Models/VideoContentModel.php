@@ -58,6 +58,7 @@ class VideoContentModel extends Model
         FROM video_contents
         WHERE video_content_level = "1" AND  video_content_host_id = ' .
                 $host_id .
+                ' ORDER BY video_order ASC' .
                 ' LIMIT ' .
                 $limit
         );
@@ -89,6 +90,7 @@ class VideoContentModel extends Model
         FROM video_contents
         WHERE video_content_level = "2" AND video_content_host_id = ' .
                 $host_id .
+                ' ORDER BY video_order ASC' .
                 ' LIMIT ' .
                 $limit
         );

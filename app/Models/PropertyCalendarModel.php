@@ -4,27 +4,23 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class HostLangModel extends Model
+class PropertyCalendarModel extends Model
 {
     protected $DBGroup = 'default';
-    protected $table = 'host_lang';
-    protected $primaryKey = 'host_lang_id';
+    protected $table = 'property_availability';
+    protected $primaryKey = 'property_a_id';
     protected $useAutoIncrement = true;
     protected $insertID = 0;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        'host_lang_id',
-        'host_id',
-        'host_lang_code',
-        'host_lang_name',
-        'host_lang_subtitle',
-        'host_short_description',
-        'host_lang_long_description',
-        'host_lang_booking_rules',
-        'host_lang_property_rules',
-        'host_lang_arrival_information',
+        'property_a_id',
+        'property_availability_host_id',
+        'property_a_day',
+        'property_code',
+        'property_type_code',
+        'property_availability',
     ];
 
     // Dates
@@ -50,6 +46,28 @@ class HostLangModel extends Model
     protected $afterFind = [];
     protected $beforeDelete = [];
     protected $afterDelete = [];
+
+    public function get_property_calendar(
+        $host_id,
+        $property_id,
+        $servicefrom,
+        $serviceto
+    ) {
+        $query = $this->db->query(
+            'SELECT property_a_day, property_code, property_type_code, property_availability
+        FROM property_availability
+        WHERE property_code = ' .
+                $property_id .
+                ' AND property_a_day >= "' .
+                $servicefrom .
+                '" AND property_a_day <= "' .
+                $serviceto .
+                '" AND property_availability_host_id = ' .
+                $host_id
+        );
+        $results = $query->getResult();
+        return $results;
+    }
 
     public function multi_query_execute($multi_query)
     {

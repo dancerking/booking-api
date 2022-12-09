@@ -80,8 +80,6 @@ class HostModel extends Model
 
     public function get_host_data($host_id)
     {
-        // $query   = $this->db->query('SELECT `hosts`.host_id, `hosts`.host_company_name, `hosts`.host_referral_phone, `hosts`.host_referral_email, `hosts`.host_status
-        // FROM `hosts` WHERE `hosts`.host_status = "1"');
         $query = $this->db->query(
             'SELECT `hosts`.host_id, `hosts`.host_company_name, `hosts`.host_referral_phone, `hosts`.host_referral_email, `hosts`.host_status
         FROM `hosts` WHERE `hosts`.host_id = ' . $host_id

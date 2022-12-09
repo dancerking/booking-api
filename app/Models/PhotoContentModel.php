@@ -57,6 +57,7 @@ class PhotoContentModel extends Model
         FROM photo_contents
         WHERE photo_content_level = 1 AND  photo_content_host_id = ' .
                 $host_id .
+                ' ORDER BY photo_content_order ASC' .
                 ' LIMIT ' .
                 $limit
         );
@@ -88,6 +89,7 @@ class PhotoContentModel extends Model
         FROM photo_contents
         WHERE photo_content_level = "2" AND photo_content_host_id = ' .
                 $host_id .
+                ' ORDER BY photo_content_order ASC' .
                 ' LIMIT ' .
                 $limit
         );
