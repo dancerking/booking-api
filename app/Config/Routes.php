@@ -240,6 +240,16 @@ $routes->get('propertytype', 'PropertyType::index', [
 $routes->get('guests', 'Guest::index', [
     'filter' => 'auth',
 ]);
+
+/* Filters Mapping */
+$routes->get('filtersmapping', 'FiltersMapping::index', [
+    'filter' => 'auth',
+]);
+$routes->put(
+    'filtersmapping/update',
+    'FiltersMapping::update',
+    ['filter' => 'auth']
+);
 /*
  * --------------------------------------------------------------------
  * Additional Routing

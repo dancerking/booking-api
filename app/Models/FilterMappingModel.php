@@ -100,4 +100,17 @@ class FilterMappingModel extends Model
             return $results;
         }
     }
+
+    public function get_filters($host_id)
+    {
+        $query = $this->db->query(
+            'SELECT filters.*, filters_mapping.filter_mapping_level
+        FROM filters_mapping
+        LEFT JOIN filters ON filters.filter_code = filters_mapping.filter_mapping_code
+        WHERE filters_mapping.filter_mapping_host_id = ' .
+                $host_id
+        );
+        $results = $query->getResult();
+        return $results;
+    }
 }
