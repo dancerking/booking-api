@@ -9,7 +9,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Config\Services;
 use CodeIgniter\API\ResponseTrait;
-class Auth implements FilterInterface
+class Recovery implements FilterInterface
 {
     /**
      * Do whatever processing this filter needs to do.
@@ -48,28 +48,17 @@ class Auth implements FilterInterface
             );
             $response = [
                 'host_id' => $decoded->host_id,
-                'host_ip' => $decoded->host_ip,
+                'admin_id' => $decoded->admin_id,
                 'username' => $decoded->username,
-                'password' => $decoded->password,
                 'user_level' => $decoded->user_level,
             ];
-            $current_host_ip = $request->getIPAddress();
-            if ($current_host_ip !== $response['host_ip']) {
-                return Services::response()
-                    ->setJSON([
-                        'error' => '1',
-                        'code' => '102',
-                        'message' => 'Warning: IP conflict',
-                    ])
-                    ->setStatusCode(400);
-            }
             $config = config('Config\App');
             $config->JWTresponse = $response;
         } catch (\Throwable $th) {
             return Services::response()
                 ->setJSON([
                     'error' => '1',
-                    'code' => '102',
+                    'code' => '1502',
                     'message' => 'Invalid Token',
                 ])
                 ->setStatusCode(400);
