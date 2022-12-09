@@ -22,17 +22,17 @@ class Photo extends APIBaseController
         $config = config('Config\App');
 
         /* Load Model */
-        $photos = new PhotoContentModel();
+        $photo_content_model = new PhotoContentModel();
 
         /* Getting host id */
         $host_id = $this->get_host_id();
 
         /* Getting photo for level1, level2 from PhotoContentModel */
-        $L1_type_photos = $photos->get_level1_photo(
+        $L1_type_photos = $photo_content_model->get_level1_photo(
             $host_id,
             $config->LIMIT_FOR_L1_TYPE_PHOTO
         );
-        $L2_type_photos = $photos->get_level2_photo(
+        $L2_type_photos = $photo_content_model->get_level2_photo(
             $host_id,
             $config->LIMIT_FOR_L2_TYPE_PHOTO
         );
