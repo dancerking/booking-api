@@ -55,8 +55,233 @@ class Promo extends APIBaseController
     }
 
     /**
-     * Delete Promo setting
-     * UPDATE /promos/update
+     * Create Promo setting
+     * POST /promos/add
+     * @return mixed
+     */
+    public function create()
+    {
+        /* Getting host_id from JWT token */
+        $host_id = $this->get_host_id();
+
+        /* Load necessary Model */
+        $promo_model = new PromosModel();
+        $promo_mapping_model = new PromosMappingModel();
+        $type_mapping_model = new TypeMappingModel();
+
+        /* Validate */
+        if (
+            !$this->validate([
+                'promo_rate' => 'required',
+                'promo_code' => 'required',
+                'promo_booking_to' => 'required',
+                'promo_booking_from' => 'required',
+                'promo_arrival' => 'required',
+                'promo_departure' => 'required',
+                'promo_percentage' => 'required',
+                'promo_status' => 'required',
+            ])
+        ) {
+            return $this->notifyError(
+                'Input data format is incorrect.',
+                'invalid_data',
+                'promo'
+            );
+        }
+
+        /* Getting request data */
+        $promo_rate = $this->request->getVar('promo_rate');
+        $promo_code = $this->request->getVar('promo_code');
+        $promo_booking_to = $this->request->getVar(
+            'promo_booking_to'
+        );
+        $promo_booking_from = $this->request->getVar(
+            'promo_booking_from'
+        );
+        $promo_arrival = $this->request->getVar(
+            'promo_arrival'
+        );
+        $promo_departure = $this->request->getVar(
+            'promo_departure'
+        );
+        $promo_percentage = $this->request->getVar(
+            'promo_percentage'
+        );
+        $promo_status = $this->request->getVar(
+            'promo_status'
+        );
+        $promos_mapping = $this->request->getVar(
+            'promos_mapping'
+        );
+
+        /* Validation for data format */
+        if (!ctype_digit((string) $promo_rate)) {
+            return $this->notifyError(
+                'promo_rate format is incorrect',
+                'invalid_data',
+                'promo'
+            );
+        }
+        if (
+            !$this->validateDate($promo_booking_to) ||
+            !$this->validateDate($promo_booking_from) ||
+            !$this->validateDate($promo_arrival) ||
+            !$this->validateDate($promo_departure)
+        ) {
+            return $this->notifyError(
+                'Date format is incorrect.',
+                'invalid_data',
+                'promo'
+            );
+        }
+        if (
+            new DateTime($promo_booking_to) <
+            new DateTime($promo_booking_from)
+        ) {
+            return $this->notifyError(
+                'To date should be larger than From date.',
+                'invalid_data',
+                'promo'
+            );
+        }
+        if (
+            new DateTime($promo_departure) <
+            new DateTime($promo_arrival)
+        ) {
+            return $this->notifyError(
+                'Departure date should be larger than Arrival date.',
+                'invalid_data',
+                'promo'
+            );
+        }
+        if (!is_numeric($promo_percentage)) {
+            return $this->notifyError(
+                'promo_percentage format is incorrect.',
+                'invalid_data',
+                'promo'
+            );
+        }
+        if (!ctype_digit((string) $promo_status)) {
+            return $this->notifyError(
+                'Status format is incorrect.',
+                'invalid_data',
+                'promo'
+            );
+        }
+        if ($promo_status < 0 || $promo_status > 4) {
+            return $this->notifyError(
+                'promo_status should be between 0 and 4.',
+                'invalid_data',
+                'promo'
+            );
+        }
+        if (!is_array($promos_mapping)) {
+            return $this->notifyError(
+                'promos_mapping should be array'
+            );
+        }
+        if ($promos_mapping != null) {
+            foreach ($promos_mapping as $promo_mapping) {
+                if (
+                    !isset(
+                        $promo_mapping->promo_mapping_type
+                    ) ||
+                    !isset(
+                        $promo_mapping->promo_mapping_status
+                    )
+                ) {
+                    return $this->notifyError(
+                        'promos_mapping requires promo_mapping_type and promo_mapping status.',
+                        'invalied_data',
+                        'promo'
+                    );
+                }
+                if (
+                    $promo_mapping->promo_mapping_status <
+                        1 ||
+                    $promo_mapping->promo_mapping_status > 4
+                ) {
+                    return $this->notifyError(
+                        'promo_mapping_status should be between 1 and 4.',
+                        'invalid_data',
+                        'promo'
+                    );
+                }
+                if (
+                    $type_mapping_model
+                        ->where([
+                            'type_mapping_code' =>
+                                $promo_mapping->promo_mapping_type,
+                        ])
+                        ->findAll() == null
+                ) {
+                    return $this->notifyError(
+                        'Invalid promo_mapping_type exists',
+                        'invalid_data',
+                        'promo'
+                    );
+                }
+            }
+        }
+        /* Insert promos table*/
+        $new_id = $promo_model->insert([
+            'promo_host_id' => $host_id,
+            'promo_rate' => $promo_rate,
+            'promo_code' => $promo_code,
+            'promo_booking_to' => $promo_booking_to,
+            'promo_booking_from' => $promo_booking_from,
+            'promo_arrival' => $promo_arrival,
+            'promo_departure' => $promo_departure,
+            'promo_percentage' => $promo_percentage,
+            'promo_status' => $promo_status,
+        ]);
+        if (!$new_id) {
+            return $this->notifyError(
+                'Failed update',
+                'failed_update',
+                'promo'
+            );
+        }
+        /* Insert promos_mapping table */
+        if ($promos_mapping != null) {
+            $multi_query = [];
+            foreach ($promos_mapping as $promo_mapping) {
+                array_push(
+                    $multi_query,
+                    'INSERT INTO promos_mapping (promo_mapping_host_id, promo_mapping_code, promo_mapping_type, promo_mapping_status)
+                VALUES (' .
+                        $host_id .
+                        ', ' .
+                        $new_id .
+                        ', "' .
+                        $promo_mapping->promo_mapping_type .
+                        '", ' .
+                        $promo_mapping->promo_mapping_status .
+                        ')'
+                );
+            }
+            if (
+                !$promo_mapping_model->multi_query_execute(
+                    $multi_query
+                )
+            ) {
+                return $this->notifyError(
+                    'Failed insert mapping data',
+                    'failed_insert',
+                    'promo'
+                );
+            }
+        }
+
+        return $this->respond([
+            'id' => $new_id,
+            'message' => 'Successfully created',
+        ]);
+    }
+
+    /**
+     * Update Promo setting
+     * PUT /promos/update
      * @return mixed
      */
     public function update($id = null)
