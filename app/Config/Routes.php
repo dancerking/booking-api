@@ -39,6 +39,17 @@ $routes->set404Override('');
 $routes->get('/', 'Home::index');
 $routes->post('register', 'Register::index');
 $routes->post('login', 'Login::index');
+
+/* Password Recovery */
+$routes->post(
+    'password-recovery',
+    'PasswordRecovery::password_recovery'
+);
+$routes->put(
+    'password-reset',
+    'PasswordRecovery::password_rest',
+    ['filter' => 'recovery']
+);
 /* Code Listing */
 $routes->get('codes', 'Code::index', ['filter' => 'auth']);
 
@@ -110,6 +121,9 @@ $routes->delete('filters/delete', 'Filter::delete', [
 $routes->get('promos', 'Promo::index', [
     'filter' => 'auth',
 ]);
+$routes->post('promos/add', 'Promo::create', [
+    'filter' => 'auth',
+]);
 $routes->put('promos/update', 'Promo::update', [
     'filter' => 'auth',
 ]);
@@ -152,6 +166,80 @@ $routes->get('bookings', 'Booking::index', [
     'filter' => 'auth',
 ]);
 
+/* Host Route */
+$routes->get('hosts', 'Host::index', ['filter' => 'auth']);
+// main data
+$routes->get('host/main', 'Host::main', [
+    'filter' => 'auth',
+]);
+$routes->put('host/main/update', 'Host::main_update', [
+    'filter' => 'auth',
+]);
+// financial data
+$routes->get('host/financial', 'Host::financial', [
+    'filter' => 'auth',
+]);
+$routes->put(
+    'host/financial/update',
+    'Host::financial_update',
+    [
+        'filter' => 'auth',
+    ]
+);
+// lang data
+$routes->get('host/lang', 'Host::lang', [
+    'filter' => 'auth',
+]);
+$routes->put('host/lang/update', 'Host::lang_update', [
+    'filter' => 'auth',
+]);
+// mapped property types
+$routes->get(
+    'host/propertytypes',
+    'Host::mapped_property_types',
+    ['filter' => 'auth']
+);
+// mapped types
+$routes->get('host/types', 'Host::mapped_types', [
+    'filter' => 'auth',
+]);
+$routes->put(
+    'host/types/update',
+    'Host::mapped_types_update',
+    [
+        'filter' => 'auth',
+    ]
+);
+
+/* Stripe Route */
+$routes->get('stripe', 'Stripe::index', [
+    'filter' => 'auth',
+]);
+$routes->put('stripe/update', 'Stripe::update', [
+    'filter' => 'auth',
+]);
+
+/* Property Calendar Route */
+$routes->get(
+    'propertycalendar',
+    'PropertyCalendar::index',
+    ['filter' => 'auth']
+);
+$routes->put(
+    'propertycalendar/update',
+    'PropertyCalendar::update',
+    ['filter' => 'auth']
+);
+
+/* Focus on Property type */
+$routes->get('propertytype', 'PropertyType::index', [
+    'filter' => 'auth',
+]);
+
+/* Guest Search */
+$routes->get('guests', 'Guest::index', [
+    'filter' => 'auth',
+]);
 /*
  * --------------------------------------------------------------------
  * Additional Routing

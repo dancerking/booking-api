@@ -491,6 +491,15 @@ class App extends BaseConfig
         'width' => '330',
         'height' => '174',
     ];
+
     public $MAXIMUM_DATE_RANGE = 90;
     public $INVALID_VIDEO_CODE_STRING = ['http', 'www'];
+
+    public $EXTRANET_IP = '195.231.83.95';
+
+    public $USER_LEVEL = '';
+    public $USER_LEVELS = [
+        'admin' => 0,
+        'host' => 1,
+    ];
 }
