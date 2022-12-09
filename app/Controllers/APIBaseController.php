@@ -28,6 +28,8 @@ class APIBaseController extends ResourceController
         'property_calendar' => 1700,
         'property_type' => 1800,
         'guest' => 1900,
+        'filters_mapping' => 2000,
+        'property' => 2100,
     ];
 
     protected $errorCodes = [

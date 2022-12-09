@@ -250,6 +250,14 @@ $routes->put(
     'FiltersMapping::update',
     ['filter' => 'auth']
 );
+
+/* Properties */
+$routes->get('properties', 'Property::index', [
+    'filter' => 'auth',
+]);
+$routes->put('properties/update', 'Property::update', [
+    'filter' => 'auth',
+]);
 /*
  * --------------------------------------------------------------------
  * Additional Routing
