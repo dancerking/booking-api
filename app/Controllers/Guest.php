@@ -68,7 +68,9 @@ class Guest extends APIBaseController
         }
         /* Search guest data */
         $host_booking_users = $host_booking_model
-            ->select('host_booking_referral_email')
+            ->select(
+                'host_booking_referral_email, host_booking_id, host_booking_status'
+            )
             ->where('host_booking_host_id', $host_id)
             ->findAll();
         $guest_data = [];
@@ -80,7 +82,11 @@ class Guest extends APIBaseController
             foreach ($host_booking_users as $user) {
                 $data = $guest_model
                     ->select(
-                        'guest_id as id, guest_referral_name as name, guest_referral_surname as surname, guest_referral_email as email, guest_mobile_phone as tel'
+                        'guest_id as id, guest_referral_name as name, guest_referral_surname as surname, guest_referral_email as e-mail, guest_mobile_phone as tel, ' .
+                            $user['host_booking_id'] .
+                            ' as booking_id, ' .
+                            $user['host_booking_status'] .
+                            ' as booking_status'
                     )
                     ->where(
                         'guest_referral_email',
@@ -126,7 +132,11 @@ class Guest extends APIBaseController
             foreach ($host_booking_users as $user) {
                 $data = $guest_model
                     ->select(
-                        'guest_id as id, guest_referral_name as name, guest_referral_surname as surname, guest_referral_email as email, guest_mobile_phone as tel'
+                        'guest_id as id, guest_referral_name as name, guest_referral_surname as surname, guest_referral_email as e-mail, guest_mobile_phone as tel, ' .
+                            $user['host_booking_id'] .
+                            ' as booking_id, ' .
+                            $user['host_booking_status'] .
+                            ' as booking_status'
                     )
                     ->where(
                         'guest_referral_email',
