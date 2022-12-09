@@ -21,6 +21,13 @@ class APIBaseController extends ResourceController
         'service' => 1000,
         'service_calendar' => 1100,
         'booking' => 1200,
+        'host' => 1300,
+        'register' => 1400,
+        'password_recovery' => 1500,
+        'stripe' => 1600,
+        'property_calendar' => 1700,
+        'property_type' => 1800,
+        'guest' => 1900,
     ];
 
     protected $errorCodes = [
@@ -33,6 +40,7 @@ class APIBaseController extends ResourceController
         'failed_delete' => 6,
         'duplicate' => 7,
         'overflow' => 8,
+        'notAllowedAccess' => 9,
     ];
 
     protected function notifyError(
@@ -66,6 +74,15 @@ class APIBaseController extends ResourceController
         $response = $config->JWTresponse;
         $host_id = $response['host_id'];
         return $host_id;
+    }
+
+    public function get_userlevel()
+    {
+        /* Getting header_id from JWT token */
+        $config = config('Config\App');
+        $response = $config->JWTresponse;
+        $user_level = $response['user_level'];
+        return $user_level;
     }
 
     public function validateDate($date, $format = 'Y-m-d')
