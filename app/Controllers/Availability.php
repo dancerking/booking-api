@@ -104,7 +104,7 @@ class Availability extends APIBaseController
             $to
         );
 
-        return $this->respond([
+        return parent::respond([
             'availability_types' =>
                 $availability_type == null
                     ? []
@@ -457,7 +457,7 @@ class Availability extends APIBaseController
                 'availability'
             );
         }
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated',
         ]);
     }

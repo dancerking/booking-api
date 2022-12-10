@@ -26,7 +26,7 @@ class Rate extends APIBaseController
 
         /* Getting rate data from Rate Model */
         $rate_data = $rate_model->get_rate_data($host_id);
-        return $this->respond([
+        return parent::respond([
             'rate_data' =>
                 $rate_data == null ? [] : $rate_data,
         ]);
@@ -352,7 +352,7 @@ class Rate extends APIBaseController
             }
         }
 
-        return $this->respond([
+        return parent::respond([
             'id' => $rate_id,
             'message' => 'Successfully updated',
         ]);
@@ -645,7 +645,7 @@ class Rate extends APIBaseController
                 );
             }
         }
-        return $this->respond([
+        return parent::respond([
             'id' => $new_id,
             'message' => 'Successfully created',
         ]);
@@ -694,7 +694,7 @@ class Rate extends APIBaseController
                 'rate'
             );
         }
-        return $this->respond([
+        return parent::respond([
             'id' => $rate_id,
             'message' => 'Successfully Deleted',
         ]);

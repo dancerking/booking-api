@@ -152,7 +152,7 @@ class Login extends APIBaseController
 
         $token = JWT::encode($payload, $key, 'HS256');
 
-        return $this->respond([
+        return parent::respond([
             'jwtToken' => $token,
             'message' => 'Successfully created.',
         ]);

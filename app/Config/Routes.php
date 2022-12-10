@@ -47,7 +47,7 @@ $routes->post(
 );
 $routes->put(
     'passwordreset',
-    'PasswordRecovery::password_rest',
+    'PasswordRecovery::password_reset',
     ['filter' => 'recovery']
 );
 /* Code Listing */
@@ -256,6 +256,14 @@ $routes->get('properties', 'Property::index', [
     'filter' => 'auth',
 ]);
 $routes->put('properties/update', 'Property::update', [
+    'filter' => 'auth',
+]);
+
+/* Guest types setting */
+$routes->get('guesttypes', 'GuestTypes::index', [
+    'filter' => 'auth',
+]);
+$routes->put('guesttypes/update', 'GuestTypes::update', [
     'filter' => 'auth',
 ]);
 /*

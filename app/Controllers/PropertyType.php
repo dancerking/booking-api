@@ -93,7 +93,7 @@ class PropertyType extends APIBaseController
                 'video_content_host_id' => $host_id,
             ])
             ->findAll();
-        return $this->respond(
+        return parent::respond(
             [
                 'photo_content' =>
                     $photo_content == null

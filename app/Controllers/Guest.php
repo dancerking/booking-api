@@ -147,7 +147,7 @@ class Guest extends APIBaseController
             }
         }
 
-        return $this->respond(
+        return parent::respond(
             [
                 'guest_data' => $guest_data,
             ],

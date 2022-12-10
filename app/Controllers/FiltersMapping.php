@@ -69,7 +69,7 @@ class FiltersMapping extends APIBaseController
         $filters = $filter_mapping_model->get_filters(
             $host_id
         );
-        return $this->respond([
+        return parent::respond([
             'filters' => $filters == null ? [] : $filters,
         ]);
     }
@@ -253,7 +253,7 @@ class FiltersMapping extends APIBaseController
                 );
             }
         }
-        return $this->respond([
+        return parent::respond([
             'id' =>
                 $filter_mapping_id == null
                     ? $new_id

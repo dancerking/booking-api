@@ -23,6 +23,7 @@ class PasswordRecovery extends APIBaseController
         /* Load Models */
         $host_model = new HostModel();
         $api_admin_model = new ApiAdminModel();
+
         /* Validate */
         if (
             !$this->validate([
@@ -88,7 +89,7 @@ class PasswordRecovery extends APIBaseController
 
         $token = JWT::encode($payload, $key, 'HS256');
         $link =
-            '<a href="s-api.italiapromotion.it/password-reset?token=' .
+            '<a href="s-api.italiapromotion.it/passwordreset?token=' .
             $token .
             '">Click To Reset password</a>';
 
@@ -109,7 +110,7 @@ class PasswordRecovery extends APIBaseController
         $email->setSubject($subject);
         $email->setMessage($message);
         if ($email->send()) {
-            return $this->respond([
+            return parent::respond([
                 'message' => 'Email successfully sent.',
             ]);
         } else {
@@ -160,7 +161,6 @@ class PasswordRecovery extends APIBaseController
                 'password_recovery'
             );
         }
-
         /* Getting request data */
         $email = $this->request->getVar('username');
         $password = $this->request->getVar('password');
@@ -221,7 +221,7 @@ class PasswordRecovery extends APIBaseController
             }
         }
 
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated',
         ]);
     }

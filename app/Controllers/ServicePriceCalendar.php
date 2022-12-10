@@ -113,7 +113,7 @@ class ServicePriceCalendar extends APIBaseController
             $serviceto
         );
 
-        return $this->respond([
+        return parent::respond([
             'service_price_calendar' =>
                 $service_price_calendar == null
                     ? []
@@ -391,7 +391,7 @@ class ServicePriceCalendar extends APIBaseController
                 'service_calendar'
             );
         }
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated.',
         ]);
     }

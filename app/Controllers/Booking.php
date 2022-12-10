@@ -105,7 +105,7 @@ class Booking extends APIBaseController
             $bookingto
         );
 
-        return $this->respond([
+        return parent::respond([
             'booking' => $booking == null ? [] : $booking,
         ]);
     }

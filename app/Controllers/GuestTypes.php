@@ -3,16 +3,22 @@
 namespace App\Controllers;
 
 use App\Controllers\APIBaseController;
+use App\Models\CityModel;
+use App\Models\GuestTypeMappingModel;
+use App\Models\GuestTypeModel;
+use App\Models\HostAgreementModel;
+use App\Models\HostLangModel;
 use App\Models\HostModel;
-use App\Models\PropertyModel;
+use App\Models\LanguageModel;
+use App\Models\TypeMainModel;
 use App\Models\TypeMappingModel;
 use CodeIgniter\API\ResponseTrait;
 
-class Property extends APIBaseController
+class GuestTypes extends APIBaseController
 {
     /**
      * Return an array of objects
-     * GET/properties
+     * GET/guesttypes
      * @return mixed
      */
     use ResponseTrait;
@@ -24,7 +30,7 @@ class Property extends APIBaseController
 
         // Load necessary Model
         $host_model = new HostModel();
-        $property_model = new PropertyModel();
+        $guest_type_model = new GuestTypeModel();
 
         /* Validate */
         if (
@@ -40,7 +46,7 @@ class Property extends APIBaseController
             return $this->notifyError(
                 $error_string,
                 'invalid_data',
-                'property'
+                'guest_types'
             );
         }
 
@@ -52,7 +58,7 @@ class Property extends APIBaseController
                 return $this->notifyError(
                     'host_id should be ' . $main_host_id,
                     'invalid_data',
-                    'property'
+                    'guest_types'
                 );
             }
         }
@@ -60,27 +66,23 @@ class Property extends APIBaseController
             return $this->notifyError(
                 'No Such Id',
                 'notFound',
-                'property'
+                'guest_types'
             );
         }
         /* Getting data from db*/
-        $property_data = $property_model
-            ->select(
-                'property_id, property_name, property_type'
-            )
-            ->where('property_host_id', $host_id)
-            ->findAll();
+        $guest_types = $guest_type_model->get_guest_types_with_mapping(
+            $host_id
+        );
+
         return parent::respond([
-            'property_data' =>
-                $property_data == null
-                    ? []
-                    : $property_data,
+            'guest_types' =>
+                $guest_types == null ? [] : $guest_types,
         ]);
     }
 
     /**
      * Update
-     * PUT/properties/update
+     * PUT/guesttypes/update
      * @return mixed
      */
     public function update($id = '')
@@ -91,17 +93,18 @@ class Property extends APIBaseController
 
         // Load necessary Model
         $host_model = new HostModel();
-        $property_model = new PropertyModel();
-        $type_mapping_model = new TypeMappingModel();
+        $guest_type_model = new GuestTypeModel();
+        $guest_type_mapping_model = new GuestTypeMappingModel();
 
         /* Validate */
         if (
             !$this->validate([
                 'host_id' => 'required|integer',
-                'property_name' => 'required',
-                'property_type' => 'required',
-                'property_status' =>
-                    'required|regex_match[/[01234]/]',
+                'guest_type_code' => 'required',
+                'guest_type_age_from' => 'required|integer',
+                'guest_type_age_to' => 'required|integer',
+                'guest_type_status' =>
+                    'required|integer|regex_match[/[0123]/]',
             ])
         ) {
             $errors = $this->validator->getErrors();
@@ -112,23 +115,23 @@ class Property extends APIBaseController
             return $this->notifyError(
                 $error_string,
                 'invalid_data',
-                'property'
+                'guest_types'
             );
         }
 
         /* Getting request data */
         $host_id = $this->request->getVar('host_id');
-        $property_id = $this->request->getVar(
-            'property_id'
+        $guest_type_code = $this->request->getVar(
+            'guest_type_code'
         );
-        $property_name = $this->request->getVar(
-            'property_name'
+        $guest_type_age_from = $this->request->getVar(
+            'guest_type_age_from'
         );
-        $property_type = $this->request->getVar(
-            'property_type'
+        $guest_type_age_to = $this->request->getVar(
+            'guest_type_age_to'
         );
-        $property_status = $this->request->getVar(
-            'property_status'
+        $guest_type_status = $this->request->getVar(
+            'guest_type_status'
         );
 
         /* Validation */
@@ -138,7 +141,7 @@ class Property extends APIBaseController
                 return $this->notifyError(
                     'host_id should be ' . $main_host_id,
                     'invalid_data',
-                    'property'
+                    'guest_types'
                 );
             }
         }
@@ -146,98 +149,76 @@ class Property extends APIBaseController
             return $this->notifyError(
                 'No Such Id',
                 'notFound',
-                'property'
+                'guest_types'
             );
         }
-        if (
-            $property_id != null &&
-            !ctype_digit((string) $property_id)
-        ) {
+        if ($guest_type_age_from > $guest_type_age_to) {
             return $this->notifyError(
-                'property_id should be integer.',
+                'age_to should be greater than age_from',
                 'invalid_data',
-                'property'
+                'guest_types'
             );
         }
         if (
-            $property_id != null &&
-            $property_model->find($property_id) == null
-        ) {
-            return $this->notifyError(
-                'No Such property_id',
-                'invalid_data',
-                'property'
-            );
-        }
-        if (
-            $type_mapping_model
-                ->where([
-                    'type_mapping_host_id' => $host_id,
-                    'type_mapping_code' => $property_type,
-                    'type_mapping_main_status' => 1,
-                ])
+            $guest_type_model
+                ->where('guest_type_code', $guest_type_code)
                 ->first() == null
         ) {
             return $this->notifyError(
-                'No Such mapped type code',
+                'No Such guest_type_code',
                 'notFound',
-                'property'
+                'guest_types'
             );
         }
         /* update */
         $data = [
-            'property_host_id' => $host_id,
-            'property_name' => $property_name,
-            'property_type' => $property_type,
-            'property_status' => $property_status,
+            'guest_type_host_id' => $host_id,
+            'guest_type_code' => $guest_type_code,
+            'guest_type_age_from' => $guest_type_age_from,
+            'guest_type_age_to' => $guest_type_age_to,
+            'guest_type_status' => $guest_type_status,
         ];
         $new_id = '';
-        if ($property_id == null) {
+        $mapping_data = $guest_type_mapping_model
+            ->where([
+                'guest_type_host_id' => $host_id,
+                'guest_type_code' => $guest_type_code,
+            ])
+            ->first();
+        if ($mapping_data != null) {
             if (
-                $property_model
-                    ->where([
-                        'property_host_id' => $host_id,
-                        'property_name' => $property_name,
-                        'property_type' => $property_type,
-                    ])
-                    ->first() != null
-            ) {
-                return $this->notifyError(
-                    'Duplication error',
-                    'duplicate',
-                    'property'
-                );
-            }
-            $new_id = $property_model->insert($data);
-            if (!$new_id) {
-                return $this->notifyError(
-                    'Failed create',
-                    'failed_crate',
-                    'property'
-                );
-            }
-        } else {
-            if (
-                !$property_model->update(
-                    $property_id,
+                !$guest_type_mapping_model->update(
+                    $mapping_data['guest_type_id'],
                     $data
                 )
             ) {
                 return $this->notifyError(
                     'Failed update',
                     'failed_update',
-                    'property'
+                    'guest_types'
+                );
+            }
+        } else {
+            $new_id = $guest_type_mapping_model->insert(
+                $data
+            );
+            if (!$new_id) {
+                return $this->notifyError(
+                    'Failed create',
+                    'failed_create',
+                    'guest_types'
                 );
             }
         }
+
         return parent::respond([
             'id' =>
-                $property_id == null
+                $mapping_data == null
                     ? $new_id
-                    : $property_id,
+                    : $mapping_data['guest_type_id'],
             'message' =>
                 'Successfully ' .
-                ($property_id == null
+                ($mapping_data == null
                     ? 'created'
                     : 'updated'),
         ]);
