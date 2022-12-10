@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\LogModel;
 use CodeIgniter\RESTful\ResourceController;
+use Codeigniter\HTTP\Message;
 use DateTime;
 
 class APIBaseController extends ResourceController
@@ -85,6 +86,10 @@ class APIBaseController extends ResourceController
             ),
             'log_response' => json_encode($data),
             'log_error' => $status == 400,
+            'log_http_response' =>
+                $this->response->getStatusCode() .
+                ', ' .
+                $this->response->getReasonPhrase(),
         ]);
         return parent::respond($data, $status, $message);
     }
