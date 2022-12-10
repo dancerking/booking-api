@@ -54,14 +54,14 @@ class Email extends BaseConfig
      *
      * @var string
      */
-    public $SMTPUser = 'customers@api.italiapromotion.it';
+    public $SMTPUser = 'dancerking306@gmail.com';
 
     /**
      * SMTP Password
      *
      * @var string
      */
-    public $SMTPPass = 'TraMkG5Gs$';
+    public $SMTPPass = 'RYBryb306$';
 
     /**
      * SMTP Port
