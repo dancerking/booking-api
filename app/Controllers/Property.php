@@ -174,7 +174,7 @@ class Property extends APIBaseController
                 ->where([
                     'type_mapping_host_id' => $host_id,
                     'type_mapping_code' => $property_type,
-                    'type_mapping_status' => 1,
+                    'type_mapping_main_status' => 1,
                 ])
                 ->first() == null
         ) {

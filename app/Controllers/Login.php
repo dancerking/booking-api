@@ -104,29 +104,28 @@ class Login extends APIBaseController
             }
             $config->USER_LEVEL =
                 $config->USER_LEVELS['host'];
-        }
+            $check_hostID = $ip_white_model
+                ->where('host_id', $host['host_id'])
+                ->first();
 
-        $check_hostID = $ip_white_model
-            ->where('host_id', $host['host_id'])
-            ->first();
+            if ($check_hostID == null) {
+                return $this->notifyError(
+                    'This host is black host',
+                    'notFound',
+                    'login'
+                );
+            }
+            $check_whiteIP = $ip_white_model
+                ->where('white_ip', $host_ip)
+                ->first();
 
-        if ($check_hostID == null) {
-            return $this->notifyError(
-                'This host is black host',
-                'notFound',
-                'login'
-            );
-        }
-        $check_whiteIP = $ip_white_model
-            ->where('white_ip', $host_ip)
-            ->first();
-
-        if ($check_whiteIP == null) {
-            return $this->notifyError(
-                'This IP is black IP',
-                'notFound',
-                'login'
-            );
+            if ($check_whiteIP == null) {
+                return $this->notifyError(
+                    'This IP is black IP',
+                    'notFound',
+                    'login'
+                );
+            }
         }
 
         $key = getenv('TOKEN_SECRET');
