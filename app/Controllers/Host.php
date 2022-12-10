@@ -333,6 +333,22 @@ class Host extends APIBaseController
                 'host'
             );
         }
+        // check if duplicate email
+        if (
+            $host_model
+                ->whereNotIn('host_id', (array) $host_id)
+                ->where(
+                    'host_referral_email',
+                    $host_referral_email
+                )
+                ->first() != null
+        ) {
+            return $this->notifyError(
+                'Email already exists.',
+                'invalid_data',
+                'host'
+            );
+        }
         /* update */
         $data = [
             'host_category_code' =>

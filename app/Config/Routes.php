@@ -42,11 +42,11 @@ $routes->post('login', 'Login::index');
 
 /* Password Recovery */
 $routes->post(
-    'password-recovery',
+    'passwordrecovery',
     'PasswordRecovery::password_recovery'
 );
 $routes->put(
-    'password-reset',
+    'passwordreset',
     'PasswordRecovery::password_rest',
     ['filter' => 'recovery']
 );

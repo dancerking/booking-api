@@ -102,15 +102,15 @@ class PasswordRecovery extends APIBaseController
         $email = \Config\Services::email();
         $email->setTo($to_email);
         $email->setFrom(
-            'alominadze79@gmail.com',
-            'Avtandil Lominadze'
+            'customers@api.italiapromotion.it',
+            'Contact Email'
         );
 
         $email->setSubject($subject);
         $email->setMessage($message);
         if ($email->send()) {
             return $this->respond([
-                'message' => 'Email successfully sent',
+                'message' => 'Email successfully sent.',
             ]);
         } else {
             $data = $email->printDebugger(['headers']);
