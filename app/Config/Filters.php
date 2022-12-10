@@ -18,13 +18,14 @@ class Filters extends BaseConfig
      * @var array
      */
     public $aliases = [
-        'csrf'          => CSRF::class,
-        'toolbar'       => DebugToolbar::class,
-        'honeypot'      => Honeypot::class,
-        'invalidchars'  => InvalidChars::class,
+        'csrf' => CSRF::class,
+        'toolbar' => DebugToolbar::class,
+        'honeypot' => Honeypot::class,
+        'invalidchars' => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
-        'auth'          => \App\Filters\Auth::class,
-        'cors'          => \App\Filters\Cors::class,
+        'auth' => \App\Filters\Auth::class,
+        'cors' => \App\Filters\Cors::class,
+        'recovery' => \App\Filters\Recovery::class,
     ];
 
     /**
@@ -38,7 +39,7 @@ class Filters extends BaseConfig
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
-            'cors'
+            'cors',
         ],
         'after' => [
             'toolbar',

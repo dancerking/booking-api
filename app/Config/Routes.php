@@ -47,7 +47,7 @@ $routes->post(
 );
 $routes->put(
     'passwordreset',
-    'PasswordRecovery::password_rest',
+    'PasswordRecovery::password_reset',
     ['filter' => 'recovery']
 );
 /* Code Listing */
