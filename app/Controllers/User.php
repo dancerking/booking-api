@@ -13,7 +13,7 @@ class User extends BaseController
     public function index()
     {
         $users = new UserModel();
-        return $this->respond(
+        return parent::respond(
             ['users' => $users->findAll()],
             200
         );
@@ -26,7 +26,7 @@ class User extends BaseController
             ->getWhere(['id' => $id])
             ->getResult();
         if ($data) {
-            return $this->respond($data);
+            return parent::respond($data);
         } else {
             return $this->failNotFound(
                 'No Data Found with id ' . $id
@@ -54,7 +54,7 @@ class User extends BaseController
                 'success' => 'Data Saved',
             ],
         ];
-        return $this->respondCreated($response);
+        return parent::respondCreated($response);
     }
 
     // update product
@@ -77,7 +77,7 @@ class User extends BaseController
                 'success' => 'Data Updated',
             ],
         ];
-        return $this->respond($response);
+        return parent::respond($response);
     }
 
     // delete product
@@ -92,6 +92,6 @@ class User extends BaseController
                 'success' => 'Data Deleted',
             ],
         ];
-        return $this->respond($response);
+        return parent::respond($response);
     }
 }

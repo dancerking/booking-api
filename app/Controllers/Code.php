@@ -89,7 +89,7 @@ class Code extends APIBaseController
             $record_status
         );
 
-        return $this->respond([
+        return parent::respond([
             'main_host_data' =>
                 $main_host_data == null
                     ? []

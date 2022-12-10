@@ -30,7 +30,7 @@ class Service extends APIBaseController
         $service_data = $service_model->get_service_data(
             $host_id
         );
-        return $this->respond([
+        return parent::respond([
             'service_data' =>
                 $service_data == null ? [] : $service_data,
         ]);
@@ -372,13 +372,13 @@ class Service extends APIBaseController
                 ]);
             }
             if ($services_mapping != null) {
-                return $this->respond([
+                return parent::respond([
                     'service_id' => $service_id,
                     'service_mapping_id' => $service_mapping_ids,
                     'message' => 'Successfully updated',
                 ]);
             }
-            return $this->respond([
+            return parent::respond([
                 'service_id' => $service_id,
                 'message' => 'Successfully updated',
             ]);
@@ -689,7 +689,7 @@ class Service extends APIBaseController
                         : $service_lang->service_lang_group_label,
                 ]);
             }
-            return $this->respond([
+            return parent::respond([
                 'id' => $new_id,
                 'message' => 'Successfully created',
             ]);
@@ -777,13 +777,13 @@ class Service extends APIBaseController
                 }
             }
             if (!empty($service_mapping_ids_array)) {
-                return $this->respond([
+                return parent::respond([
                     'service_id' => $service_id,
                     'service_mapping_ids' => $service_mapping_ids_array,
                     'message' => 'Successfully deleted',
                 ]);
             }
-            return $this->respond([
+            return parent::respond([
                 'service_id' => $service_id,
                 'message' => 'Successfully deleted',
             ]);
@@ -840,12 +840,12 @@ class Service extends APIBaseController
             }
 
             if (!$check_service_id_exist) {
-                return $this->respond([
+                return parent::respond([
                     'service_mapping_id' => $service_mapping_id,
                     'message' => 'Successfully deleted',
                 ]);
             }
-            return $this->respond([
+            return parent::respond([
                 'service_id' =>
                     $service_mapping[
                         'service_mapping_code'

@@ -106,10 +106,10 @@ class PasswordRecovery extends APIBaseController
             'Contact Email'
         );
 
-        $email->setSubject($subject);
+        $email->setSubject('abc');
         $email->setMessage($message);
         if ($email->send()) {
-            return $this->respond([
+            return parent::respond([
                 'message' => 'Email successfully sent.',
             ]);
         } else {
@@ -221,7 +221,7 @@ class PasswordRecovery extends APIBaseController
             }
         }
 
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated',
         ]);
     }

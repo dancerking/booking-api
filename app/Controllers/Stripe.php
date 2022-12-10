@@ -66,7 +66,7 @@ class Stripe extends APIBaseController
         $stripe_public_code = $stripe_model
             ->where('stripe_host_id', $host_id)
             ->first();
-        return $this->respond([
+        return parent::respond([
             'stripe_public_code' =>
                 $stripe_public_code == null
                     ? ''
@@ -175,7 +175,7 @@ class Stripe extends APIBaseController
                 );
             }
         }
-        return $this->respond([
+        return parent::respond([
             'id' =>
                 $stripe_data == null
                     ? $new_id

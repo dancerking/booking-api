@@ -37,7 +37,7 @@ class Photo extends APIBaseController
             $config->LIMIT_FOR_L2_TYPE_PHOTO
         );
 
-        return $this->respond(
+        return parent::respond(
             [
                 'l1_type_photos' =>
                     $L1_type_photos == null
@@ -271,7 +271,7 @@ class Photo extends APIBaseController
                     }
                 }
             }
-            return $this->respond([
+            return parent::respond([
                 'id' => $new_id,
                 'message' => 'Successfully created',
             ]);
@@ -419,7 +419,7 @@ class Photo extends APIBaseController
                     );
                 }
             }
-            return $this->respond([
+            return parent::respond([
                 'id' => $photo_content_id,
                 'message' => 'Successfully Deleted',
             ]);

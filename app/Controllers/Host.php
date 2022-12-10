@@ -72,7 +72,7 @@ class Host extends APIBaseController
                 'host_region_residence' => $host_region_residence,
             ])
             ->findAll();
-        return $this->respond([
+        return parent::respond([
             'host_list' =>
                 $host_list == null ? [] : $host_list,
         ]);
@@ -140,7 +140,7 @@ class Host extends APIBaseController
             ->where('host_agreement_host_id', $host_id)
             ->findAll();
         $host_list['hosts_agreement'] = $host_agreements;
-        return $this->respond([
+        return parent::respond([
             'main_host' =>
                 $host_list == null ? [] : $host_list,
         ]);
@@ -401,7 +401,7 @@ class Host extends APIBaseController
             );
         }
 
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated.',
         ]);
     }
@@ -464,7 +464,7 @@ class Host extends APIBaseController
                 'host_company_name_tax, host_phone_tax, host_address_tax, host_city_tax , host_postcode_tax, host_province_tax, host_iso_state_tax, host_taxnumber_tax, host_taxcode_tax, host_certemail_tax , host_sdicode_tax, host_activation_date, host_last_update, host_username_security, host_password_security, host_password_lastupdate_security, host_status'
             )
             ->find($host_id);
-        return $this->respond([
+        return parent::respond([
             'financial_host' =>
                 $host_list == null ? [] : $host_list,
         ]);
@@ -615,7 +615,7 @@ class Host extends APIBaseController
             );
         }
 
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated.',
         ]);
     }
@@ -680,7 +680,7 @@ class Host extends APIBaseController
             )
             ->where('host_id', $host_id)
             ->findAll();
-        return $this->respond([
+        return parent::respond([
             'host_langs' =>
                 $host_lang_list == null
                     ? []
@@ -985,7 +985,7 @@ class Host extends APIBaseController
             );
         }
 
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated',
         ]);
     }
@@ -1046,7 +1046,7 @@ class Host extends APIBaseController
         $mapped_property_types = $type_mapping_model->get_mapped_property_types(
             $host_id
         );
-        return $this->respond([
+        return parent::respond([
             'mapped_property_types' =>
                 $mapped_property_types == null
                     ? []
@@ -1114,7 +1114,7 @@ class Host extends APIBaseController
             $host_id,
             $status
         );
-        return $this->respond([
+        return parent::respond([
             'mapped_types' =>
                 $mapped_types == null ? [] : $mapped_types,
         ]);
@@ -1295,7 +1295,7 @@ class Host extends APIBaseController
             }
         }
 
-        return $this->respond([
+        return parent::respond([
             'id' =>
                 $mapping_id == null ? $new_id : $mapping_id,
             'message' =>

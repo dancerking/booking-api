@@ -86,7 +86,7 @@ class PropertyCalendar extends APIBaseController
             $property_id
         );
 
-        return $this->respond([
+        return parent::respond([
             'property_calendar_set' =>
                 $property_calendar == null
                     ? []
@@ -250,7 +250,7 @@ class PropertyCalendar extends APIBaseController
                 );
             }
         }
-        return $this->respond([
+        return parent::respond([
             'id' =>
                 $property_availability_data == null
                     ? $new_id

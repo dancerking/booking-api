@@ -49,7 +49,7 @@ class Promo extends APIBaseController
             $promo_mapping_type
         );
 
-        return $this->respond([
+        return parent::respond([
             'promos' => $promos == null ? [] : $promos,
         ]);
     }
@@ -273,7 +273,7 @@ class Promo extends APIBaseController
             }
         }
 
-        return $this->respond([
+        return parent::respond([
             'id' => $new_id,
             'message' => 'Successfully created',
         ]);
@@ -506,7 +506,7 @@ class Promo extends APIBaseController
             }
         }
 
-        return $this->respond([
+        return parent::respond([
             'promo_id' => $promo_id,
             'message' => 'Successfully updated',
         ]);
@@ -613,7 +613,7 @@ class Promo extends APIBaseController
                     }
                 }
             }
-            return $this->respond([
+            return parent::respond([
                 'promo_id' => $promo_id,
                 'message' => 'Successfully deleted',
             ]);
@@ -661,7 +661,7 @@ class Promo extends APIBaseController
                     'promo'
                 );
             }
-            return $this->respond([
+            return parent::respond([
                 'promo_mapping_id' => $promo_mapping_id,
                 'message' => 'Successfully deleted',
             ]);

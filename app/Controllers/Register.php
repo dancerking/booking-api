@@ -225,7 +225,7 @@ class Register extends APIBaseController
             'host_id' => $new_id,
         ]);
 
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully registered',
         ]);
     }

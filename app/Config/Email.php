@@ -47,21 +47,21 @@ class Email extends BaseConfig
      *
      * @var string
      */
-    public $SMTPHost = 'smtp.googlemail.com';
+    public $SMTPHost = 'smtp.mailplan.it';
 
     /**
      * SMTP Username
      *
      * @var string
      */
-    public $SMTPUser = 'dancerking306@gmail.com';
+    public $SMTPUser = 'customers@api.italiapromotion.it';
 
     /**
      * SMTP Password
      *
      * @var string
      */
-    public $SMTPPass = 'RYBryb306$';
+    public $SMTPPass = 'TraMkG5Gs$';
 
     /**
      * SMTP Port

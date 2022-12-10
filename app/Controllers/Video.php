@@ -35,7 +35,7 @@ class Video extends APIBaseController
             $config->LIMIT_FOR_L2_TYPE_video
         );
 
-        return $this->respond(
+        return parent::respond(
             [
                 'l1_type_videos' =>
                     $L1_type_videos == null
@@ -213,7 +213,7 @@ class Video extends APIBaseController
                     }
                 }
             }
-            return $this->respond([
+            return parent::respond([
                 'id' => $new_id,
                 'message' => 'Successfully created',
             ]);
@@ -304,7 +304,7 @@ class Video extends APIBaseController
                 'video'
             );
         }
-        return $this->respond([
+        return parent::respond([
             'id' => $video_content_id,
             'message' => 'Successfully Deleted',
         ]);

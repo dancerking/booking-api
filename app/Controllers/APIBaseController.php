@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\LogModel;
 use CodeIgniter\RESTful\ResourceController;
 use DateTime;
 
@@ -66,7 +67,25 @@ class APIBaseController extends ResourceController
                     ? lang('APIErrors.' . $safeError)
                     : $message,
         ];
-        return $this->respond($response, 400);
+        return self::respond($response, 400);
+    }
+
+    protected function respond(
+        $data = null,
+        ?int $status = null,
+        string $message = ''
+    ) {
+        $log_model = new LogModel();
+        $log_model->insert([
+            'log_host_id' => self::get_host_id(),
+            'log_time' => time(),
+            'log_request' => json_encode(
+                $this->request->getJSON()
+            ),
+            'log_response' => json_encode($data),
+            'log_error' => $status == 400,
+        ]);
+        return parent::respond($data, $status, $message);
     }
 
     public function get_host_id()
@@ -74,7 +93,8 @@ class APIBaseController extends ResourceController
         /* Getting header_id from JWT token */
         $config = config('Config\App');
         $response = $config->JWTresponse;
-        $host_id = $response['host_id'];
+        $host_id =
+            $response == null ? 0 : $response['host_id'];
         return $host_id;
     }
 

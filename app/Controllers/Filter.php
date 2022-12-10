@@ -141,7 +141,7 @@ class Filter extends APIBaseController
             );
         }
 
-        return $this->respond([
+        return parent::respond([
             'filters_mapping_id' => $new_id,
             'message' => 'Successfully created.',
         ]);
@@ -200,7 +200,7 @@ class Filter extends APIBaseController
                 'filter'
             );
         }
-        return $this->respond([
+        return parent::respond([
             'id' => $filter_mapping_id,
             'message' => 'Successfully deleted',
         ]);

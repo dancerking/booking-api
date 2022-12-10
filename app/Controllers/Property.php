@@ -70,7 +70,7 @@ class Property extends APIBaseController
             )
             ->where('property_host_id', $host_id)
             ->findAll();
-        return $this->respond([
+        return parent::respond([
             'property_data' =>
                 $property_data == null
                     ? []
@@ -230,7 +230,7 @@ class Property extends APIBaseController
                 );
             }
         }
-        return $this->respond([
+        return parent::respond([
             'id' =>
                 $property_id == null
                     ? $new_id

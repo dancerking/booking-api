@@ -133,7 +133,7 @@ class RateCalendar extends APIBaseController
             $daily_rate_from,
             $daily_rate_to
         );
-        return $this->respond(
+        return parent::respond(
             [
                 'rate_calendar_list' =>
                     $rate_calendar_list == null
@@ -558,7 +558,7 @@ class RateCalendar extends APIBaseController
                 'rate_calendar'
             );
         }
-        return $this->respond([
+        return parent::respond([
             'message' => 'Successfully updated.',
         ]);
     }
