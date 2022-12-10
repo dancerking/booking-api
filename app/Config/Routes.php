@@ -258,6 +258,14 @@ $routes->get('properties', 'Property::index', [
 $routes->put('properties/update', 'Property::update', [
     'filter' => 'auth',
 ]);
+
+/* Guest types setting */
+$routes->get('guesttypes', 'GuestTypes::index', [
+    'filter' => 'auth',
+]);
+$routes->put('guesttypes/update', 'GuestTypes::update', [
+    'filter' => 'auth',
+]);
 /*
  * --------------------------------------------------------------------
  * Additional Routing

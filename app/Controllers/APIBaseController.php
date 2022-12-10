@@ -31,6 +31,7 @@ class APIBaseController extends ResourceController
         'guest' => 1900,
         'filters_mapping' => 2000,
         'property' => 2100,
+        'guest_types' => 2200,
     ];
 
     protected $errorCodes = [
