@@ -51,13 +51,16 @@ class VideoContentModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
-    public function get_level1_video($host_id)
+    public function get_level1_video($host_id, $limit)
     {
         $query = $this->db->query(
             'SELECT video_content_id, video_content_channel, video_content_code, video_content_status
         FROM video_contents
         WHERE video_content_level = "1" AND  video_content_host_id = ' .
-                $host_id
+                $host_id .
+                ' ORDER BY video_order ASC' .
+                ' LIMIT ' .
+                $limit
         );
         $results = $query->getResult();
         foreach ($results as &$result) {
@@ -80,13 +83,16 @@ class VideoContentModel extends Model
         return $results;
     }
 
-    public function get_level2_video($host_id)
+    public function get_level2_video($host_id, $limit)
     {
         $query = $this->db->query(
             'SELECT video_content_id, video_content_connection, video_content_channel, video_content_code, video_content_status
         FROM video_contents
         WHERE video_content_level = "2" AND video_content_host_id = ' .
-                $host_id
+                $host_id .
+                ' ORDER BY video_order ASC' .
+                ' LIMIT ' .
+                $limit
         );
         $results = $query->getResult();
         foreach ($results as &$result) {

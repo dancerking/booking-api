@@ -16,7 +16,133 @@ class RateCalendar extends APIBaseController
      * @return mixed
      */
     use ResponseTrait;
+    public function index()
+    {
+        $config = config('Config\App');
+        /* Load model */
+        $rate_calendar_model = new RateCalendarModel();
+        $rate_model = new RateModel();
+        $type_mapping_model = new TypeMappingModel();
 
+        /* Getting host id */
+        $host_id = $this->get_host_id();
+
+        /* Validate */
+        $rules = [
+            'daily_rate_from' => 'required',
+            'daily_rate_to' => 'required',
+            'daily_rate_code' => 'required',
+            'daily_rate_type' => 'required',
+        ];
+        if (!$this->validate($rules)) {
+            return $this->notifyError(
+                'Input data format is incorrect.',
+                'invalid_data',
+                'rate_calendar'
+            );
+        }
+
+        /* Getting request data */
+        $daily_rate_from = $this->request->getVar(
+            'daily_rate_from'
+        );
+        $daily_rate_to = $this->request->getVar(
+            'daily_rate_to'
+        );
+        $daily_rate_code = $this->request->getVar(
+            'daily_rate_code'
+        );
+        $daily_rate_type = $this->request->getVar(
+            'daily_rate_type'
+        );
+        if (
+            !$this->validateDate($daily_rate_from) ||
+            !$this->validateDate($daily_rate_to)
+        ) {
+            return $this->notifyError(
+                'Date format is incorrect',
+                'invalid_data',
+                'rate_calendar'
+            );
+        }
+        if (
+            new DateTime() > new DateTime($daily_rate_from)
+        ) {
+            return $this->notifyError(
+                'daily_rate_from should be equal or greater than today',
+                'invalid_data',
+                'rate_calendar'
+            );
+        }
+        if (
+            new DateTime($daily_rate_to) <
+            new DateTime($daily_rate_from)
+        ) {
+            return $this->notifyError(
+                'daily_rate_to should be equal or greater than daily_rate_from.',
+                'invalid_data',
+                'rate_calendar'
+            );
+        }
+        if (
+            date_diff(
+                new DateTime($daily_rate_to),
+                new DateTime($daily_rate_from)
+            )->days > $config->MAXIMUM_DATE_RANGE
+        ) {
+            return $this->notifyError(
+                'maximum ' .
+                    $config->MAXIMUM_DATE_RANGE .
+                    ' days back date range',
+                'invalid_data',
+                'rate_calendar'
+            );
+        }
+        if (!ctype_digit((string) $daily_rate_code)) {
+            return $this->notifyError(
+                'daily_rate_code format is incorrect',
+                'invalid_data',
+                'rate_calendar'
+            );
+        }
+        if ($rate_model->find($daily_rate_code) == null) {
+            return $this->notifyError(
+                'No Such daily_rate_code(rate_id)',
+                'notFound',
+                'rate_calendar'
+            );
+        }
+        if (
+            $type_mapping_model
+                ->where([
+                    'type_mapping_code' => $daily_rate_type,
+                ])
+                ->findAll() == null
+        ) {
+            return $this->notifyError(
+                'No Such daily_rate_type(type_mapping_code).',
+                'notFound',
+                'rate_calendar'
+            );
+        }
+
+        $rate_calendar_list = $rate_calendar_model->get_list_for_specified_range(
+            $host_id,
+            $daily_rate_code,
+            $daily_rate_type,
+            $daily_rate_from,
+            $daily_rate_to
+        );
+        return $this->respond(
+            [
+                'rate_calendar_list' =>
+                    $rate_calendar_list == null
+                        ? []
+                        : $rate_calendar_list,
+            ],
+            200
+        );
+    }
     /**
      * Update a model resource
      * PUT/baseratesettings/update

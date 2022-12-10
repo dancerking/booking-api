@@ -51,7 +51,7 @@ class GuestTypeModel extends Model
     public function get_guest_types($record_status)
     {
         $query = $this->db->query(
-            'SELECT guest_type_code, guest_type_name, guest_type_lang
+            'SELECT guest_type_name, guest_type_lang
         FROM guest_types
         WHERE guest_type_status = ' . $record_status
         );

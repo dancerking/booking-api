@@ -18,14 +18,23 @@ class Photo extends APIBaseController
     use ResponseTrait;
     public function index()
     {
-        $photos = new PhotoContentModel();
+        /* Import config variable */
+        $config = config('Config\App');
+
+        /* Load Model */
+        $photo_content_model = new PhotoContentModel();
+
+        /* Getting host id */
         $host_id = $this->get_host_id();
+
         /* Getting photo for level1, level2 from PhotoContentModel */
-        $L1_type_photos = $photos->get_level1_photo(
-            $host_id
+        $L1_type_photos = $photo_content_model->get_level1_photo(
+            $host_id,
+            $config->LIMIT_FOR_L1_TYPE_PHOTO
         );
-        $L2_type_photos = $photos->get_level2_photo(
-            $host_id
+        $L2_type_photos = $photo_content_model->get_level2_photo(
+            $host_id,
+            $config->LIMIT_FOR_L2_TYPE_PHOTO
         );
 
         return $this->respond(
@@ -95,7 +104,6 @@ class Photo extends APIBaseController
             'content_caption'
         );
         $img_url = $this->request->getVar('img_url');
-
         /* Validation for data format */
         if (
             $photo_content_level < 1 ||
@@ -477,6 +485,11 @@ class Photo extends APIBaseController
             $custom_photo1 = $config->CUSTOM_PHOTO1;
             $custom_photo2 = $config->CUSTOM_PHOTO2;
 
+            // Getting Image file size
+            $source_image_size = round(
+                filesize($complete_save_loc) / 1024 / 1024,
+                1
+            );
             // Image fitting(cropping image from center)
             \Config\Services::image()
                 ->withFile($complete_save_loc)
@@ -486,7 +499,10 @@ class Photo extends APIBaseController
                     'center'
                 )
                 ->save(
-                    $my_save_dir . '1_' . $suffix_filename
+                    $my_save_dir . '1_' . $suffix_filename,
+                    $source_image_size > 1
+                        ? $config->COMPRESSION_RATIO
+                        : 90
                 );
 
             \Config\Services::image()
@@ -497,7 +513,10 @@ class Photo extends APIBaseController
                     'center'
                 )
                 ->save(
-                    $my_save_dir . '2_' . $suffix_filename
+                    $my_save_dir . '2_' . $suffix_filename,
+                    $source_image_size > 1
+                        ? $config->COMPRESSION_RATIO
+                        : 90
                 );
 
             return [

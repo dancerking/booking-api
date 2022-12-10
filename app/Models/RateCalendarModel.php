@@ -54,6 +54,43 @@ class RateCalendarModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
+    public function get_list_for_specified_range(
+        $host_id,
+        $daily_rate_code,
+        $daily_rate_type,
+        $daily_rate_from,
+        $daily_rate_to
+    ) {
+        $query = $this->db->query(
+            'SELECT
+            daily_rate_code,
+            daily_rate_type,
+            daily_rate_day,
+            daily_rate_baserate,
+            daily_rate_guesttype_1,
+            daily_rate_guesttype_2,
+            daily_rate_guesttype_3,
+            daily_rate_guesttype_4,
+            daily_rate_minstay,
+            daily_rate_maxstay
+        FROM
+            rates_calendar
+        WHERE
+            daily_rate_code = ' .
+                $daily_rate_code .
+                ' AND rate_calendar_host_id = ' .
+                $host_id .
+                ' AND daily_rate_type = "' .
+                $daily_rate_type .
+                '" AND daily_rate_day >= "' .
+                $daily_rate_from .
+                '" AND daily_rate_day <= "' .
+                $daily_rate_to .
+                '" GROUP BY daily_rate_day'
+        );
+        $results = $query->getResult();
+        return $results;
+    }
     public function multi_query_execute($multi_query)
     {
         if ($multi_query != null) {

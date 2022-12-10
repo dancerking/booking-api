@@ -4,27 +4,28 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class HostLangModel extends Model
+class TriggerCronModel extends Model
 {
     protected $DBGroup = 'default';
-    protected $table = 'host_lang';
-    protected $primaryKey = 'host_lang_id';
+    protected $table = 'trigger_cron';
+    protected $primaryKey = 'trigger_id';
     protected $useAutoIncrement = true;
     protected $insertID = 0;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        'host_lang_id',
-        'host_id',
-        'host_lang_code',
-        'host_lang_name',
-        'host_lang_subtitle',
-        'host_short_description',
-        'host_lang_long_description',
-        'host_lang_booking_rules',
-        'host_lang_property_rules',
-        'host_lang_arrival_information',
+        'trigger_id',
+        'trigger_task',
+        'trigger_date',
+        'trigger_update',
+        'trigger_property_id',
+        'trigger_type_code',
+        'trigger_done',
+        'trigger_errors',
+        'trigger_mail_customer',
+        'trigger_mail_admin',
+        'trigger_mail_content',
     ];
 
     // Dates

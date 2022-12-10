@@ -4,27 +4,24 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class HostLangModel extends Model
+class CityModel extends Model
 {
     protected $DBGroup = 'default';
-    protected $table = 'host_lang';
-    protected $primaryKey = 'host_lang_id';
+    protected $table = 'cities';
+    protected $primaryKey = 'city_code';
     protected $useAutoIncrement = true;
     protected $insertID = 0;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
     protected $allowedFields = [
-        'host_lang_id',
-        'host_id',
-        'host_lang_code',
-        'host_lang_name',
-        'host_lang_subtitle',
-        'host_short_description',
-        'host_lang_long_description',
-        'host_lang_booking_rules',
-        'host_lang_property_rules',
-        'host_lang_arrival_information',
+        'city_code',
+        'city_name',
+        'city_province',
+        'city_pr_from',
+        'city_pr_to',
+        'city_region',
+        'city_postal_code',
     ];
 
     // Dates
@@ -50,23 +47,4 @@ class HostLangModel extends Model
     protected $afterFind = [];
     protected $beforeDelete = [];
     protected $afterDelete = [];
-
-    public function multi_query_execute($multi_query)
-    {
-        if ($multi_query != null) {
-            $this->db->transStart();
-            foreach ($multi_query as $single_query) {
-                $this->db->query($single_query);
-            }
-            $this->db->transComplete();
-            if ($this->db->transStatus() === false) {
-                $this->db->transRollback();
-                return false;
-            } else {
-                $this->db->transCommit();
-                return true;
-            }
-        }
-        return false;
-    }
 }
