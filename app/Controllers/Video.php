@@ -138,26 +138,7 @@ class Video extends APIBaseController
                 'video'
             );
         }
-        // Check if duplicated
-        if (
-            $video_content_model
-                ->where([
-                    'video_content_host_id' => $host_id,
-                    'video_content_level' => $video_content_level,
-                    'video_content_channel' => $video_content_channel,
-                    'video_content_connection' => $video_content_connection,
-                    'video_content_code' => $video_content_code,
-                ])
-                ->findAll() != null
-        ) {
-            return $this->notifyError(
-                'Duplication error',
-                'duplicate',
-                'video'
-            );
-        }
-
-        // Insert data
+        /* Insert data */
         $data = [
             'video_content_host_id' => $host_id,
             'video_content_level' => $video_content_level,
@@ -187,6 +168,29 @@ class Video extends APIBaseController
             return $this->notifyError(
                 'Out of video number limit',
                 'overflow',
+                'video'
+            );
+        }
+        // Check if duplicated
+        if (
+            $video_content_model
+                ->where([
+                    'video_content_host_id' =>
+                        $data['video_content_host_id'],
+                    'video_content_level' =>
+                        $data['video_content_level'],
+                    'video_content_channel' =>
+                        $data['video_content_channel'],
+                    'video_content_connection' =>
+                        $data['video_content_connection'],
+                    'video_content_code' =>
+                        $data['video_content_code'],
+                ])
+                ->findAll() != null
+        ) {
+            return $this->notifyError(
+                'Duplication error',
+                'duplicate',
                 'video'
             );
         }
