@@ -39,7 +39,6 @@ class Host extends APIBaseController
             !$this->validate([
                 'host_status' =>
                     'required|regex_match[/[01234]/]',
-                'host_region_residence' => 'required',
             ])
         ) {
             $errors = $this->validator->getErrors();
@@ -63,15 +62,30 @@ class Host extends APIBaseController
         );
 
         /* Getting data from db*/
-        $host_list = $host_model
-            ->select(
-                'host_id, host_referral_lang AS host_lang_name, host_company_name, host_city_residence, host_region_residence, host_referral_phone, host_referral_email, host_status'
-            )
-            ->where([
-                'host_status' => $host_status,
-                'host_region_residence' => $host_region_residence,
-            ])
-            ->findAll();
+        if (
+            $host_region_residence == null ||
+            $host_region_residence == ''
+        ) {
+            $host_list = $host_model
+                ->select(
+                    'host_id, host_referral_lang AS host_lang_name, host_company_name, host_city_residence, host_region_residence, host_referral_phone, host_referral_email, host_status'
+                )
+                ->where([
+                    'host_status' => $host_status,
+                ])
+                ->findAll();
+        } else {
+            $host_list = $host_model
+                ->select(
+                    'host_id, host_referral_lang AS host_lang_name, host_company_name, host_city_residence, host_region_residence, host_referral_phone, host_referral_email, host_status'
+                )
+                ->where([
+                    'host_status' => $host_status,
+                    'host_region_residence' => $host_region_residence,
+                ])
+                ->findAll();
+        }
+
         return parent::respond([
             'host_list' =>
                 $host_list == null ? [] : $host_list,
@@ -241,7 +255,6 @@ class Host extends APIBaseController
         $hosts_agreement = $this->request->getVar(
             'hosts_agreement'
         );
-
         /* Validation */
         if ($user_level != $config->USER_LEVELS['admin']) {
             $main_host_id = $this->get_host_id();
@@ -400,7 +413,17 @@ class Host extends APIBaseController
                 $agreement_data
             );
         }
-
+        if (
+            !$host_model->update($host_id, [
+                'host_status' => 1,
+            ])
+        ) {
+            return $this->notifyError(
+                'Failed status update',
+                'failed_update',
+                'host'
+            );
+        }
         return parent::respond([
             'message' => 'Successfully updated.',
         ]);
@@ -614,7 +637,17 @@ class Host extends APIBaseController
                 'host'
             );
         }
-
+        if (
+            !$host_model->update($host_id, [
+                'host_status' => 1,
+            ])
+        ) {
+            return $this->notifyError(
+                'Failed status update',
+                'failed_update',
+                'host'
+            );
+        }
         return parent::respond([
             'message' => 'Successfully updated.',
         ]);
