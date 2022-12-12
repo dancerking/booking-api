@@ -199,18 +199,22 @@ $routes->get(
     'Host::mapped_property_types',
     ['filter' => 'auth']
 );
-// mapped types
-$routes->get('host/types', 'Host::mapped_types', [
-    'filter' => 'auth',
-]);
 $routes->put(
-    'host/types/update',
-    'Host::mapped_types_update',
+    'host/propertytypes/update',
+    'Host::mapped_property_types_update',
     [
         'filter' => 'auth',
     ]
 );
+// mapped types
+$routes->get('host/mappedtypes', 'Host::mapped_types', [
+    'filter' => 'auth',
+]);
 
+// main types
+$routes->get('host/types', 'Host::types', [
+    'filter' => 'auth',
+]);
 /* Stripe Route */
 $routes->get('stripe', 'Stripe::index', [
     'filter' => 'auth',
