@@ -96,7 +96,10 @@ class PropertyType extends APIBaseController
             ])
             ->findAll();
         $lang_content = $type_mapping_model
-            ->where('type_mapping_host_id', $host_id)
+            ->where([
+                'type_mapping_host_id' => $host_id,
+                'type_mapping_code' => $type_code,
+            ])
             ->findAll();
         return parent::respond(
             [
