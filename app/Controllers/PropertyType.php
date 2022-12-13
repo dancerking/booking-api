@@ -95,7 +95,9 @@ class PropertyType extends APIBaseController
                 'video_content_host_id' => $host_id,
             ])
             ->findAll();
-        $lang_content = $lang_model->findAll();
+        $lang_content = $type_mapping_model
+            ->where('type_mapping_host_id', $host_id)
+            ->findAll();
         return parent::respond(
             [
                 'photo_content' =>

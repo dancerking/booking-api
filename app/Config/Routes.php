@@ -206,10 +206,6 @@ $routes->put(
         'filter' => 'auth',
     ]
 );
-// mapped types
-$routes->get('host/mappedtypes', 'Host::mapped_types', [
-    'filter' => 'auth',
-]);
 
 // main types
 $routes->get('host/types', 'Host::types', [
