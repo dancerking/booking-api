@@ -129,10 +129,12 @@ class Login extends APIBaseController
         }
 
         $key = getenv('TOKEN_SECRET');
+        $iat = time(); // current timestamp value
+        $exp = $iat + $config->EXPIRATION_PERIOD;
 
         $payload = [
-            'iat' => 1356999524,
-            'nbf' => 1357000000,
+            'iat' => $iat,
+            'exp' => $exp, //Expire the JWT after 30 days from now
             'username' => $this->request->getVar(
                 'username'
             ),
@@ -147,7 +149,6 @@ class Login extends APIBaseController
                     ? $api_admin['api_admin_id']
                     : 0,
             'user_level' => $config->USER_LEVEL,
-            'exp' => time() + $config->EXPIRATION_PERIOD, //Expire the JWT after 30 days from now
         ];
 
         $token = JWT::encode($payload, $key, 'HS256');
