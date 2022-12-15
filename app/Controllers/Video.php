@@ -27,12 +27,10 @@ class Video extends APIBaseController
 
         /* Getting video for level1, level2 from VideoContentModel */
         $L1_type_videos = $videos->get_level1_video(
-            $host_id,
-            $config->LIMIT_FOR_L1_TYPE_video
+            $host_id
         );
         $L2_type_videos = $videos->get_level2_video(
-            $host_id,
-            $config->LIMIT_FOR_L2_TYPE_video
+            $host_id
         );
 
         return parent::respond(
@@ -140,15 +138,53 @@ class Video extends APIBaseController
                 'video'
             );
         }
+        /* Insert data */
+        $data = [
+            'video_content_host_id' => $host_id,
+            'video_content_level' => $video_content_level,
+            'video_content_channel' => $video_content_channel,
+            'video_content_connection' => $video_content_connection,
+            'video_content_code' => $video_content_code,
+            'video_content_order' => $video_order,
+            'video_content_status' => 1,
+        ];
+        // limit function
+        $level_video_number = $video_content_model
+            ->where([
+                'video_content_host_id' =>
+                    $data['video_content_host_id'],
+                'video_content_level' =>
+                    $data['video_content_level'],
+            ])
+            ->countAllResults();
+        if (
+            ($data['video_content_level'] == 1 &&
+                $level_video_number >
+                    $config->LIMIT_FOR_L1_TYPE_VIDEO) ||
+            ($data['video_content_level'] == 2 &&
+                $level_video_number >
+                    $config->LIMIT_FOR_L2_TYPE_VIDEO)
+        ) {
+            return $this->notifyError(
+                'Out of video number limit',
+                'overflow',
+                'video'
+            );
+        }
         // Check if duplicated
         if (
             $video_content_model
                 ->where([
-                    'video_content_host_id' => $host_id,
-                    'video_content_level' => $video_content_level,
-                    'video_content_channel' => $video_content_channel,
-                    'video_content_connection' => $video_content_connection,
-                    'video_content_code' => $video_content_code,
+                    'video_content_host_id' =>
+                        $data['video_content_host_id'],
+                    'video_content_level' =>
+                        $data['video_content_level'],
+                    'video_content_channel' =>
+                        $data['video_content_channel'],
+                    'video_content_connection' =>
+                        $data['video_content_connection'],
+                    'video_content_code' =>
+                        $data['video_content_code'],
                 ])
                 ->findAll() != null
         ) {
@@ -158,18 +194,7 @@ class Video extends APIBaseController
                 'video'
             );
         }
-
-        // Insert data
-        $data = [
-            'video_content_host_id' => $host_id,
-            'video_content_level' => $video_content_level,
-            'video_content_channel' => $video_content_channel,
-            'video_content_connection' => $video_content_connection,
-            'video_content_code' => $video_content_code,
-            'photo_content_order' => $video_order,
-            'video_content_status' => 1,
-        ];
-
+        // insert
         $new_id = $video_content_model->insert($data);
         if ($new_id) {
             // Insert Caption Info into content_captions table
@@ -207,7 +232,7 @@ class Video extends APIBaseController
                             return $this->notifyError(
                                 'Failed content caption data insert',
                                 'failed_create',
-                                'photo'
+                                'video'
                             );
                         }
                     }

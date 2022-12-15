@@ -39,7 +39,6 @@ class Host extends APIBaseController
             !$this->validate([
                 'host_status' =>
                     'required|regex_match[/[01234]/]',
-                'host_region_residence' => 'required',
             ])
         ) {
             $errors = $this->validator->getErrors();
@@ -63,15 +62,30 @@ class Host extends APIBaseController
         );
 
         /* Getting data from db*/
-        $host_list = $host_model
-            ->select(
-                'host_id, host_referral_lang AS host_lang_name, host_company_name, host_city_residence, host_region_residence, host_referral_phone, host_referral_email, host_status'
-            )
-            ->where([
-                'host_status' => $host_status,
-                'host_region_residence' => $host_region_residence,
-            ])
-            ->findAll();
+        if (
+            $host_region_residence == null ||
+            $host_region_residence == ''
+        ) {
+            $host_list = $host_model
+                ->select(
+                    'host_id, host_referral_lang AS host_lang_name, host_company_name, host_city_residence, host_region_residence, host_referral_phone, host_referral_email, host_status'
+                )
+                ->where([
+                    'host_status' => $host_status,
+                ])
+                ->findAll();
+        } else {
+            $host_list = $host_model
+                ->select(
+                    'host_id, host_referral_lang AS host_lang_name, host_company_name, host_city_residence, host_region_residence, host_referral_phone, host_referral_email, host_status'
+                )
+                ->where([
+                    'host_status' => $host_status,
+                    'host_region_residence' => $host_region_residence,
+                ])
+                ->findAll();
+        }
+
         return parent::respond([
             'host_list' =>
                 $host_list == null ? [] : $host_list,
@@ -241,7 +255,6 @@ class Host extends APIBaseController
         $hosts_agreement = $this->request->getVar(
             'hosts_agreement'
         );
-
         /* Validation */
         if ($user_level != $config->USER_LEVELS['admin']) {
             $main_host_id = $this->get_host_id();
@@ -400,7 +413,17 @@ class Host extends APIBaseController
                 $agreement_data
             );
         }
-
+        if (
+            !$host_model->update($host_id, [
+                'host_status' => 1,
+            ])
+        ) {
+            return $this->notifyError(
+                'Failed status update',
+                'failed_update',
+                'host'
+            );
+        }
         return parent::respond([
             'message' => 'Successfully updated.',
         ]);
@@ -614,7 +637,17 @@ class Host extends APIBaseController
                 'host'
             );
         }
-
+        if (
+            !$host_model->update($host_id, [
+                'host_status' => 1,
+            ])
+        ) {
+            return $this->notifyError(
+                'Failed status update',
+                'failed_update',
+                'host'
+            );
+        }
         return parent::respond([
             'message' => 'Successfully updated.',
         ]);
@@ -1055,77 +1088,11 @@ class Host extends APIBaseController
     }
 
     /**
-     * Return an array of mapped type
-     * GET/host/types
-     * @return mixed
-     */
-    public function mapped_types()
-    {
-        $config = config('Config\App');
-        // Getting user level from JWT token
-        $user_level = $this->get_userlevel();
-
-        // Load necessary Model
-        $host_model = new HostModel();
-        $type_mapping_model = new TypeMappingModel();
-
-        /* Validate */
-        if (
-            !$this->validate([
-                'host_id' => 'required|integer',
-                'status' =>
-                    'required|regex_match[/[01234]/]',
-            ])
-        ) {
-            $errors = $this->validator->getErrors();
-            $error_string = '';
-            foreach ($errors as $key => $value) {
-                $error_string .= $value . ' ';
-            }
-            return $this->notifyError(
-                $error_string,
-                'invalid_data',
-                'host'
-            );
-        }
-
-        /* Getting request data */
-        $host_id = $this->request->getVar('host_id');
-        $status = $this->request->getVar('status');
-        if ($user_level != $config->USER_LEVELS['admin']) {
-            $main_host_id = $this->get_host_id();
-            if ($host_id != $main_host_id) {
-                return $this->notifyError(
-                    'host_id should be ' . $main_host_id,
-                    'invalid_data',
-                    'host'
-                );
-            }
-        }
-        if ($host_model->find($host_id) == null) {
-            return $this->notifyError(
-                'No Such Id',
-                'notFound',
-                'host'
-            );
-        }
-        /* Getting data from db*/
-        $mapped_types = $type_mapping_model->get_mapped_types(
-            $host_id,
-            $status
-        );
-        return parent::respond([
-            'mapped_types' =>
-                $mapped_types == null ? [] : $mapped_types,
-        ]);
-    }
-
-    /**
      * Update
      * PUT/host/types/update
      * @return mixed
      */
-    public function mapped_types_update()
+    public function mapped_property_types_update()
     {
         $config = config('Config\App');
         // Getting user level from JWT token
@@ -1303,6 +1270,52 @@ class Host extends APIBaseController
                 ($mapping_id == null
                     ? 'created'
                     : 'updated'),
+        ]);
+    }
+    /**
+     * Return an array of main type
+     * GET/host/types
+     * @return mixed
+     */
+    public function types()
+    {
+        $config = config('Config\App');
+
+        // Load necessary Model
+        $host_model = new HostModel();
+        $main_type_model = new TypeMainModel();
+
+        /* Validate */
+        if (
+            !$this->validate([
+                'status' =>
+                    'required|regex_match[/[01234]/]',
+            ])
+        ) {
+            $errors = $this->validator->getErrors();
+            $error_string = '';
+            foreach ($errors as $key => $value) {
+                $error_string .= $value . ' ';
+            }
+            return $this->notifyError(
+                $error_string,
+                'invalid_data',
+                'host'
+            );
+        }
+
+        /* Getting request data */
+        $status = $this->request->getVar('status');
+        /* Getting data from db*/
+        $main_types = $main_type_model
+            ->where([
+                'main_type_status' => $status,
+                'main_type_lang' => 'it',
+            ])
+            ->findAll();
+        return parent::respond([
+            'main_types' =>
+                $main_types == null ? [] : $main_types,
         ]);
     }
 }

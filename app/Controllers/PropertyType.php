@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\APIBaseController;
 use App\Models\HostModel;
+use App\Models\LanguageModel;
 use App\Models\PhotoContentModel;
 use App\Models\TypeMappingModel;
 use App\Models\VideoContentModel;
@@ -26,6 +27,7 @@ class PropertyType extends APIBaseController
         $photo_content_model = new PhotoContentModel();
         $video_content_model = new VideoContentModel();
         $type_mapping_model = new TypeMappingModel();
+        $lang_model = new LanguageModel();
         $host_model = new HostModel();
 
         /* Validate */
@@ -93,6 +95,12 @@ class PropertyType extends APIBaseController
                 'video_content_host_id' => $host_id,
             ])
             ->findAll();
+        $lang_content = $type_mapping_model
+            ->where([
+                'type_mapping_host_id' => $host_id,
+                'type_mapping_code' => $type_code,
+            ])
+            ->findAll();
         return parent::respond(
             [
                 'photo_content' =>
@@ -103,6 +111,10 @@ class PropertyType extends APIBaseController
                     $video_content == null
                         ? []
                         : $video_content,
+                'lang_content' =>
+                    $lang_content == null
+                        ? []
+                        : $lang_content,
             ],
             200
         );

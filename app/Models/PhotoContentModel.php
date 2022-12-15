@@ -50,16 +50,13 @@ class PhotoContentModel extends Model
     protected $beforeDelete = [];
     protected $afterDelete = [];
 
-    public function get_level1_photo($host_id, $limit)
+    public function get_level1_photo($host_id)
     {
         $query = $this->db->query(
             'SELECT photo_content_id, photo_content_url, photo_content_status
         FROM photo_contents
         WHERE photo_content_level = 1 AND  photo_content_host_id = ' .
-                $host_id .
-                ' ORDER BY photo_content_order ASC' .
-                ' LIMIT ' .
-                $limit
+                $host_id
         );
         $results = $query->getResult();
         foreach ($results as &$result) {
@@ -82,16 +79,13 @@ class PhotoContentModel extends Model
         return $results;
     }
 
-    public function get_level2_photo($host_id, $limit)
+    public function get_level2_photo($host_id)
     {
         $query = $this->db->query(
             'SELECT photo_content_id, photo_content_connection, photo_content_url, photo_content_status
         FROM photo_contents
         WHERE photo_content_level = "2" AND photo_content_host_id = ' .
-                $host_id .
-                ' ORDER BY photo_content_order ASC' .
-                ' LIMIT ' .
-                $limit
+                $host_id
         );
         $results = $query->getResult();
         foreach ($results as &$result) {

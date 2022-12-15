@@ -201,6 +201,9 @@ class Register extends APIBaseController
                 'Y-m-d H:i:s'
             ),
             'host_status' => 0,
+            'host_username_security' => $this->request->getVar(
+                'host_referral_email'
+            ),
         ];
         $host_model = new HostModel();
         $new_id = $host_model->insert($data);

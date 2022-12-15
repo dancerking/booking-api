@@ -29,12 +29,10 @@ class Photo extends APIBaseController
 
         /* Getting photo for level1, level2 from PhotoContentModel */
         $L1_type_photos = $photo_content_model->get_level1_photo(
-            $host_id,
-            $config->LIMIT_FOR_L1_TYPE_PHOTO
+            $host_id
         );
         $L2_type_photos = $photo_content_model->get_level2_photo(
-            $host_id,
-            $config->LIMIT_FOR_L2_TYPE_PHOTO
+            $host_id
         );
 
         return parent::respond(
@@ -172,7 +170,30 @@ class Photo extends APIBaseController
             'photo_content_order' => $photo_content_order,
             'photo_content_status' => 0,
         ];
-
+        // limit function
+        $level_photo_number = $photo_content_model
+            ->where([
+                'photo_content_host_id' =>
+                    $data['photo_content_host_id'],
+                'photo_content_level' =>
+                    $data['photo_content_level'],
+            ])
+            ->countAllResults();
+        if (
+            ($data['photo_content_level'] == 1 &&
+                $level_photo_number >
+                    $config->LIMIT_FOR_L1_TYPE_PHOTO) ||
+            ($data['photo_content_level'] == 2 &&
+                $level_photo_number >
+                    $config->LIMIT_FOR_L2_TYPE_PHOTO)
+        ) {
+            return $this->notifyError(
+                'Out of photo number limit',
+                'overflow',
+                'photo'
+            );
+        }
+        // insert
         $new_id = $photo_content_model->insert($data);
         if ($new_id) {
             // Check if image size validates

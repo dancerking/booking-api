@@ -87,8 +87,9 @@ class APIBaseController extends ResourceController
             'log_response' => json_encode($data),
             'log_error' => $status == 400,
             'log_http_response' =>
-                $this->response->getStatusCode() .
+                $status .
                 ', ' .
+                ($message != '' ? $message . ', ' : '') .
                 $this->response->getReasonPhrase(),
         ]);
         return parent::respond($data, $status, $message);
