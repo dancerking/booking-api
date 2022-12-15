@@ -56,4 +56,26 @@ abstract class BaseController extends Controller
 
         // E.g.: $this->session = \Config\Services::session();
     }
+
+    protected function setCookie(
+        $name,
+        $value,
+        $time = '',
+        $params = []
+    ) {
+        if (empty($params)) {
+            $config = config('App');
+
+            $params = [
+                'expires' => $time,
+                'path' => $config->cookiePath,
+                'domain' => $config->cookieDomain,
+                'secure' => $config->cookieSecure,
+                'httponly' => $config->cookieHTTPOnly,
+                'samesite' => $config->cookieSameSite,
+            ];
+        }
+
+        setcookie($name, $value, $params);
+    }
 }
