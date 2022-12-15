@@ -12,7 +12,7 @@
         <p class="login-box-msg">Sign in to start your session</p>
 
         <form action="<?= base_url(
-            'AuthController/login'
+            '/login'
         ) ?>" method="post">
           <div class="input-group mb-3">
             <input type="text" name="input" class="form-control" placeholder="Email / Username">

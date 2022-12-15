@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
+use CodeIgniter\Config\Services;
 use CodeIgniter\I18n\Time;
+use Exception;
 
 /**
  * ------------------------------
@@ -159,68 +161,54 @@ class AuthController extends TamhorAuth
         }
     }
 
+    public function index()
+    {
+        return view('auth/login');
+    }
+
     public function login()
     {
         $input = $this->request->getVar('input');
         $password = $this->request->getVar('password');
-        $data = $this->users
-            ->where('email', $input)
-            ->orWhere('username', $input)
-            ->first();
 
-        if ($data != null) {
-            $pass = $data['password'];
-            $verify_pass = password_verify(
-                $password,
-                $pass
-            );
+        try {
+            $data = [
+                'username' => $input,
+                'password' => $password,
+            ];
+            $client = Services::curlrequest([
+                'baseURI' => getenv('API_BASE_URL'),
+                'http_errors' => false,
+            ]);
+            $response = $client->post('login', [
+                'json' => $data,
+            ]);
 
-            if ($verify_pass) {
-                if ($data['is_active'] == 0) {
-                    $message =
-                        'Please activate the account ' .
-                        anchor(
-                            'activate/' .
-                                $data['activate_token'],
-                            'Activate Now',
-                            ''
-                        );
-                    $this->session->setFlashdata(
-                        'msg',
-                        $this->errors(
-                            'Your account not verified.<br/>Check your email to activate your account.',
-                            'Your activation link is automatically resend to your email'
-                        )
-                    );
-                    $this->sendEmail(
-                        $data['email'],
-                        'Activate the account',
-                        $message
-                    );
-                    return redirect()->to('/login');
-                } else {
-                    $sess_data = [
-                        'id' => $data['id'],
-                        'email' => $data['email'],
-                        'username' => $data['username'],
-                        'logged_in' => true,
-                    ];
-                    $this->session->set($sess_data);
-                    return redirect()->to('/');
-                }
-            } else {
+            $body = json_decode($response->getBody());
+
+            if (isset($body->error) && $body->error == 1) {
                 $this->session->setFlashdata(
                     'msg',
-                    $this->errors('Wrong Password')
+                    $this->errors($body->message)
                 );
-                return redirect()->to('/login');
+                return redirect()->to(base_url('login'));
             }
-        } else {
+
+            $config = config('App');
+
+            $this->setCookie(
+                'jwt',
+                $body->jwtToken,
+                time() + $config->sessionExpiration
+            );
+
+            return redirect()->to(base_url('/'));
+        } catch (Exception $e) {
             $this->session->setFlashdata(
                 'msg',
-                $this->errors('Email / Username not Found')
+                $this->errors($e->message)
             );
-            return redirect()->to('/login');
+            return redirect()->to(base_url('login'));
         }
     }
 
@@ -228,7 +216,8 @@ class AuthController extends TamhorAuth
     {
         $this->session->destroy();
         $this->session->setFlashdata('msg', 'Your logout');
-        return redirect()->to('/login');
+        $this->setCookie('jwt', null);
+        return redirect()->to(base_url('/login'));
     }
 
     public function forgot_password()

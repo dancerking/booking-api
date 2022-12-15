@@ -12,12 +12,11 @@ namespace App\Controllers;
  *
  */
 
-use CodeIgniter\Controller;
 use App\Models\UserModel;
 use App\Models\ActivationModel;
 use App\Models\ResetpassModel;
 
-class TamhorAuth extends Controller
+class TamhorAuth extends BaseController
 {
     protected $helpers = ['form', 'text'];
 
